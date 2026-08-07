@@ -13,4 +13,5 @@
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/swiper.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/manifiesto.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/equipo.css') }}" />
 </head>

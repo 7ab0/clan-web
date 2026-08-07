@@ -238,6 +238,90 @@
             </script>
             <!-- End Manifiesto -->
 
+            <!-- Start Equipo -->
+            <section class="equipo-section" id="equipo">
+                <div class="ak-height-150 ak-height-lg-60"></div>
+                <div class="container">
+
+                    <div class="equipo-intro">
+                        <p class="equipo-eyebrow manifiesto-reveal">Equipo</p>
+                        <h2 class="equipo-title anim-title">Quiénes Somos</h2>
+                    </div>
+
+                    <div class="ak-height-65 ak-height-lg-30"></div>
+
+                    <div class="equipo-mosaic manifiesto-reveal">
+                        <img class="em-1" src="{{ asset('assets/img/clan-equipo-04.jpg') }}" alt="Equipo CLAN en cocina">
+                        <img class="em-2" src="{{ asset('assets/img/clan-equipo-01.jpg') }}" alt="Emplatado CLAN">
+                        <img class="em-3" src="{{ asset('assets/img/clan-equipo-06.jpg') }}" alt="Investigación de insumos CLAN">
+                        <img class="em-4" src="{{ asset('assets/img/clan-equipo-02.jpg') }}" alt="Precisión en cocina CLAN">
+                        <img class="em-5" src="{{ asset('assets/img/clan-equipo-03.jpg') }}" alt="Retrato equipo CLAN">
+                        <img class="em-6" src="{{ asset('assets/img/clan-equipo-05.jpg') }}" alt="Equipo CLAN al pie del fogón">
+                    </div>
+
+                    <div class="ak-height-100 ak-height-lg-60"></div>
+
+                    <div class="equipo-grid">
+                        <div class="equipo-card manifiesto-reveal">
+                            <span class="equipo-card-role">El Cheft</span>
+                            <h3 class="equipo-card-name">Mauricio Mello</h3>
+                            <p class="equipo-card-bio">
+                                Director creativo, investigador y narrador. Nació en Brasil y
+                                estudió Teología antes de dedicarse a la cocina. Se formó en Perú,
+                                donde trabajó en Sukha Asian Bar y Shimaya, fundó el colectivo
+                                Clandestino y publicó el libro <em>Al pie del fogón</em>.
+                            </p>
+                        </div>
+                        <div class="equipo-card manifiesto-reveal">
+                            <span class="equipo-card-role">Soulcheft</span>
+                            <h3 class="equipo-card-name">Blanco</h3>
+                            <p class="equipo-card-bio">
+                                Representa el alma del proyecto. Mantiene vivo el espíritu del
+                                equipo.
+                            </p>
+                        </div>
+                        <div class="equipo-card manifiesto-reveal">
+                            <span class="equipo-card-role">Sommelier</span>
+                            <h3 class="equipo-card-name">Chopper</h3>
+                            <p class="equipo-card-bio">
+                                Construye el puente entre las bebidas y la narrativa gastronómica.
+                            </p>
+                        </div>
+                        <div class="equipo-card manifiesto-reveal">
+                            <span class="equipo-card-role">Jefe de Cocina</span>
+                            <h3 class="equipo-card-name">Hernán</h3>
+                            <p class="equipo-card-bio">
+                                Convierte la investigación en ejecución diaria.
+                            </p>
+                        </div>
+                        <div class="equipo-card manifiesto-reveal">
+                            <span class="equipo-card-role">Jefe de Producción</span>
+                            <h3 class="equipo-card-name">Lionel</h3>
+                            <p class="equipo-card-bio">
+                                Hace posible que las ideas se conviertan en experiencias reales.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="ak-height-150 ak-height-lg-60"></div>
+            </section>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+                    gsap.utils.toArray('#equipo .manifiesto-reveal').forEach(function (el) {
+                        gsap.fromTo(el,
+                            { autoAlpha: 0, y: 30 },
+                            {
+                                autoAlpha: 1, y: 0, duration: 1, ease: 'power2.out',
+                                scrollTrigger: { trigger: el, start: 'top 88%' }
+                            }
+                        );
+                    });
+                });
+            </script>
+            <!-- End Equipo -->
+
             <!-- Start Gallery -->
             <div class="ak-height-150 ak-height-lg-60"></div>
             <section class="container" id="foodItems">
