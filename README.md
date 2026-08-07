@@ -44,16 +44,27 @@ php artisan key:generate
 touch database/database.sqlite   # si no existe ya
 php artisan migrate
 
-# Levantar el sitio
+# Levantar el sitio (ver nota de Windows abajo)
+herd link clan-web
+# o, en Mac/Linux, o si no usas Herd:
 php artisan serve
-# o abrir el proyecto con Herd (herd link / detección automática)
 
 # Compilar assets (Vite)
 npm run dev      # desarrollo con hot reload
 npm run build    # build de producción
 ```
 
-El sitio queda disponible en `http://127.0.0.1:8000` (o el dominio que asigne Herd).
+El sitio queda disponible en `http://clan-web.test` (Herd) o `http://127.0.0.1:8000`
+(`php artisan serve`), según el método usado.
+
+> **Nota (Windows):** en este entorno, `php artisan serve` falla con
+> `Failed to listen on 127.0.0.1:8000 (reason: ?)`. La causa es un bug conocido de
+> `Illuminate\Foundation\Console\ServeCommand`: filtra las variables de entorno del
+> proceso hijo comparando nombres exactos como `PATH`/`SYSTEMROOT`, pero en Windows
+> esas variables se llaman `Path`/`SystemRoot` (case distinto), así que terminan
+> eliminadas del proceso hijo y el bind del socket falla. Usar `herd link` (o
+> `php -S 127.0.0.1:8000 -t public public/index.php` como alternativa manual) evita
+> el problema por completo.
 
 ### Base de datos local
 
