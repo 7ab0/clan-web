@@ -12,7 +12,7 @@
                                     <path d="M28.991 12.2063L14.8322 1L0.67334 12.2063" stroke="white" stroke-linecap="round" />
                                 </svg>
                             </div>
-                            <img src="{{ asset('assets/img/Elegencia.png') }}" alt="...">
+                            <img src="{{ asset('assets/img/clan-logo.svg') }}" alt="CLAN Cocina de Autor">
                         </div>
                     </div>
                     <div class="ak-height-100 ak-height-lg-60"></div>

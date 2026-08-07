@@ -6,7 +6,7 @@
                     <a href="{{ route('reservations') }}" class="logo">Reservation</a>
                 </div>
                 <div class="center-log">
-                    <a href="{{ route('index') }}"><img src="{{ asset('assets/img/logo.png') }}" alt="..."></a>
+                    <a href="{{ route('index') }}"><img src="{{ asset('assets/img/clan-logo.svg') }}" alt="CLAN Cocina de Autor"></a>
                 </div>
                 <button class="ak-menu-toggle" id="akMenuToggle" type="button">
                     <svg viewBox="0 0 20 15" width="40px" height="30px" class="ak-menu-icon">
@@ -47,7 +47,7 @@
                 <div class="ak-main_header_in">
                     <div class="ak-main_header_left">
                         <a class="ak-site_branding" href="{{ route('index') }}">
-                            <img src="{{ asset('assets/img/logo.png') }}" alt="...">
+                            <img src="{{ asset('assets/img/clan-logo.svg') }}" alt="CLAN Cocina de Autor">
                         </a>
                     </div>
                     <div class="ak-main_header_right">

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="author" content="Clan" />
     <!-- Favicon Icon -->
-    <link rel="icon" href="{{ asset('assets/img/favicon.svg') }}" />
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon-libelula.png') }}" />
     <!-- Site Title -->
     <title>Clan</title>
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/bootstrap.min.css') }}" />
@@ -15,4 +15,5 @@
     <link rel="stylesheet" href="{{ asset('assets/css/manifiesto.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/equipo.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/carta.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/branding.css') }}" />
 </head>
