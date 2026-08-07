@@ -100,9 +100,29 @@ clan-web/
 ## Pendientes conocidos
 
 - Reescribir/adaptar la estructura de las vistas Blade a la identidad y contenidos reales de Clan.
-- Reemplazar las imágenes de ejemplo del template por fotografía/contenido propio de Clan.
 - Actualizar el `src` de los logos en `resources/views/components/footer.blade.php` y
   `resources/views/components/head.blade.php` / `header.blade.php` para apuntar a los
   logos de Clan ya copiados en `public/assets/img/` (`Logo Clan.png`, `Icono Clan.png`,
   `Clan Logo.svg`).
 - Conectar producción / definir hosting (no hecho todavía, deliberadamente).
+
+### Fotografía pendiente
+
+El único material fotográfico real de Clan disponible hasta ahora son 3 fotos
+(`_A7_7375.jpg`, `_A7_7416.jpg`, `Carta.jpg`), ya usadas como hero de home, hero de
+home2 y fondo de la sección Appetizers de `/menu` (ver `public/assets/img/clan-hero-*.jpg`
+y `clan-carta-raiz.jpg`). **No hay todavía fotografía de platos individuales**, así que
+los siguientes placeholders del template se dejaron intactos a propósito — están
+marcados con comentarios `TODO(Clan)` en el código correspondiente y **no deben
+reemplazarse con imágenes genéricas del template**, solo con fotografía real cuando
+esté disponible:
+
+- Íconos por plato en `/menu` (`item-show.png`, `item-show_2.png`, `item-show_3.png` —
+  se repiten ~30 veces en `resources/views/home/menu.blade.php`).
+- Fondos de las secciones Desserts y Bar Items en `/menu` (`bessertsMenuBg.png`,
+  `barMenuBg.png`).
+- Hero de home3 (`hero_bg_3.jpg`, variante de home no usada como ruta principal).
+- Banner compartido de todas las subpáginas (`banner_top_all.png`, en
+  `resources/views/components/hero.blade.php`).
+- Sección "Food Showcase" de home (`gallery_1.jpg` etc.) y las fotos de platos en
+  home2/portfolio (`food_item_1.jpg`–`food_item_5.jpg`).
