@@ -162,6 +162,82 @@
             </section>
             <!-- End Hero -->
 
+            <!-- Start Manifiesto -->
+            <section class="manifiesto-section" id="manifiesto">
+                <div class="ak-height-150 ak-height-lg-60"></div>
+                <div class="container">
+                    <div class="manifiesto-inner">
+
+                        <div class="manifiesto-intro">
+                            <p class="manifiesto-eyebrow manifiesto-reveal">Manifiesto</p>
+                            <h2 class="manifiesto-title anim-title">Hambre de Crear</h2>
+                            <hr class="manifiesto-rule manifiesto-reveal">
+                            <p class="manifiesto-lead manifiesto-reveal">
+                                CLAN no es únicamente un restaurante. Es un universo gastronómico y
+                                cultural construido alrededor del fuego como origen de la creación.
+                            </p>
+                            <p class="manifiesto-lead manifiesto-reveal">
+                                &laquo;Hambre de Crear&raquo; no habla del hambre de comer, sino del
+                                hambre de descubrir, aprender, investigar y transformar.
+                            </p>
+                        </div>
+
+                        <div class="ak-height-100 ak-height-lg-60"></div>
+
+                        <div class="manifiesto-columns">
+                            <div class="manifiesto-col">
+                                <span class="manifiesto-col-number">El Fuego</span>
+                                <h3 class="manifiesto-col-title anim-title-2">No es un símbolo de destrucción</h3>
+                                <p class="manifiesto-col-text manifiesto-reveal">
+                                    El verdadero protagonista de CLAN no es el chef. Es el fuego.
+                                </p>
+                                <p class="manifiesto-col-text manifiesto-reveal">
+                                    El fogón representa hogar, transmisión, aprendizaje, comunidad,
+                                    transformación. No es un símbolo de destrucción &mdash;
+                                    <em>es un símbolo de nacimiento.</em>
+                                </p>
+                            </div>
+                            <div class="manifiesto-divider"></div>
+                            <div class="manifiesto-col">
+                                <span class="manifiesto-col-number">La Narrativa</span>
+                                <h3 class="manifiesto-col-title anim-title-2">Una casa alrededor del fogón</h3>
+                                <p class="manifiesto-col-text manifiesto-reveal">
+                                    Humana, reflexiva, poética, directa, profundamente peruana.
+                                </p>
+                                <p class="manifiesto-col-text manifiesto-reveal">
+                                    CLAN no intenta parecer un laboratorio gastronómico &mdash; quiere
+                                    sentirse como <em>una casa donde el conocimiento se comparte
+                                    alrededor del fogón.</em>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="ak-height-100 ak-height-lg-60"></div>
+
+                        <p class="manifiesto-closing anim-title-2">
+                            Hambre de crear, no de comer.
+                        </p>
+
+                    </div>
+                </div>
+                <div class="ak-height-150 ak-height-lg-60"></div>
+            </section>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+                    gsap.utils.toArray('.manifiesto-reveal').forEach(function (el) {
+                        gsap.fromTo(el,
+                            { autoAlpha: 0, y: 30 },
+                            {
+                                autoAlpha: 1, y: 0, duration: 1, ease: 'power2.out',
+                                scrollTrigger: { trigger: el, start: 'top 88%' }
+                            }
+                        );
+                    });
+                });
+            </script>
+            <!-- End Manifiesto -->
+
             <!-- Start Gallery -->
             <div class="ak-height-150 ak-height-lg-60"></div>
             <section class="container" id="foodItems">

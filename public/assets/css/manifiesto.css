@@ -1,0 +1,180 @@
+/*--------------------------------------------------------------
+  Manifiesto — "Hambre de Crear"
+  Tipografia propia (Poppins) para separar visualmente esta seccion
+  del resto de la plantilla, en pesos contrastantes para jerarquia.
+----------------------------------------------------------------*/
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+.manifiesto-section {
+  position: relative;
+  background-color: var(--body-bg-color);
+  overflow: hidden;
+}
+
+.manifiesto-section::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  width: 1200px;
+  height: 1200px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(251, 177, 47, 0.08), rgba(251, 177, 47, 0) 70%);
+  pointer-events: none;
+}
+
+.manifiesto-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.manifiesto-intro {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.manifiesto-eyebrow {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #FBB12F;
+  margin: 0 0 22px;
+}
+
+.manifiesto-title {
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-size: clamp(40px, 6vw, 84px);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--common-color-white);
+  margin: 0 0 34px;
+  overflow: hidden;
+}
+
+.manifiesto-rule {
+  width: 64px;
+  height: 2px;
+  margin: 0 auto 34px;
+  background: #FBB12F;
+  border: 0;
+  opacity: 0.85;
+}
+
+.manifiesto-lead {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(19px, 2.4vw, 25px);
+  line-height: 1.7;
+  color: var(--common-color-white);
+  margin: 0 0 26px;
+}
+
+.manifiesto-lead:last-child {
+  margin-bottom: 0;
+}
+
+.manifiesto-body-lede {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.9;
+  color: var(--body-color);
+}
+
+.manifiesto-columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 56px;
+  max-width: 980px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.manifiesto-col {
+  position: relative;
+}
+
+.manifiesto-col-number {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #FBB12F;
+  display: block;
+  margin-bottom: 14px;
+}
+
+.manifiesto-col-title {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: clamp(24px, 3vw, 32px);
+  color: var(--common-color-white);
+  margin: 0 0 20px;
+}
+
+.manifiesto-col-text {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.9;
+  color: var(--body-color);
+  margin: 0 0 18px;
+}
+
+.manifiesto-col-text:last-child {
+  margin-bottom: 0;
+}
+
+.manifiesto-col-text em {
+  font-style: normal;
+  font-weight: 500;
+  color: #FBB12F;
+}
+
+.manifiesto-closing {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: italic;
+  font-size: clamp(20px, 2.6vw, 28px);
+  line-height: 1.6;
+  color: #FBB12F;
+  text-align: center;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+@media screen and (min-width: 992px) {
+  .manifiesto-columns {
+    grid-template-columns: 1fr 1px 1fr;
+    gap: 0;
+  }
+
+  .manifiesto-col {
+    padding: 0 56px;
+  }
+
+  .manifiesto-col:first-child {
+    padding-left: 0;
+  }
+
+  .manifiesto-col:last-child {
+    padding-right: 0;
+  }
+
+  .manifiesto-divider {
+    width: 1px;
+    background: linear-gradient(to bottom, rgba(251, 177, 47, 0), rgba(251, 177, 47, 0.4), rgba(251, 177, 47, 0));
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .manifiesto-columns {
+    gap: 44px;
+  }
+}
