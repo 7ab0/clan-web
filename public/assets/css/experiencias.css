@@ -1,0 +1,110 @@
+/*--------------------------------------------------------------
+  Experiencias
+  Reusa la tipografia (Poppins) y el acento dorado del Manifiesto
+  para mantener consistencia entre secciones editoriales.
+----------------------------------------------------------------*/
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+.experiencias-section {
+  position: relative;
+  background-color: var(--body-bg-color);
+}
+
+.experiencias-intro {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.experiencias-eyebrow {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #FBB12F;
+  margin: 0 0 22px;
+}
+
+.experiencias-lead {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(19px, 2.4vw, 25px);
+  line-height: 1.7;
+  color: var(--common-color-white);
+  margin: 0;
+}
+
+.experiencias-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.experiencias-card {
+  display: block;
+  position: relative;
+  padding: 48px 40px;
+  border: 1px solid rgba(251, 177, 47, 0.18);
+  text-decoration: none;
+  transition: border-color 0.4s ease, transform 0.4s ease;
+}
+
+.experiencias-card.is-active {
+  cursor: pointer;
+}
+
+.experiencias-card.is-active:hover {
+  border-color: rgba(251, 177, 47, 0.6);
+  transform: translateY(-4px);
+}
+
+.experiencias-card.is-disabled {
+  opacity: 0.55;
+}
+
+.experiencias-card-tag {
+  display: inline-block;
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #FBB12F;
+  margin-bottom: 18px;
+}
+
+.experiencias-card-title {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: clamp(24px, 3vw, 30px);
+  color: var(--common-color-white);
+  margin: 0 0 16px;
+}
+
+.experiencias-card-text {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.8;
+  color: var(--body-color);
+  margin: 0;
+}
+
+.experiencias-card-link {
+  display: inline-block;
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  color: #FBB12F;
+  margin-top: 22px;
+}
+
+@media screen and (min-width: 992px) {
+  .experiencias-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -42,6 +42,11 @@ class HomeController extends Controller
         return view('home/error404');
     }
 
+    public function experiencias()
+    {
+        return view('home/experiencias');
+    }
+
     public function gallery()
     {
         return view('home/gallery');

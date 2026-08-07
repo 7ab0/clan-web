@@ -30,6 +30,10 @@
                         <img class="top-main-menu-img menu-img" src="{{ asset('assets/img/fullWM_menu.jpg') }}" alt="...">
                     </li>
                     <li class="top-main-menu-li">
+                        <a href="{{ route('experiencias') }}">Experiencias</a>
+                        <img class="top-main-menu-img" src="{{ asset('assets/img/fullWM_about.jpg') }}" alt="...">
+                    </li>
+                    <li class="top-main-menu-li">
                         <a href="{{ route('chef') }}">Chef</a>
                         <img class="top-main-menu-img" src="{{ asset('assets/img/fullWM_chef.jpg') }}" alt="...">
                     </li>
@@ -72,6 +76,9 @@
                                 </li>
                                 <li>
                                     <a href="{{ route('menu') }}">Menu</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('experiencias') }}">Experiencias</a>
                                 </li>
                                 <li class="menu-item-has-children">
                                     <a href="{{ route('chef') }}">Chef</a>

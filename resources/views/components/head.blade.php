@@ -15,5 +15,6 @@
     <link rel="stylesheet" href="{{ asset('assets/css/manifiesto.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/equipo.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/carta.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/experiencias.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/branding.css') }}" />
 </head>

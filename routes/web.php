@@ -5,6 +5,9 @@ use App\Http\Controllers\HomeController;
 
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index')->name('index');
+    // Paginas reales del sitio, con slugs limpios (no /home/*)
+    Route::get('/menu', 'menu')->name('menu');
+    Route::get('/experiencias', 'experiencias')->name('experiencias');
 });
 
     // demos
@@ -23,7 +26,6 @@ Route::prefix('home')->group(function () {
         Route::get('/home3','home3')->name('home3');
         Route::get('/index','index')->name('index');
         Route::get('/meetTheChef','meetTheChef')->name('meetTheChef');
-        Route::get('/menu','menu')->name('menu');
         Route::get('/portfolio','portfolio')->name('portfolio');
         Route::get('/portfolioDetails','portfolioDetails')->name('portfolioDetails');
         Route::get('/reservations','reservations')->name('reservations');
