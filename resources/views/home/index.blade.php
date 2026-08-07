@@ -182,6 +182,17 @@
                             </p>
                         </div>
 
+                        <div class="ak-height-70 ak-height-lg-40"></div>
+
+                        <div class="manifiesto-fuego-media manifiesto-reveal">
+                            <figure class="manifiesto-fuego-photo">
+                                <img src="{{ asset('assets/img/clan-manifiesto-fuego-humo.jpg') }}" alt="Ritual de fuego y humo junto al fogón de CLAN">
+                            </figure>
+                            <figure class="manifiesto-fuego-photo">
+                                <img src="{{ asset('assets/img/clan-manifiesto-fuego-llama.jpg') }}" alt="Llamas del fogón de CLAN">
+                            </figure>
+                        </div>
+
                         <div class="ak-height-100 ak-height-lg-60"></div>
 
                         <div class="manifiesto-columns">
