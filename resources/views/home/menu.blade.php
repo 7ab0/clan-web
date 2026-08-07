@@ -9,7 +9,7 @@
 
 <!-- Start Food Menu  Appetizers-->
 <section class="set-bg-img-section">
-    <img src="{{ asset('assets/img/menuBg.png') }}" alt="..." data-speed="1.1" class="imagesZoom bg-img ak-bg">
+    <img src="{{ asset('assets/img/clan-carta-raiz.jpg') }}" alt="..." data-speed="1.1" class="imagesZoom bg-img ak-bg">
     <div class="ak-height-150 ak-height-lg-60"></div>
     <div class="container">
         <div class="ak-section-heading ak-style-1 ak-type-1">
@@ -20,6 +20,7 @@
         </div>
         <div class="ak-height-65 ak-height-lg-30"></div>
         <div class="ak-menu-list">
+            {{-- TODO(Clan): item-show_2.png es el placeholder del template para el icono de cada plato; falta foto real por plato --}}
             <div class="ak-menu-list-section-1">
                 <img src="{{ asset('assets/img/item-show_2.png') }}" alt="...">
                 <div class="food-menu style-1">
@@ -279,6 +280,7 @@
 
 <!-- Start Food Menu Desserts-->
 <section class="set-bg-img-section">
+    {{-- TODO(Clan): bessertsMenuBg.png es el placeholder del template; falta foto real para esta sección --}}
     <img src="{{ asset('assets/img/bessertsMenuBg.png') }}" alt="..." data-speed="1.1" class="bg-img ak-bg imagesZoom">
     <div class="ak-height-150 ak-height-lg-60"></div>
     <div class="container">
@@ -290,6 +292,7 @@
         </div>
         <div class="ak-height-65 ak-height-lg-30"></div>
         <div class="ak-menu-list">
+            {{-- TODO(Clan): item-show.png es el placeholder del template para el icono de cada plato; falta foto real por plato --}}
             <div class="ak-menu-list-section-1">
                 <img src="{{ asset('assets/img/item-show.png') }}" alt="...">
                 <div class="food-menu style-1">
@@ -549,6 +552,7 @@
 
 <!-- Start Food Menu Bar Items-->
 <section class="set-bg-img-section">
+    {{-- TODO(Clan): barMenuBg.png es el placeholder del template; falta foto real para esta sección --}}
     <img src="{{ asset('assets/img/barMenuBg.png') }}" alt="..." data-speed="1.1" class="bg-img ak-bg imagesZoom">
     <div class="ak-height-150 ak-height-lg-60"></div>
     <div class="container">
@@ -560,6 +564,7 @@
         </div>
         <div class="ak-height-65 ak-height-lg-30"></div>
         <div class="ak-menu-list">
+            {{-- TODO(Clan): item-show_3.png es el placeholder del template para el icono de cada plato; falta foto real por plato --}}
             <div class="ak-menu-list-section-1">
                 <img src="{{ asset('assets/img/item-show_3.png') }}" alt="...">
                 <div class="food-menu style-1">

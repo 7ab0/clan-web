@@ -202,7 +202,8 @@
                     <!-- Start Hero -->
                     <section id="home">
                         <div class="ak-hero ak-style1">
-                            <div class="ak-hero-bg ak-bg" data-src="{{ asset('assets/img/hero_bg_3.jpg') }}"></div>
+                            {{-- TODO(Clan): placeholder del template sin foto real asignada todavía --}}
+                        <div class="ak-hero-bg ak-bg" data-src="{{ asset('assets/img/hero_bg_3.jpg') }}"></div>
                             <div class="hero-text-section container-fluid">
                                 <div class="ak-slider ak-slider-hero-2 ak-width">
                                     <div class="swiper-wrapper">

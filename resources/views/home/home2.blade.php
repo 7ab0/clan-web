@@ -21,7 +21,7 @@
             <!-- Start Hero -->
             <section>
                 <div class="ak-hero ak-style1">
-                    <div class="ak-hero-bg ak-bg" data-src="{{ asset('assets/img/hero_bg_1.jpg') }}"></div>
+                    <div class="ak-hero-bg ak-bg" data-src="{{ asset('assets/img/clan-hero-carta-detalle.jpg') }}"></div>
                     <div class="hero-text-section container-fluid">
                         <div class="ak-slider ak-slider-1">
                             <div class="swiper-wrapper">
