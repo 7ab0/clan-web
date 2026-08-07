@@ -1,0 +1,45 @@
+.funfact-counter {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.ak-funfact.ak-style1 {
+    .ak-funfact-number {
+        display: flex;
+        color: $primary;
+        span {
+            font-size: 80px;
+        }
+    }
+    .ak-funfact-text {
+        color: $white;
+        font-family: Baskervville;
+        font-style: italic;
+        font-weight: 400;
+        line-height: 140%;
+        margin-top: 20px;
+        p {
+            font-size: 28px;
+        }
+        span {
+            font-size: 20px;
+            color: $primary;
+        }
+    }
+}
+
+@media screen and (max-width: 991px) {
+    .ak-funfact.ak-style1 {
+        .ak-funfact-number {
+            span {
+                font-size: 60px;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .ak-funfact.ak-style1 {
+        margin-bottom: 00px;
+    }
+}

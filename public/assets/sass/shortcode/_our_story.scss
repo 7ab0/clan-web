@@ -1,0 +1,45 @@
+.our-story {
+    display: flex;
+    gap: 30px;
+    align-items: end;
+    .our-story-left {
+        .our-story-subtext {
+            margin-bottom: 68px;
+        }
+        .our-story-title {
+            color: $white;
+            span {
+                color: $primary;
+            }
+        }
+    }
+    .our-story-right {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 85px;
+    }
+}
+
+@media screen and (max-width: 991x) {
+    .our-story {
+        .our-story-right {
+            display: none;
+        }
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .our-story {
+        flex-direction: column;
+        .our-story-left {
+            .our-story-subtext {
+                margin-bottom: 30px;
+            }
+            .our-story-title {
+                font-size: 32px;
+            }
+        }
+    }
+}

@@ -1,0 +1,71 @@
+.core-services {
+    overflow: hidden;
+    @media screen and (min-width: 1550px) {
+        width: 85vw;
+    }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 50px;
+    flex-wrap: wrap;
+    .core-services-img {
+        position: relative;
+        .img-overlap {
+            position: absolute;
+            background-color: #001528;
+            opacity: 0.4;
+            left: 27px;
+            right: 27px;
+            display: flex;
+            top: 30px;
+            bottom: 30px;
+        }
+        .overlap-inerr {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .services-img {
+            width: 100%;
+            height: 100%;
+        }
+    }
+    .services-list {
+        list-style: none;
+        margin: 0;
+        padding: 2px;
+        .feature-list {
+            padding-bottom: 20px;
+            padding-top: 20px;
+            color: $white;
+            cursor: pointer;
+            display: block;
+            opacity: 1;
+            height: 100% !important;
+            width: 100%;
+            border-radius: 0%;
+            background-color: transparent;
+            transition: all 0.3s ease;
+            &:hover {
+                color: $primary;
+            }
+            &:nth-child(n) {
+                border-bottom: 1px solid $border;
+            }
+        }
+        .swiper-pagination-bullet-active {
+            color: $primary;
+        }
+    }
+}
+
+@media screen and (max-width: 1550px) {
+    .core-services {
+        .services-list {
+            .feature-list {
+                font-size: 22px !important;
+            }
+        }
+    }
+}

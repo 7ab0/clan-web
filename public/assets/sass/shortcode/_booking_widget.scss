@@ -1,0 +1,79 @@
+.booking-widget {
+  background-color: var(--body-bg-color-two);
+  .booking-widget-inner {
+    padding: 50px 30px;
+    .check {
+      background-color: transparent;
+      select {
+        width: 100%;
+        background-color: transparent;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        option {
+          background-color: var(--body-bg-color-two);
+          width: 100%;
+          color: #fff;
+        }
+      }
+    }
+    .number-of-input {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 25px 0px;
+      color: $white;
+      .increase-decrease {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0px 13px;
+        border-radius: 21.5px;
+        background-color: transparent;
+        border: 0.5px solid $border;
+        .value-button {
+          cursor: pointer;
+          font-size: 32px;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+        }
+        .number-input {
+          width: 60px;
+          text-align: center;
+          height: 40px;
+          background-color: transparent;
+          color: $white;
+          border: 0.5px solid $border;
+          border-top: none;
+          border-bottom: none;
+        }
+      }
+
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    }
+
+    .total {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 25px;
+      .text-total {
+        color: $white;
+        text-transform: uppercase;
+      }
+      .price {
+        color: $white;
+        font-family: Prompt;
+        font-size: 32px;
+      }
+    }
+  }
+}

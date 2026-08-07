@@ -1,0 +1,13 @@
+.total-review {
+    font-family: Prompt;
+    display: flex;
+    align-items: center;
+    background-color: var(--body-bg-color-two);
+    padding: 4vw 3vw;
+    h2 {
+        font-family: Prompt;
+        @media screen and (max-width: 767px) {
+            font-size: 32px;
+        }
+    }
+}

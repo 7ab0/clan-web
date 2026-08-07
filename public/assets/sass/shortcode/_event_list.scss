@@ -1,0 +1,103 @@
+.event-list {
+    display: flex;
+    gap: 50px;
+    align-items: center;
+    .date-text {
+        width: 50%;
+        display: flex;
+        gap: 20px;
+        .date-section {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 1px solid $border;
+            display: flex;
+            flex-shrink: 0;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            .date {
+                font-family: Prompt;
+                font-size: 36px;
+                line-height: 100%;
+            }
+            .month-name{
+                font-family: Baskervville;
+            }
+            p {
+                font-size: 20px;
+                color: $primary;
+            }
+        }
+        .text-section {
+            .section-title {
+                color: $white;
+                margin-bottom: 10px;
+            }
+            .event-details {
+                display: inline-block;
+                text-transform: uppercase;
+                margin-top: 30px;
+                color: $yellow;
+                span{
+                    margin-left: 10px;
+                    transition: all 0.3s ease-in-out;
+                }
+                &:hover{
+                    span{
+                        margin-left: 22px;
+                    }
+                    color: $white;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    .event-list {
+        flex-wrap: wrap;
+        .date-text {
+            width: 100%;
+            flex-direction: column;
+            .date-section {
+                width: 70px;
+                height: 70px;
+                .date {
+                    font-size: 22px;
+                }
+            }
+            .text-section {
+                .section-title {
+                    font-size: 32px;
+                    margin-bottom: 30px;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .event-list {
+        gap: 30px;
+        .date-text {
+            .text-section {
+                .section-title {
+                    margin-bottom: 10px;
+                }
+                .event-details {
+                    margin-top: 10px;
+                }
+            }
+        }
+    }
+    .container-event-single-page {
+        .section-title {
+            font-size: 32px;
+        }
+    }
+}
+
+.container-event-single-page {
+    max-width: 910px;
+}

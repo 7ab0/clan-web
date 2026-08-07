@@ -1,0 +1,963 @@
+/*--------------------------------------------------------------
+  6. Slider
+----------------------------------------------------------------*/
+
+.btn-style-2.button-prev-next-2 {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  width: auto;
+  width: max-content;
+  cursor: pointer;
+  text-decoration: none;
+  transition: 0.2s;
+  overflow: hidden;
+  & > svg {
+    flex-shrink: 0;
+    transition: 0.2s;
+    overflow: hidden;
+  }
+  & > svg {
+    width: 20px;
+    height: 13px;
+    overflow: hidden;
+  }
+  &.btn-size {
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    overflow: hidden;
+    transition: 0.2s;
+    &.rotate-svg {
+      transform: rotate(180deg);
+    }
+  }
+  &.btn-style-round.btn-size:hover {
+    background-color: #ba9774;
+  }
+  &.btn-style-round {
+    color: #fff;
+    background-color: transparent;
+    border: 1px solid #ba9774;
+    border-radius: 50%;
+  }
+  &.btn-size svg:first-child {
+    transform: translateX(-167%);
+    transition: 0.2s;
+  }
+  &.btn-size:hover svg:first-child {
+    transform: translateX(51%);
+  }
+  &.btn-size svg:last-child {
+    transform: translateX(-68%);
+    transition: 0.2s;
+  }
+  &.btn-size:hover > svg:last-child {
+    transform: translateX(178%);
+    background-color: #ba9774;
+  }
+}
+
+.btn-style-3 {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  width: auto;
+  width: max-content;
+  cursor: pointer;
+  text-decoration: none;
+  transition: 0.2s;
+  overflow: hidden;
+  & > svg {
+    flex-shrink: 0;
+    transition: 0.2s;
+    overflow: hidden;
+  }
+  & > svg {
+    width: 20px;
+    height: 13px;
+    overflow: hidden;
+  }
+  &.btn-size {
+    width: 150px;
+    height: 150px;
+    padding: 0;
+    overflow: hidden;
+    transition: 0.2s;
+    &.rotate-svg {
+      transform: rotate(180deg);
+    }
+  }
+  &.btn-style-round.btn-size {
+    background-color: #001528;
+  }
+  &.btn-style-round {
+    color: $white;
+    background-color: transparent;
+    border-radius: 50%;
+    text-transform: uppercase;
+    &:hover {
+      color: $primary;
+    }
+  }
+  &.btn-size svg:first-child {
+    transform: translateX(-377%);
+    transition: 0.2s;
+  }
+  &.btn-size:hover svg:first-child {
+    transform: translateX(51%);
+  }
+  &.btn-size svg:last-child {
+    transform: translateX(-68%);
+    transition: 0.2s;
+  }
+  &.btn-size:hover svg:last-child {
+    transform: translateX(377%);
+    background-color: #001528;
+  }
+}
+
+.ak-slider {
+  position: relative;
+}
+
+.ak-slider-1 {
+  overflow: hidden;
+  width: 50%;
+  .swiper-slide {
+    width: 100%;
+  }
+}
+
+.ak-slider-hero-2 {
+  overflow: hidden;
+  width: 50%;
+  &.ak-width {
+    width: 100%;
+  }
+  .swiper-slide {
+    width: 100%;
+  }
+}
+
+.ak-swiper-controll {
+  z-index: 10;
+  position: absolute;
+  bottom: 25vh;
+  text-align: center;
+  left: 46%;
+  .ak-swiper-navigation-wrap {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+    margin-right: 372px;
+    .hero-swiper-next {
+      position: relative;
+      transition: all 0.3s ease-in-out;
+      .btn-cricle {
+        position: absolute;
+        height: 55px;
+        width: 56px;
+        border-radius: 50% 50% 50% 50%;
+        border-right: 1px solid $yellow;
+        transition: all 0.3s ease-in-out;
+      }
+      &:hover > .btn-cricle {
+        border: 1px solid $yellow;
+        border-radius: 100%;
+      }
+      &:hover > .btn-arrow {
+        transform: translateX(10px);
+      }
+      .btn-arrow {
+        transition: all 0.3s ease-in-out;
+        position: absolute;
+        svg {
+          width: 40px;
+          height: 55px;
+        }
+      }
+    }
+    .hero-swiper-prev {
+      position: relative;
+      transition: all 0.3s ease-in-out;
+      .btn-cricle {
+        position: absolute;
+        height: 55px;
+        width: 56px;
+        border-radius: 50% 50% 50% 50%;
+        border-right: 1px solid $yellow;
+        transition: all 0.3s ease-in-out;
+        transform: rotate(180deg);
+      }
+      &:hover > .btn-cricle {
+        border-radius: 100%;
+        border: 1px solid $yellow;
+      }
+      &:hover > .btn-arrow {
+        transform: translateX(0px);
+      }
+      .btn-arrow {
+        transition: all 0.3s ease-in-out;
+        position: absolute;
+        transform: translateX(10px);
+        svg {
+          width: 40px;
+          height: 55px;
+        }
+      }
+    }
+  }
+}
+
+.ak-swiper-controll-two {
+  z-index: 10;
+  position: absolute;
+  top: 65vh;
+  width: 96%;
+  .ak-swiper-navigation-wrap {
+    display: flex;
+    justify-content: center;
+    gap: 90%;
+    .hero-swiper-next {
+      position: relative;
+      transition: all 0.3s ease-in-out;
+      .btn-cricle {
+        position: absolute;
+        height: 55px;
+        width: 56px;
+        border-radius: 50% 50% 50% 50%;
+        border-right: 1px solid $yellow;
+        transition: all 0.3s ease-in-out;
+      }
+      &:hover > .btn-cricle {
+        border: 1px solid $yellow;
+        border-radius: 100%;
+      }
+      &:hover > .btn-arrow {
+        transform: translateX(10px);
+      }
+      .btn-arrow {
+        transition: all 0.3s ease-in-out;
+        position: absolute;
+        svg {
+          width: 40px;
+          height: 55px;
+        }
+      }
+    }
+    .hero-swiper-prev {
+      position: relative;
+      transition: all 0.3s ease-in-out;
+      .btn-cricle {
+        position: absolute;
+        height: 55px;
+        width: 56px;
+        border-radius: 50% 50% 50% 50%;
+        border-right: 1px solid $yellow;
+        transition: all 0.3s ease-in-out;
+        transform: rotate(180deg);
+      }
+      &:hover > .btn-cricle {
+        border-radius: 100%;
+        border: 1px solid $yellow;
+      }
+      &:hover > .btn-arrow {
+        transform: translateX(0px);
+      }
+      .btn-arrow {
+        transition: all 0.3s ease-in-out;
+        position: absolute;
+        transform: translateX(10px);
+        svg {
+          width: 40px;
+          height: 55px;
+        }
+      }
+    }
+  }
+}
+
+.ak-swiper-controll-three {
+  z-index: 12;
+  position: absolute;
+  top: 81vh;
+  right: 5vw;
+  width: 3.3vw;
+  .ak-swiper-navigation-wrap {
+    display: flex;
+    justify-content: center;
+    gap: 90%;
+    .hero-swiper-next {
+      position: relative;
+      transition: all 0.3s ease-in-out;
+      .btn-cricle {
+        position: absolute;
+        height: 55px;
+        width: 56px;
+        border-radius: 50% 50% 50% 50%;
+        border-right: 1px solid $yellow;
+        transition: all 0.3s ease-in-out;
+      }
+      &:hover > .btn-cricle {
+        border: 1px solid $yellow;
+        border-radius: 100%;
+      }
+      &:hover > .btn-arrow {
+        transform: translateX(10px);
+      }
+      .btn-arrow {
+        transition: all 0.3s ease-in-out;
+        position: absolute;
+        svg {
+          width: 40px;
+          height: 55px;
+        }
+      }
+    }
+    .hero-swiper-prev {
+      position: relative;
+      transition: all 0.3s ease-in-out;
+      .btn-cricle {
+        position: absolute;
+        height: 55px;
+        width: 56px;
+        border-radius: 50% 50% 50% 50%;
+        border-right: 1px solid $yellow;
+        transition: all 0.3s ease-in-out;
+        transform: rotate(180deg);
+      }
+      &:hover > .btn-cricle {
+        border-radius: 100%;
+        border: 1px solid $yellow;
+      }
+      &:hover > .btn-arrow {
+        transform: translateX(0px);
+      }
+      .btn-arrow {
+        transition: all 0.3s ease-in-out;
+        position: absolute;
+        transform: translateX(10px);
+        svg {
+          width: 40px;
+          height: 55px;
+        }
+      }
+    }
+  }
+}
+
+.ak-swiper-controll-hero-2 {
+  z-index: 100;
+  position: absolute;
+  top: 40vh;
+  right: 2.5%;
+  .ak-swiper-navigation-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 130px;
+    .hero-swiper-next {
+      position: relative;
+      transition: all 0.3s ease-in-out;
+      .btn-cricle {
+        position: absolute;
+        height: 100px;
+        width: 100px;
+        border-radius: 50% 50% 50% 50%;
+        border-right: 1px solid $yellow;
+        transition: all 0.3s ease-in-out;
+        transform: rotate(180deg);
+      }
+      &:hover > .btn-cricle {
+        border-radius: 100%;
+        border: 1px solid $yellow;
+      }
+      &:hover > .btn-arrow {
+        transform: translateX(0px);
+      }
+      .btn-arrow {
+        transition: all 0.3s ease-in-out;
+        position: absolute;
+        transform: translateX(10px);
+        svg {
+          width: 40px;
+          height: 100px;
+        }
+      }
+    }
+    .hero-swiper-prev {
+      position: relative;
+      transition: all 0.3s ease-in-out;
+      .btn-cricle {
+        position: absolute;
+        height: 100px;
+        width: 100px;
+        border-radius: 50% 50% 50% 50%;
+        border-right: 1px solid $yellow;
+        transition: all 0.3s ease-in-out;
+        transform: rotate(180deg);
+      }
+      &:hover > .btn-cricle {
+        border-radius: 100%;
+        border: 1px solid $yellow;
+      }
+      &:hover > .btn-arrow {
+        transform: translateX(20px);
+      }
+      .btn-arrow {
+        transition: all 0.3s ease-in-out;
+        position: absolute;
+        transform: translateX(10px);
+        svg {
+          width: 40px;
+          height: 100px;
+        }
+      }
+    }
+  }
+}
+
+.ak-slider-2 {
+  overflow: hidden;
+  width: 100vw;
+  .swiper-slide {
+    width: 23%;
+    left: 13%;
+  }
+}
+
+.ak-pagination-2.ak-style1 {
+  display: flex;
+  justify-content: center;
+  z-index: 20;
+  width: 20%;
+  .swiper-pagination-bullet {
+    height: 16px;
+    width: 16px;
+    background-color: transparent;
+    border: 1px solid $border;
+    &.swiper-pagination-bullet-active {
+      border: 1px solid $yellow;
+      background-color: $yellow;
+    }
+    border-radius: 50%;
+    margin: 30px 10px;
+    cursor: pointer;
+    position: relative;
+    opacity: 1;
+    &::before {
+      content: "";
+      position: absolute;
+      height: 5px;
+      width: 5px;
+      border-radius: 50%;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background-color: $primary;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    &.swiper-pagination-bullet-active {
+      &::before {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.ak-next-prev-2 {
+  margin-top: 30px;
+  position: relative;
+  &.ak-style-1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    gap: 36px;
+    @media screen and (max-width: 767px) {
+      gap: 25px;
+    }
+  }
+}
+
+.ak-slider-3 {
+  overflow: hidden;
+  .swiper-slide {
+    width: 100%;
+  }
+}
+
+.ak-swiper-controll-3 {
+  margin-top: 60px;
+  .ak-swiper-navigation-wrap {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-left: 10px;
+    .ak-swiper-button-prev-3,
+    .ak-swiper-button-next-3 {
+      transition: all 0.8s;
+      border-radius: 50%;
+    }
+  }
+}
+
+.ak-slider-4 {
+  overflow: hidden;
+  width: 100vw;
+  .swiper-slide {
+    width: 100%;
+    position: relative;
+    z-index: -9;
+  }
+}
+
+.ak-swiper-controll-4 {
+  position: absolute;
+  bottom: 50px;
+  z-index: 10;
+  .ak-swiper-navigation-wrap-4 {
+    display: flex;
+    gap: 100px;
+    padding: 30px;
+    .ak-swiper-button-next-4 {
+      position: relative;
+      transition: all 0.3s ease-in-out;
+      .btn-cricle {
+        position: absolute;
+        height: 55px;
+        width: 56px;
+        border-radius: 50% 50% 50% 50%;
+        border-right: 1px solid $yellow;
+        transition: all 0.3s ease-in-out;
+      }
+      &:hover > .btn-cricle {
+        border: 1px solid $yellow;
+        border-radius: 100%;
+      }
+      &:hover > .btn-arrow {
+        transform: translateX(10px);
+      }
+      .btn-arrow {
+        transition: all 0.3s ease-in-out;
+        position: absolute;
+        svg {
+          width: 40px;
+          height: 55px;
+        }
+      }
+    }
+    .ak-swiper-button-prev-4 {
+      position: relative;
+      transition: all 0.3s ease-in-out;
+      .btn-cricle {
+        position: absolute;
+        height: 55px;
+        width: 56px;
+        border-radius: 50% 50% 50% 50%;
+        border-right: 1px solid $yellow;
+        transition: all 0.3s ease-in-out;
+        transform: rotate(180deg);
+      }
+      &:hover > .btn-cricle {
+        border-radius: 100%;
+        border: 1px solid $yellow;
+      }
+      &:hover > .btn-arrow {
+        transform: translateX(0px);
+      }
+      .btn-arrow {
+        transition: all 0.3s ease-in-out;
+        position: absolute;
+        transform: translateX(10px);
+        svg {
+          width: 40px;
+          height: 55px;
+        }
+      }
+    }
+  }
+}
+
+.ak-slider-5 {
+  overflow: hidden;
+  width: 100%;
+  height: 100vh;
+  .swiper-slide {
+    width: 100%;
+  }
+  .ak-swiper-controll {
+    left: 40%;
+    bottom: 9vh;
+  }
+}
+
+.ak-slider-6 {
+  overflow: hidden;
+  width: 100%;
+  height: 100vh;
+
+  .swiper-slide {
+    width: 100%;
+    position: relative;
+    .slider-text-info {
+      text-align: center;
+      position: absolute;
+      top: 55vh;
+      width: 100vw;
+      .slider-mini-title {
+        color: $primary;
+        font-style: italic;
+        font-family: Baskervville;
+        font-size: 18px;
+        opacity: 0;
+        position: relative;
+        top: 40px;
+        transition: all 0.6s ease-in-out, transform 2s ease 0.7s;
+      }
+      .slider-title {
+        text-transform: uppercase;
+        color: $white;
+        opacity: 0;
+        transform: scale(0.8);
+        position: relative;
+        top: 40px;
+        transition: all 0.6s ease-in-out, transform 2s ease 0.7s;
+      }
+      .slider-title-two {
+        text-transform: uppercase;
+        color: $primary;
+        font-style: italic;
+        display: inline-block;
+        opacity: 0;
+        position: relative;
+        top: 40px;
+        transition: all 0.8s ease-in-out, transform 2s ease 0.7s;
+        &::after {
+          content: "";
+          display: inline-block;
+          position: relative;
+          top: -50px;
+          width: 100%;
+          height: 1px;
+          background-color: $primary;
+        }
+      }
+    }
+    .slider-6-img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.5;
+      transform: scale(1);
+      -webkit-transition: opacity 0.6s ease-in-out, transform 2s ease 0.7s;
+      -moz-transition: opacity 0.6s ease-in-out, transform 2s ease 0.7s;
+      transition: opacity 0.6s ease-in-out, transform 2s ease 0.7s;
+    }
+  }
+  .swiper-slide-active {
+    .slider-6-img {
+      opacity: 1;
+      transform: scale(1.07);
+    }
+    .slider-text-info {
+      .slider-mini-title {
+        top: 0px;
+        opacity: 1;
+        transition-delay: 0.9s;
+      }
+      .slider-title {
+        top: 0px;
+        opacity: 1;
+        transform: scale(1);
+        transition-delay: 1.25s;
+      }
+      .slider-title-two {
+        opacity: 1;
+        top: 0px;
+        transition-delay: 1.5s;
+      }
+    }
+  }
+}
+
+.ak-slider-core-services {
+  overflow: hidden;
+  width: 100%;
+  .swiper-slide {
+    width: 100% !important;
+  }
+}
+
+.ak-slider-7 {
+  overflow: hidden;
+  width: 99vw;
+  .swiper-slide {
+    width: 24%;
+  }
+}
+
+.ak-slider-8 {
+  overflow: hidden;
+  width: 100%;
+  height: 100vh;
+  .swiper-slide {
+    width: 100%;
+    position: relative;
+    .slider-text-info {
+      text-align: center;
+      position: absolute;
+      transition: all 1s;
+      top: 35vh;
+      width: 100vw;
+      opacity: 0;
+      right: 100px;
+      .slider-title {
+        text-transform: uppercase;
+        color: $white;
+      }
+      .slider-title-two {
+        text-transform: uppercase;
+        color: $white;
+        span {
+          color: $primary;
+          display: inline-block;
+          &::after {
+            display: block;
+            content: "";
+            position: relative;
+            width: 100%;
+            height: 1px;
+            background-color: $primary;
+          }
+        }
+      }
+      .slider-detlas {
+        color: $white;
+        margin-top: 20px;
+      }
+      .short-title {
+        color: $yellow;
+        font-style: italic;
+        font-family: Baskervville;
+      }
+    }
+    .slider-8-img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.5;
+      transform: scale(1);
+      -webkit-transition: opacity 0.6s ease-in-out, transform 2s ease 0.7s;
+      -moz-transition: opacity 0.6s ease-in-out, transform 2s ease 0.7s;
+      transition: opacity 0.6s ease-in-out, transform 2s ease 0.7s;
+    }
+  }
+
+  .swiper-slide-active {
+    .slider-text-info {
+      opacity: 1;
+      right: 0px;
+      transition-delay: 0.5s;
+    }
+    .slider-8-img {
+      opacity: 1;
+      transform: scale(1.07);
+    }
+  }
+}
+
+.ak-slider-9 {
+  overflow: hidden;
+  width: 99vw;
+  .swiper-slide {
+    width: 16.6%;
+  }
+}
+
+@media screen and (max-width: 1450px) {
+  .ak-swiper-controll-three {
+    top: 60vh;
+    width: 96%;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .ak-slider-6 {
+    .swiper-slide {
+      .slider-text-info {
+        top: 35vh;
+      }
+    }
+  }
+  .ak-slider-8 {
+    .swiper-slide {
+      .slider-text-info {
+        top: 35vh;
+        .slider-title {
+          font-size: 42px;
+        }
+        .slider-title-two {
+          font-size: 42px;
+        }
+      }
+    }
+  }
+  .ak-swiper-controll-two {
+    top: 50vh;
+  }
+  .ak-swiper-controll-three {
+    top: 50vh;
+    width: 96%;
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .ak-slider-1 {
+    width: 100%;
+  }
+  .ak-swiper-controll {
+    margin: 0px;
+    bottom: 13vh;
+    left: 0;
+    margin-left: 43px;
+    .ak-swiper-navigation-wrap {
+      margin-right: 58px;
+    }
+  }
+  .ak-slider-2 {
+    width: 97vw;
+    .swiper-slide {
+      width: 48%;
+      left: 0;
+    }
+  }
+  .ak-pagination-2.ak-style1 {
+    width: 25%;
+  }
+  .ak-swiper-controll-3 {
+    margin-top: 30px;
+  }
+  .ak-slider-7 {
+    width: 100%;
+    .swiper-slide {
+      width: 49%;
+    }
+  }
+  .ak-slider-8 {
+    .swiper-slide {
+      .slider-text-info {
+        .slider-detlas {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .ak-slider-1 {
+    width: 100%;
+  }
+  .ak-slider-2 {
+    width: 100vw;
+    .swiper-slide {
+      width: 93%;
+      left: 0px;
+      padding: 5px;
+    }
+  }
+  .ak-swiper-controll {
+    margin: 0px;
+    margin-left: 13px;
+    .ak-swiper-navigation-wrap {
+      margin-right: 0px;
+      justify-content: start;
+    }
+  }
+  .ak-swiper-controll-3 {
+    margin-top: 30px;
+    .ak-swiper-navigation-wrap {
+      margin-right: 0px;
+    }
+  }
+  .ak-pagination-2.ak-style1 {
+    width: 60%;
+  }
+  .ak-swiper-controll-hero-2 {
+    right: 10%;
+  }
+  .ak-slider-6 {
+    .swiper-slide {
+      .slider-text-info {
+        top: 30vh;
+        .slider-title {
+          font-size: 32px;
+        }
+        .slider-title-two {
+          font-size: 32px;
+          &::after {
+            top: -29px;
+          }
+        }
+      }
+    }
+  }
+  .ak-slider-8 {
+    .swiper-slide {
+      .slider-text-info {
+        top: 30vh;
+        .slider-title {
+          font-size: 32px;
+        }
+        .slider-title-two {
+          font-size: 32px;
+        }
+      }
+    }
+  }
+  .ak-swiper-controll-two {
+    top: 50vh;
+    width: 87%;
+  }
+  .ak-swiper-controll-three {
+    top: 50vh;
+    width: 98%;
+  }
+  .ak-slider-9 {
+    width: 100%;
+    .swiper-slide {
+      width: 50%;
+    }
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .ak-swiper-controll-three {
+    top: 53vh;
+    width: 100%;
+    .ak-swiper-navigation-wrap {
+      gap: 181px;
+    }
+  }
+}

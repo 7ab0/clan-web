@@ -1,0 +1,165 @@
+.feature {
+  display: flex;
+  gap: 30px;
+  .frist-section {
+    flex-basis: 63%;
+  }
+  .secend-section {
+    flex-basis: 37%;
+  }
+}
+
+.feature-card {
+  display: flex;
+  background-color: #091e24;
+  gap: 20px;
+  padding: 50px;
+  font-family: Prompt;
+  align-items: center;
+  &.padding-22-26 {
+    padding: 22px 26px;
+  }
+  &.style-2 {
+    padding: 70px 5px;
+    background-color: transparent;
+    align-items: self-start;
+    .feature-text {
+      flex-basis: 100%;
+      h4 {
+        font-size: 26px;
+        span {
+          font-size: 20px;
+        }
+      }
+      .feature-text-details {
+        color: var(--body-color);
+        font-weight: 300;
+      }
+    }
+    .feature-date {
+      width: 75px;
+      height: 60px;
+    }
+  }
+  .feature-date {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 1px solid $border;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .date {
+      font-size: 36px;
+    }
+    p {
+      font-size: 20px;
+      color: $primary;
+    }
+    .month-name {
+      font-family: Baskervville;
+      font-size: 20px;
+      color: $primary;
+      margin-top: 5px;
+    }
+  }
+  .feature-text {
+    flex-basis: 70%;
+    .title-link {
+      .title {
+        font-size: 26px;
+        color: $white;
+        font-family: var(--heading-font-family);
+        &:hover {
+          color: $primary;
+        }
+      }
+    }
+    &.cs_color_2 {
+      color: var(--body-color);
+      h5 {
+        color: $white;
+      }
+    }
+    h4 {
+      color: $white;
+      margin-bottom: 10px;
+      span {
+        color: $primary;
+        font-size: 20px;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .feature {
+    flex-wrap: wrap;
+    .frist-section {
+      flex-basis: 100%;
+    }
+    .secend-section {
+      flex-basis: 100%;
+    }
+  }
+}
+
+.hotel-facilities {
+  display: flex;
+  gap: 100px;
+  align-items: center;
+  &.reverse-section {
+    flex-direction: row-reverse;
+  }
+  .hotel-facilities-text {
+    max-width: 650px;
+    .hotel-facilities-title {
+      margin-bottom: 25px;
+      text-transform: capitalize;
+    }
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .hotel-facilities {
+    gap: 30px;
+    flex-wrap: wrap;
+    .hotel-facilities-text {
+      .hotel-facilities-title {
+        font-size: 32px;
+        margin-bottom: 15px;
+      }
+    }
+  }
+  .feature-card {
+    flex-direction: column;
+    &.style-2 {
+      padding: 30px 0px;
+    }
+    h4 {
+      font-size: 32px;
+    }
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .feature-card {
+    flex-direction: column;
+    padding: 22px 26px;
+    &.style-2 {
+      align-items: center;
+      padding: 15px 0px;
+      .feature-date {
+        width: 77px;
+        height: 77px;
+      }
+    }
+    .feature-text {
+      text-align: center;
+      h4 {
+        font-size: 26px;
+      }
+    }
+  }
+}
