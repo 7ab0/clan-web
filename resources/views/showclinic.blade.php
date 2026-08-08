@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aniversario ShowClinic — Una noche para celebrar</title>
+<meta name="description" content="Celebra con nosotros el aniversario de ShowClinic. Una noche de experiencias, gastronomía y buena compañía en Clan Restaurant, Arequipa.">
+<link rel="icon" href="{{ asset('assets/showclinic/img/logosinfondo.png') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ asset('assets/showclinic/css/style.css') }}">
+</head>
+<body>
+
+<!-- ======================= PANTALLA DE INVITACIÓN ======================= -->
+<div id="gate">
+  <div class="gate-bg"></div>
+  <div class="gate-content">
+    <img src="{{ asset('assets/showclinic/img/logosinfondo.png') }}" alt="ShowClinic" class="gate-logo">
+    <p class="gate-eyebrow">Tienes una invitación especial</p>
+    <h1 class="gate-name" id="gateName">Bienvenido/a</h1>
+    <p class="gate-sub">Nos encantaría que nos acompañes a celebrar</p>
+    <button id="gateEnter" class="btn-enter" aria-label="Ver invitación">
+      <span>Ver mi invitación</span>
+    </button>
+  </div>
+</div>
+
+<!-- ======================= CONTENIDO PRINCIPAL ======================= -->
+<div id="main" hidden>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <img src="{{ asset('assets/showclinic/img/logosinfondo.png') }}" alt="ShowClinic" class="nav-logo">
+    <div class="nav-links">
+      <a href="#itinerario">Itinerario</a>
+      <a href="#experiencia">Experiencia</a>
+      <a href="#sorteo">Sorteo</a>
+      <a href="#ubicacion">Ubicación</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-bg" style="background-image:url('{{ asset('assets/showclinic/img/hero-recepcion.jpg') }}')"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content reveal">
+      <p class="eyebrow">Celebramos juntos</p>
+      <h1 class="hero-title">Aniversario<br><em>ShowClinic</em></h1>
+      <p class="hero-tagline">Seguridad que se siente, belleza que se nota.</p>
+
+      <div class="hero-meta">
+        <div class="meta-item">
+          <span class="meta-label">Fecha</span>
+          <span class="meta-value" id="eventDate">22 de agosto, 2026</span>
+        </div>
+        <div class="meta-divider"></div>
+        <div class="meta-item">
+          <span class="meta-label">Hora</span>
+          <span class="meta-value">7:00 p.m.</span>
+        </div>
+        <div class="meta-divider"></div>
+        <div class="meta-item">
+          <span class="meta-label">Lugar</span>
+          <span class="meta-value">Clan Restaurant</span>
+        </div>
+      </div>
+
+      <div class="countdown" id="countdown" aria-live="polite">
+        <div class="cd-box"><span class="cd-num" id="cdDays">00</span><span class="cd-label">días</span></div>
+        <div class="cd-box"><span class="cd-num" id="cdHours">00</span><span class="cd-label">horas</span></div>
+        <div class="cd-box"><span class="cd-num" id="cdMin">00</span><span class="cd-label">min</span></div>
+        <div class="cd-box"><span class="cd-num" id="cdSec">00</span><span class="cd-label">seg</span></div>
+      </div>
+    </div>
+    <div class="scroll-cue">Desliza para ver el programa</div>
+  </header>
+
+  <!-- ITINERARIO -->
+  <section id="itinerario" class="section">
+    <div class="section-head reveal">
+      <p class="eyebrow">Programa de la noche</p>
+      <h2>Así viviremos la velada</h2>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-item reveal">
+        <div class="tl-time">7:30 p.m.</div>
+        <div class="tl-line"><span class="tl-dot"></span></div>
+        <div class="tl-body">
+          <h3>Bienvenida</h3>
+          <p>Recepción de invitados, welcome drink, bocaditos de bienvenida, photocall y networking.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-time">8:00 p.m.</div>
+        <div class="tl-line"><span class="tl-dot"></span></div>
+        <div class="tl-body">
+          <h3>Show Cooking Experience</h3>
+          <p>Una experiencia gastronómica en vivo junto a nuestro chef invitado, acompañada de cócteles y bocaditos.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-time">8:30 p.m.</div>
+        <div class="tl-line"><span class="tl-dot"></span></div>
+        <div class="tl-body">
+          <h3>Bienvenida oficial</h3>
+          <p>Palabras del Dr. Erick Espetia y brindis de aniversario.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-time">8:40 p.m.</div>
+        <div class="tl-line"><span class="tl-dot"></span></div>
+        <div class="tl-body">
+          <h3>Música en vivo</h3>
+          <p>Una velada con música en vivo, cócteles y bocaditos. Activa tu participación en el Gran Sorteo de Aniversario.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-time">9:30 p.m.</div>
+        <div class="tl-line"><span class="tl-dot"></span></div>
+        <div class="tl-body">
+          <h3>DJ Session</h3>
+          <p>El ambiente cambia para seguir celebrando una noche especial junto a nuestros invitados.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-time">10:00 p.m.</div>
+        <div class="tl-line"><span class="tl-dot"></span></div>
+        <div class="tl-body">
+          <h3>Sorteo &amp; Gift Bags</h3>
+          <p>Anuncio de los ganadores y entrega de premios. Cada invitado recibirá un Gift Bag exclusivo de ShowClinic.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCIA GASTRONÓMICA -->
+  <section id="experiencia" class="section section-dark">
+    <div class="section-head reveal">
+      <p class="eyebrow">En Clan Restaurant</p>
+      <h2>Una experiencia por estaciones</h2>
+      <p class="section-lead">
+        La noche se sirve, se recorre y se comparte. En vez de un menú tradicional,
+        Clan nos recibe con distintas estaciones repartidas por el espacio, cada una
+        con su propia propuesta de platos y bocaditos — para que la experiencia
+        gastronómica sea también un momento de descubrimiento.
+      </p>
+    </div>
+
+    <div class="gallery reveal">
+      <img src="{{ asset('assets/showclinic/img/tratamiento-1.jpg') }}" alt="ShowClinic" class="gallery-img tall">
+      <img src="{{ asset('assets/showclinic/img/editorial-1.jpg') }}" alt="ShowClinic" class="gallery-img">
+      <img src="{{ asset('assets/showclinic/img/editorial-4.jpg') }}" alt="ShowClinic" class="gallery-img wide">
+      <img src="{{ asset('assets/showclinic/img/editorial-2.jpg') }}" alt="ShowClinic" class="gallery-img">
+    </div>
+
+    <div class="host-card reveal">
+      <img src="{{ asset('assets/showclinic/img/dr-erick.jpg') }}" alt="Dr. Erick Espetia">
+      <div>
+        <p class="eyebrow">Tu anfitrión</p>
+        <h3>Dr. Erick Espetia</h3>
+        <p>Nos dará la bienvenida oficial de la noche y brindará con nosotros por
+          este nuevo año de ShowClinic.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SORTEO -->
+  <section id="sorteo" class="section">
+    <div class="section-head reveal">
+      <p class="eyebrow">Gran Sorteo de Aniversario</p>
+      <h2>Participa por estos premios</h2>
+    </div>
+    <div class="prizes reveal">
+      <div class="prize-card">
+        <span class="prize-num">01</span>
+        <h3>Botox</h3>
+      </div>
+      <div class="prize-card">
+        <span class="prize-num">02</span>
+        <h3>Aumento de labios</h3>
+        <p>con ácido hialurónico</p>
+      </div>
+      <div class="prize-card">
+        <span class="prize-num">03</span>
+        <h3>Gift Card 50%</h3>
+        <p>de descuento en cualquier tratamiento</p>
+      </div>
+      <div class="prize-card">
+        <span class="prize-num">04</span>
+        <h3>Limpieza facial</h3>
+        <p>profesional</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DRESS CODE + UBICACIÓN -->
+  <section id="ubicacion" class="section section-dark split">
+    <div class="split-col reveal">
+      <p class="eyebrow">Dress code</p>
+      <h2>Elegante</h2>
+      <p class="section-lead">Ven a celebrar con nosotros vestido/a para la ocasión — una noche elegante merece una entrada elegante.</p>
+    </div>
+    <div class="split-col reveal">
+      <p class="eyebrow">Ubicación</p>
+      <h2>Clan Restaurant</h2>
+      <p class="section-lead">Calle Santa Catalina 105, Arequipa</p>
+      <a class="btn-outline" href="https://www.google.com/maps/search/?api=1&query=Calle+Santa+Catalina+105+Arequipa+Clan+Restaurant" target="_blank" rel="noopener">Ver en Google Maps →</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <img src="{{ asset('assets/showclinic/img/logosinfondo.png') }}" alt="ShowClinic" class="footer-logo">
+    <p class="footer-tagline">Seguridad que se siente, belleza que se nota.</p>
+    <div class="footer-links">
+      <a href="https://www.instagram.com/showclinic/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.facebook.com/profile.php?id=100063552821608" target="_blank" rel="noopener">Facebook</a>
+      <a href="https://showclinic.com" target="_blank" rel="noopener">showclinic.com</a>
+    </div>
+    <p class="footer-copy">© 2026 ShowClinic — Yanahuara, Arequipa</p>
+  </footer>
+
+</div>
+
+<script src="{{ asset('assets/showclinic/js/guests.js') }}"></script>
+<script src="{{ asset('assets/showclinic/js/main.js') }}"></script>
+</body>
+</html>

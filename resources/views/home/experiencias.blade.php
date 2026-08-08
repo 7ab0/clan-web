@@ -29,14 +29,15 @@
     <div class="container">
         <div class="experiencias-grid">
 
-            <div class="experiencias-card is-disabled manifiesto-reveal">
-                <span class="experiencias-card-tag">Próximamente</span>
+            <a href="{{ route('showclinic') }}" class="experiencias-card is-active manifiesto-reveal">
+                <span class="experiencias-card-tag">Evento especial</span>
                 <h3 class="experiencias-card-title">Show Clinic</h3>
                 <p class="experiencias-card-text">
                     Una experiencia en desarrollo, donde la cocina se convierte en
                     escenario y el proceso creativo de CLAN se comparte en vivo.
                 </p>
-            </div>
+                <span class="experiencias-card-link">Ver invitación &rarr;</span>
+            </a>
 
             <a href="https://intimo.kavernario.com" target="_blank" rel="noopener noreferrer" class="experiencias-card is-active manifiesto-reveal">
                 <span class="experiencias-card-tag">Reservas abiertas</span>

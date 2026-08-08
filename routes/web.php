@@ -10,6 +10,9 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/experiencias', 'experiencias')->name('experiencias');
 });
 
+// Landing standalone de evento (identidad visual propia, sin header/footer de CLAN)
+Route::view('/showclinic', 'showclinic')->name('showclinic');
+
     // demos
 Route::prefix('home')->group(function () {
     Route::controller(HomeController::class)->group(function () {
