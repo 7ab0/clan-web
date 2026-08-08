@@ -130,8 +130,9 @@
   font-family: "Poppins", sans-serif;
   font-weight: 300;
   font-size: 15px;
-  line-height: 1.75;
+  line-height: 1.7;
   color: var(--body-color);
+  max-width: 62ch;
   margin: 0;
 }
 

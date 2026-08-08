@@ -1,9 +1,9 @@
 /*--------------------------------------------------------------
   Experiencias
-  Reusa la tipografia (Poppins) y el acento dorado del Manifiesto
-  para mantener consistencia entre secciones editoriales.
+  Reusa la tipografia (Poppins, self-hosted en style.css) y el
+  acento dorado del Manifiesto para mantener consistencia entre
+  secciones editoriales.
 ----------------------------------------------------------------*/
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
 .experiencias-section {
   position: relative;

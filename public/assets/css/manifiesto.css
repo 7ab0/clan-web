@@ -1,9 +1,9 @@
 /*--------------------------------------------------------------
   Manifiesto — "Hambre de Crear"
-  Tipografia propia (Poppins) para separar visualmente esta seccion
-  del resto de la plantilla, en pesos contrastantes para jerarquia.
+  Tipografia propia (Poppins, self-hosted en style.css) para separar
+  visualmente esta seccion del resto de la plantilla, en pesos
+  contrastantes para jerarquia.
 ----------------------------------------------------------------*/
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
 .manifiesto-section {
   position: relative;
@@ -82,7 +82,7 @@
   font-family: "Poppins", sans-serif;
   font-weight: 400;
   font-size: 17px;
-  line-height: 1.9;
+  line-height: 1.7;
   color: var(--body-color);
 }
 
@@ -156,7 +156,7 @@
   font-family: "Poppins", sans-serif;
   font-weight: 300;
   font-size: 17px;
-  line-height: 1.9;
+  line-height: 1.7;
   color: var(--body-color);
   margin: 0 0 18px;
 }
