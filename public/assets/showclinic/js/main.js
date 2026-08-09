@@ -13,6 +13,8 @@ const GATE_EL = document.getElementById('gate');
 const MAIN_EL = document.getElementById('main');
 const GATE_NAME = document.getElementById('gateName');
 const GATE_ENTER = document.getElementById('gateEnter');
+const BG_MUSIC = document.getElementById('bgMusic');
+const AUDIO_TOGGLE = document.getElementById('audioToggle');
 
 // ========== LEER CÓDIGO DE INVITADO ==========
 
@@ -40,10 +42,32 @@ function initGate() {
   GATE_ENTER.addEventListener('click', () => {
     GATE_EL.style.display = 'none';
     MAIN_EL.hidden = false;
-    
+
     // Trigger animations
     document.querySelector('.nav').style.animation = 'fadeIn 0.6s ease-out';
     document.querySelector('.hero').style.animation = 'fadeIn 0.6s ease-out';
+
+    // La música arranca recién al pasar el gate, siempre en mute
+    // (autoplay con sonido está bloqueado por los navegadores)
+    if (BG_MUSIC) {
+      BG_MUSIC.play().catch(() => {});
+    }
+  });
+}
+
+// ========== AUDIO DE FONDO ==========
+
+function initAudioToggle() {
+  if (!BG_MUSIC || !AUDIO_TOGGLE) return;
+
+  AUDIO_TOGGLE.addEventListener('click', () => {
+    BG_MUSIC.muted = !BG_MUSIC.muted;
+    if (!BG_MUSIC.muted) {
+      BG_MUSIC.play().catch(() => {});
+    }
+    AUDIO_TOGGLE.classList.toggle('is-unmuted', !BG_MUSIC.muted);
+    AUDIO_TOGGLE.setAttribute('aria-pressed', String(!BG_MUSIC.muted));
+    AUDIO_TOGGLE.setAttribute('aria-label', BG_MUSIC.muted ? 'Activar música' : 'Silenciar música');
   });
 }
 
@@ -107,6 +131,25 @@ if ('IntersectionObserver' in window) {
   });
 }
 
+// ========== PARTÍCULAS DORADAS ==========
+
+function initParticles() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  document.querySelectorAll('.particles').forEach(container => {
+    const count = 14;
+    for (let i = 0; i < count; i++) {
+      const particle = document.createElement('span');
+      particle.className = 'particle';
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.setProperty('--drift', `${(Math.random() * 60 - 30).toFixed(0)}px`);
+      particle.style.animationDuration = `${(10 + Math.random() * 8).toFixed(1)}s`;
+      particle.style.animationDelay = `${(Math.random() * 10).toFixed(1)}s`;
+      container.appendChild(particle);
+    }
+  });
+}
+
 // ========== STAGGER ANIMATIONS ==========
 
 function observeReveals() {
@@ -130,6 +173,8 @@ function observeReveals() {
 document.addEventListener('DOMContentLoaded', () => {
   observeReveals();
   initGate();
+  initAudioToggle();
+  initParticles();
 });
 
 // ========== ACCESIBILIDAD ==========
