@@ -1,9 +1,11 @@
 /**
  * SHOWCLINIC ANIVERSARIO — LÓGICA PRINCIPAL
  * ==========================================
- * - Pantalla de invitación personalizada por código
+ * - Pantalla de invitación (el nombre del invitado ya viene renderizado
+ *   desde el servidor, resuelto por código contra la base de datos)
  * - Countdown hasta el evento
  * - Navegación suave
+ * - Formulario de confirmación de asistencia
  */
 
 // ========== CONFIGURACIÓN ==========
@@ -11,34 +13,13 @@
 const EVENT_DATE = new Date('2026-08-22T19:00:00').getTime();
 const GATE_EL = document.getElementById('gate');
 const MAIN_EL = document.getElementById('main');
-const GATE_NAME = document.getElementById('gateName');
 const GATE_ENTER = document.getElementById('gateEnter');
 const BG_MUSIC = document.getElementById('bgMusic');
 const AUDIO_TOGGLE = document.getElementById('audioToggle');
 
-// ========== LEER CÓDIGO DE INVITADO ==========
-
-function getGuestFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('inv');
-  
-  if (!code) {
-    return null;
-  }
-
-  const guest = GUEST_LIST.find(g => g.code.toUpperCase() === code.toUpperCase());
-  return guest || null;
-}
-
 // ========== INICIALIZAR PANTALLA DE INVITACIÓN ==========
 
 function initGate() {
-  const guest = getGuestFromURL();
-
-  if (guest) {
-    GATE_NAME.textContent = `Bienvenido/a, ${guest.name}`;
-  }
-
   GATE_ENTER.addEventListener('click', () => {
     GATE_EL.style.display = 'none';
     MAIN_EL.hidden = false;
@@ -69,6 +50,49 @@ function initAudioToggle() {
     AUDIO_TOGGLE.setAttribute('aria-pressed', String(!BG_MUSIC.muted));
     AUDIO_TOGGLE.setAttribute('aria-label', BG_MUSIC.muted ? 'Activar música' : 'Silenciar música');
   });
+}
+
+// ========== CONFIRMACIÓN DE ASISTENCIA ==========
+
+function initConfirmForm() {
+  const confirmFormWrap = document.getElementById('confirmForm');
+  if (!confirmFormWrap) return;
+
+  const confirmChoice = document.querySelector('.confirm-choice');
+  const choiceYes = document.getElementById('choiceYes');
+  const choiceNo = document.getElementById('choiceNo');
+  const confirmDetails = document.getElementById('confirmDetails');
+  const declineForm = document.getElementById('declineForm');
+  const plusOneToggle = document.getElementById('plusOneToggle');
+  const companionField = document.getElementById('companionField');
+  const updateBtn = document.getElementById('updateResponseBtn');
+  const confirmSummary = document.getElementById('confirmSummary');
+
+  if (choiceYes) {
+    choiceYes.addEventListener('click', () => {
+      confirmChoice.hidden = true;
+      confirmDetails.hidden = false;
+    });
+  }
+
+  if (choiceNo) {
+    choiceNo.addEventListener('click', () => {
+      declineForm.submit();
+    });
+  }
+
+  if (plusOneToggle) {
+    plusOneToggle.addEventListener('change', () => {
+      companionField.hidden = !plusOneToggle.checked;
+    });
+  }
+
+  if (updateBtn) {
+    updateBtn.addEventListener('click', () => {
+      confirmSummary.hidden = true;
+      confirmFormWrap.hidden = false;
+    });
+  }
 }
 
 // ========== COUNTDOWN ==========
@@ -175,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initGate();
   initAudioToggle();
   initParticles();
+  initConfirmForm();
 });
 
 // ========== ACCESIBILIDAD ==========

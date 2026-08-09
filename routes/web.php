@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ShowClinicGuestController;
+use App\Http\Controllers\ShowClinicAdminController;
 
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index')->name('index');
@@ -11,7 +13,19 @@ Route::controller(HomeController::class)->group(function () {
 });
 
 // Landing standalone de evento (identidad visual propia, sin header/footer de CLAN)
-Route::view('/showclinic', 'showclinic')->name('showclinic');
+Route::get('/showclinic', [ShowClinicGuestController::class, 'show'])->name('showclinic');
+Route::post('/showclinic/confirmar', [ShowClinicGuestController::class, 'confirm'])->name('showclinic.confirmar');
+
+// Panel de administración de invitados (protegido por contraseña simple)
+Route::prefix('showclinic/admin')->name('showclinic.admin.')->group(function () {
+    Route::get('/login', [ShowClinicAdminController::class, 'loginForm'])->name('login');
+    Route::post('/login', [ShowClinicAdminController::class, 'login'])->name('login.submit');
+    Route::post('/logout', [ShowClinicAdminController::class, 'logout'])->name('logout');
+
+    Route::middleware('showclinic.admin')->group(function () {
+        Route::get('/', [ShowClinicAdminController::class, 'index'])->name('index');
+    });
+});
 
     // demos
 Route::prefix('home')->group(function () {

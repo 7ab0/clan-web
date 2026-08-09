@@ -19,7 +19,7 @@
   <div class="gate-content">
     <img src="{{ asset('assets/showclinic/img/logosinfondo.png') }}" alt="ShowClinic" class="gate-logo">
     <p class="gate-eyebrow">Tienes una invitación especial</p>
-    <h1 class="gate-name" id="gateName">Bienvenido/a</h1>
+    <h1 class="gate-name" id="gateName">{{ $guest ? 'Bienvenido/a, ' . $guest->name : 'Bienvenido/a' }}</h1>
     <p class="gate-sub">Nos encantaría que nos acompañes a celebrar</p>
     <button id="gateEnter" class="btn-enter" aria-label="Ver invitación">
       <span>Ver mi invitación</span>
@@ -34,6 +34,9 @@
   <nav class="nav">
     <img src="{{ asset('assets/showclinic/img/logosinfondo.png') }}" alt="ShowClinic" class="nav-logo">
     <div class="nav-links">
+      @if ($guest)
+        <a href="#confirmacion">Confirmar</a>
+      @endif
       <a href="#itinerario">Itinerario</a>
       <a href="#experiencia">Experiencia</a>
       <a href="#sorteo">Sorteo</a>
@@ -76,6 +79,77 @@
     </div>
     <div class="scroll-cue">Desliza para ver el programa</div>
   </header>
+
+  @if ($guest)
+  <!-- CONFIRMACIÓN DE ASISTENCIA -->
+  <section id="confirmacion" class="section confirmacion">
+    <div class="section-head reveal">
+      <p class="eyebrow">Tu respuesta</p>
+      <h2>Confirma tu asistencia</h2>
+    </div>
+
+    <div class="confirm-box reveal">
+
+      <div id="confirmSummary" class="confirm-summary" @if ($guest->status === 'pendiente') hidden @endif>
+        @if ($guest->status === 'confirmado')
+          <p class="confirm-icon">✓</p>
+          <h3>¡Gracias, {{ $guest->name }}!</h3>
+          <p class="confirm-text">Ya confirmaste tu asistencia. Te esperamos el 22 de agosto en Clan Restaurant.</p>
+          @if ($guest->plus_one)
+            <p class="confirm-detail">Acompañante: {{ $guest->companion_name ?: 'sí' }}</p>
+          @endif
+          @if ($guest->preferences)
+            <p class="confirm-detail">Preferencias: {{ $guest->preferences }}</p>
+          @endif
+        @elseif ($guest->status === 'rechazado')
+          <p class="confirm-icon">·</p>
+          <h3>Gracias por avisarnos, {{ $guest->name }}</h3>
+          <p class="confirm-text">Registramos que no podrás acompañarnos esta vez. ¡Esperamos verte en la próxima!</p>
+        @endif
+        <button type="button" id="updateResponseBtn" class="btn-outline">Actualizar mi respuesta</button>
+      </div>
+
+      <div id="confirmForm" @if ($guest->status !== 'pendiente') hidden @endif>
+        <p class="confirm-question">¿Confirmas tu asistencia, {{ $guest->name }}?</p>
+
+        <div class="confirm-choice">
+          <button type="button" id="choiceYes" class="btn-enter"><span>Sí, confirmo</span></button>
+          <button type="button" id="choiceNo" class="btn-outline">No podré asistir</button>
+        </div>
+
+        <form method="POST" action="{{ route('showclinic.confirmar') }}" id="confirmDetails" class="confirm-details" hidden>
+          @csrf
+          <input type="hidden" name="code" value="{{ $guest->code }}">
+          <input type="hidden" name="response" value="confirmado">
+
+          <label class="toggle-row" for="plusOneToggle">
+            <input type="checkbox" name="plus_one" value="1" id="plusOneToggle" @checked($guest->plus_one)>
+            <span>¿Vienes acompañado/a?</span>
+          </label>
+
+          <div id="companionField" class="field" @if (! $guest->plus_one) hidden @endif>
+            <label for="companion_name">Nombre de tu acompañante</label>
+            <input type="text" id="companion_name" name="companion_name" value="{{ old('companion_name', $guest->companion_name) }}" placeholder="Nombre completo">
+          </div>
+
+          <div class="field">
+            <label for="preferences">Preferencias o restricciones alimentarias</label>
+            <textarea id="preferences" name="preferences" rows="3" placeholder="Ej. vegetariano, alergias, etc. (opcional)">{{ old('preferences', $guest->preferences) }}</textarea>
+          </div>
+
+          <button type="submit" class="btn-enter"><span>Enviar confirmación</span></button>
+        </form>
+
+        <form method="POST" action="{{ route('showclinic.confirmar') }}" id="declineForm" hidden>
+          @csrf
+          <input type="hidden" name="code" value="{{ $guest->code }}">
+          <input type="hidden" name="response" value="rechazado">
+        </form>
+      </div>
+
+    </div>
+  </section>
+  @endif
 
   <!-- ITINERARIO -->
   <section id="itinerario" class="section">
@@ -239,7 +313,6 @@
 
 </div>
 
-<script src="{{ asset('assets/showclinic/js/guests.js') }}"></script>
 <script src="{{ asset('assets/showclinic/js/main.js') }}"></script>
 </body>
 </html>

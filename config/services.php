@@ -31,4 +31,8 @@ return [
         ],
     ],
 
+    'showclinic' => [
+        'admin_password' => env('SHOWCLINIC_ADMIN_PASSWORD'),
+    ],
+
 ];

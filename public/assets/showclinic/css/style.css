@@ -506,6 +506,130 @@ body {
   color: #ccc;
 }
 
+/* ==================== CONFIRMACIÓN DE ASISTENCIA ==================== */
+
+.confirmacion {
+  background: var(--light-gray);
+}
+
+.confirm-box {
+  max-width: 560px;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3rem;
+  text-align: center;
+}
+
+.confirm-question {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin-bottom: 2rem;
+}
+
+.confirm-choice {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.confirm-details {
+  text-align: left;
+  margin-top: 0.5rem;
+}
+
+.confirm-details .btn-enter {
+  display: block;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+}
+
+.toggle-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+.field {
+  margin-bottom: 1.5rem;
+}
+
+.field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.field input[type="text"],
+.field textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--dark);
+  resize: vertical;
+  transition: var(--transition);
+}
+
+.field input[type="text"]:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--primary-light);
+}
+
+.confirm-summary .confirm-icon {
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.confirm-summary h3 {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 400;
+  margin-bottom: 0.75rem;
+}
+
+.confirm-summary .confirm-text {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.confirm-summary .confirm-detail {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 0.35rem;
+}
+
+.confirm-summary .btn-outline {
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .confirm-box {
+    padding: 2rem 1.5rem;
+  }
+  .confirm-choice {
+    flex-direction: column;
+  }
+}
+
 /* ==================== TIMELINE (ITINERARIO) ==================== */
 
 .timeline {
