@@ -1,0 +1,159 @@
+/*--------------------------------------------------------------
+  Pre-holder — "Estamos atizando nuestros fogones"
+  Pagina autonoma (no usa el layout principal). Reutiliza las
+  fuentes ya self-hosteadas del sitio (Cinzel, Prompt) y la paleta
+  base (--body-bg-color, --yellow-color).
+----------------------------------------------------------------*/
+@import url("https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap");
+
+@font-face {
+  font-family: "Cinzel";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("../fonts/cinzel/cinzel-variable.woff2") format("woff2");
+}
+
+.preholder-page {
+  position: fixed;
+  inset: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #05070a;
+  font-family: "Prompt", sans-serif;
+}
+
+.preholder-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("../img/preholder-fogones.jpg");
+  background-size: cover;
+  background-position: center 60%;
+  animation: preholderBgReveal 1.4s ease-out forwards;
+}
+
+@keyframes preholderBgReveal {
+  from { opacity: 0; transform: scale(1.04); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.preholder-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 35%, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.65) 78%, rgba(0, 0, 0, 0.85) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.15) 30%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+.preholder-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  animation: preholderContentReveal 1s 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes preholderContentReveal {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.preholder-icon {
+  width: 132px;
+  height: auto;
+  margin-bottom: 2.25rem;
+  filter: drop-shadow(0 0 28px rgba(251, 177, 47, 0.35));
+}
+
+.preholder-line {
+  font-family: "Prompt", sans-serif;
+  font-weight: 300;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  color: var(--common-color-white, #fff);
+  letter-spacing: 0.01em;
+  margin: 0 0 0.6rem;
+}
+
+.preholder-line strong {
+  font-weight: 700;
+}
+
+.preholder-title {
+  font-family: "Cinzel", serif;
+  font-weight: 600;
+  font-size: clamp(1.8rem, 6vw, 3.2rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--yellow-color, #fbb12f);
+  margin: 0;
+}
+
+/* Icono de audio: visible siempre, esquina fija */
+
+.preholder-audio-toggle {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(251, 177, 47, 0.35);
+  background: rgba(4, 13, 16, 0.7);
+  backdrop-filter: blur(10px);
+  color: var(--yellow-color, #fbb12f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.preholder-audio-toggle:hover {
+  transform: scale(1.08);
+  border-color: var(--yellow-color, #fbb12f);
+  box-shadow: 0 12px 36px rgba(251, 177, 47, 0.25);
+}
+
+.preholder-audio-toggle .icon-unmuted {
+  display: none;
+}
+
+.preholder-audio-toggle.is-unmuted .icon-muted {
+  display: none;
+}
+
+.preholder-audio-toggle.is-unmuted .icon-unmuted {
+  display: block;
+}
+
+@media (max-width: 480px) {
+  .preholder-icon {
+    width: 96px;
+    margin-bottom: 1.75rem;
+  }
+
+  .preholder-audio-toggle {
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preholder-bg,
+  .preholder-content {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
