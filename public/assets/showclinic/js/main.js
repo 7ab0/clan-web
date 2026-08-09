@@ -11,14 +11,12 @@
 // ========== CONFIGURACIÓN ==========
 
 const EVENT_DATE = new Date('2026-08-22T19:00:00').getTime();
-const GATE_EL = document.getElementById('gate');
 const PREHOLDER_EL = document.getElementById('preholder');
 const MAIN_EL = document.getElementById('main');
-const GATE_ENTER = document.getElementById('gateEnter');
 const BG_MUSIC = document.getElementById('bgMusic');
 const AUDIO_TOGGLE = document.getElementById('audioToggle');
 
-// ========== INICIALIZAR PANTALLA DE INVITACIÓN ==========
+// ========== ENTRADA AL SITIO (SIN GATE INTERMEDIO) ==========
 
 function revealMain() {
   MAIN_EL.hidden = false;
@@ -27,27 +25,12 @@ function revealMain() {
 }
 
 function startBackgroundAudio() {
-  // Siempre visible ni bien se pasa el gate (pre-holder o directo a main),
-  // arrancando en mute: los navegadores bloquean autoplay con sonido.
-  if (AUDIO_TOGGLE) {
-    AUDIO_TOGGLE.hidden = false;
-  }
+  // Arranca de una al cargar, en mute (autoplay con sonido esta
+  // bloqueado por los navegadores). El boton de audio ya es visible
+  // desde el primer render, sin esperar ninguna interaccion previa.
   if (BG_MUSIC) {
     BG_MUSIC.play().catch(() => {});
   }
-}
-
-function initGate() {
-  GATE_ENTER.addEventListener('click', () => {
-    GATE_EL.style.display = 'none';
-    startBackgroundAudio();
-
-    if (PREHOLDER_EL) {
-      PREHOLDER_EL.hidden = false;
-    } else {
-      revealMain();
-    }
-  });
 }
 
 // ========== PRE-HOLDER (HISTORIA DE 3 PANTALLAS) ==========
@@ -247,11 +230,17 @@ function observeReveals() {
 
 document.addEventListener('DOMContentLoaded', () => {
   observeReveals();
-  initGate();
+  startBackgroundAudio();
   initPreholder();
   initAudioToggle();
   initParticles();
   initConfirmForm();
+
+  // Sin invitado (sin ?inv= valido) no hay pre-holder que mostrar:
+  // se entra directo al sitio principal.
+  if (!PREHOLDER_EL) {
+    revealMain();
+  }
 });
 
 // ========== ACCESIBILIDAD ==========
