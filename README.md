@@ -72,6 +72,15 @@ El proyecto usa **SQLite** para desarrollo local (`DB_CONNECTION=sqlite` en `.en
 archivo en `database/database.sqlite`, ignorado por git). No requiere levantar MySQL/Postgres
 para trabajar localmente.
 
+### Base de datos en producción (Laravel Cloud)
+
+En producción se usa **MySQL** en vez de SQLite — la infraestructura de contenedores
+efímeros de Laravel Cloud no persiste el archivo `.sqlite` entre comandos. La conexión
+`mysql` ya está configurada en `config/database.php` vía las variables de entorno
+estándar (`DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, ver
+`.env.example`); la base de datos y esas variables se crean y configuran directo en el
+panel de Laravel Cloud, no en este repo.
+
 ## Estructura de carpetas
 
 ```
