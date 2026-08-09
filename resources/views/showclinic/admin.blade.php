@@ -251,6 +251,8 @@
         <tr>
           <th><a href="{{ $sortLink('name') }}">Nombre{{ $arrow('name') }}</a></th>
           <th><a href="{{ $sortLink('code') }}">Código{{ $arrow('code') }}</a></th>
+          <th>Profesión</th>
+          <th>Cumplido</th>
           <th><a href="{{ $sortLink('status') }}">Estado{{ $arrow('status') }}</a></th>
           <th>Acompañante</th>
           <th>Preferencias</th>
@@ -262,6 +264,8 @@
           <tr>
             <td>{{ $guest->name }}</td>
             <td class="code">{{ $guest->code }}</td>
+            <td>{{ $guest->profession ?: '—' }}</td>
+            <td class="wrap">{{ $guest->compliment ?: '—' }}</td>
             <td><span class="badge {{ $guest->status }}">{{ ucfirst($guest->status) }}</span></td>
             <td>
               @if ($guest->plus_one)
@@ -275,7 +279,7 @@
           </tr>
         @empty
           <tr>
-            <td colspan="6" class="empty">No se encontraron invitados con esos filtros.</td>
+            <td colspan="8" class="empty">No se encontraron invitados con esos filtros.</td>
           </tr>
         @endforelse
       </tbody>

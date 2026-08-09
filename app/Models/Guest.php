@@ -9,6 +9,8 @@ class Guest extends Model
     protected $fillable = [
         'code',
         'name',
+        'profession',
+        'compliment',
         'email',
         'phone',
         'status',

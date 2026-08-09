@@ -12,6 +12,7 @@
 
 const EVENT_DATE = new Date('2026-08-22T19:00:00').getTime();
 const GATE_EL = document.getElementById('gate');
+const PREHOLDER_EL = document.getElementById('preholder');
 const MAIN_EL = document.getElementById('main');
 const GATE_ENTER = document.getElementById('gateEnter');
 const BG_MUSIC = document.getElementById('bgMusic');
@@ -19,21 +20,71 @@ const AUDIO_TOGGLE = document.getElementById('audioToggle');
 
 // ========== INICIALIZAR PANTALLA DE INVITACIÓN ==========
 
+function revealMain() {
+  MAIN_EL.hidden = false;
+  document.querySelector('.nav').style.animation = 'fadeIn 0.6s ease-out';
+  document.querySelector('.hero').style.animation = 'fadeIn 0.6s ease-out';
+}
+
+function startBackgroundAudio() {
+  // Siempre visible ni bien se pasa el gate (pre-holder o directo a main),
+  // arrancando en mute: los navegadores bloquean autoplay con sonido.
+  if (AUDIO_TOGGLE) {
+    AUDIO_TOGGLE.hidden = false;
+  }
+  if (BG_MUSIC) {
+    BG_MUSIC.play().catch(() => {});
+  }
+}
+
 function initGate() {
   GATE_ENTER.addEventListener('click', () => {
     GATE_EL.style.display = 'none';
-    MAIN_EL.hidden = false;
+    startBackgroundAudio();
 
-    // Trigger animations
-    document.querySelector('.nav').style.animation = 'fadeIn 0.6s ease-out';
-    document.querySelector('.hero').style.animation = 'fadeIn 0.6s ease-out';
-
-    // La música arranca recién al pasar el gate, siempre en mute
-    // (autoplay con sonido está bloqueado por los navegadores)
-    if (BG_MUSIC) {
-      BG_MUSIC.play().catch(() => {});
+    if (PREHOLDER_EL) {
+      PREHOLDER_EL.hidden = false;
+    } else {
+      revealMain();
     }
   });
+}
+
+// ========== PRE-HOLDER (HISTORIA DE 3 PANTALLAS) ==========
+
+function initPreholder() {
+  if (!PREHOLDER_EL) return;
+
+  const screens = Array.from(PREHOLDER_EL.querySelectorAll('.preholder-screen'));
+  const bars = Array.from(PREHOLDER_EL.querySelectorAll('.preholder-progress-bar'));
+  const prevZone = document.getElementById('preholderPrev');
+  const nextZone = document.getElementById('preholderNext');
+  let index = 0;
+
+  function render() {
+    screens.forEach((screen, i) => screen.classList.toggle('is-active', i === index));
+    bars.forEach((bar, i) => bar.classList.toggle('is-seen', i <= index));
+  }
+
+  function next() {
+    if (index >= screens.length - 1) {
+      PREHOLDER_EL.hidden = true;
+      revealMain();
+      return;
+    }
+    index += 1;
+    render();
+  }
+
+  function prev() {
+    if (index === 0) return;
+    index -= 1;
+    render();
+  }
+
+  nextZone.addEventListener('click', next);
+  prevZone.addEventListener('click', prev);
+  render();
 }
 
 // ========== AUDIO DE FONDO ==========
@@ -197,6 +248,7 @@ function observeReveals() {
 document.addEventListener('DOMContentLoaded', () => {
   observeReveals();
   initGate();
+  initPreholder();
   initAudioToggle();
   initParticles();
   initConfirmForm();

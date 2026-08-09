@@ -27,6 +27,68 @@
   </div>
 </div>
 
+@if ($guest)
+<!-- ======================= PRE-HOLDER (HISTORIA DE 3 PANTALLAS) ======================= -->
+<div id="preholder" hidden>
+  <div class="preholder-frame">
+    <div class="preholder-progress" aria-hidden="true">
+      <span class="preholder-progress-bar" data-bar="1"></span>
+      <span class="preholder-progress-bar" data-bar="2"></span>
+      <span class="preholder-progress-bar" data-bar="3"></span>
+    </div>
+
+    <div class="preholder-screens">
+      <div class="preholder-screen is-active" data-screen="1">
+        <img src="{{ asset('assets/showclinic/img/logosinfondo.png') }}" alt="ShowClinic" class="preholder-logo">
+        <p class="preholder-wordmark">SHOW CLINIC</p>
+        <p class="preholder-teaser-eyebrow">Estamos preparando algo grande</p>
+        <p class="preholder-teaser-text">Y tú serás parte de ella.</p>
+      </div>
+
+      <div class="preholder-screen" data-screen="2">
+        @if ($guest->compliment)
+          <p class="preholder-compliment-eyebrow">{{ $guest->profession }}</p>
+          <p class="preholder-compliment">{{ $guest->compliment }}</p>
+        @else
+          <p class="preholder-compliment-eyebrow">Tienes una invitación especial</p>
+          <p class="preholder-compliment">Hoy, la noche es para ti.</p>
+        @endif
+        <h2 class="preholder-guest-name">{{ $guest->name }}</h2>
+      </div>
+
+      <div class="preholder-screen" data-screen="3">
+        <div class="preholder-date">
+          <span class="preholder-date-num">22</span>
+          <span class="preholder-date-month">AGO</span>
+        </div>
+        <svg class="preholder-dragonfly" viewBox="0 0 120 120" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="60" cy="16" r="5" fill="currentColor" stroke="none" />
+            <line x1="60" y1="22" x2="60" y2="100" />
+            <line x1="54" y1="34" x2="66" y2="34" />
+            <line x1="55" y1="46" x2="65" y2="46" />
+            <line x1="56" y1="58" x2="64" y2="58" />
+            <line x1="57" y1="70" x2="63" y2="70" />
+            <path d="M60 100 L53 111 M60 100 L67 111" />
+            <ellipse cx="32" cy="34" rx="27" ry="9" transform="rotate(-16 32 34)" />
+            <ellipse cx="88" cy="34" rx="27" ry="9" transform="rotate(16 88 34)" />
+            <ellipse cx="29" cy="54" rx="24" ry="7.5" transform="rotate(-6 29 54)" />
+            <ellipse cx="91" cy="54" rx="24" ry="7.5" transform="rotate(6 91 54)" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="preholder-tap" aria-hidden="true">
+      <div class="preholder-tap-prev" id="preholderPrev"></div>
+      <div class="preholder-tap-next" id="preholderNext"></div>
+    </div>
+
+    <p class="preholder-hint">Toca para continuar</p>
+  </div>
+</div>
+@endif
+
 <!-- ======================= CONTENIDO PRINCIPAL ======================= -->
 <div id="main" hidden>
 
@@ -300,18 +362,21 @@
     <p class="footer-copy">© 2026 ShowClinic — Yanahuara, Arequipa</p>
   </footer>
 
-  <!-- AUDIO DE FONDO -->
-  <audio id="bgMusic" src="{{ asset('assets/showclinic/audio/event-music.mp3') }}" loop muted playsinline preload="auto"></audio>
-  <button id="audioToggle" class="audio-toggle" type="button" aria-label="Activar música" aria-pressed="false">
-    <svg class="icon-muted" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-      <path fill="currentColor" d="M16.5 12A4.5 4.5 0 0 0 14 8v2.18l2.45 2.45c.03-.2.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.63l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/>
-    </svg>
-    <svg class="icon-unmuted" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-      <path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.47 4.47 0 0 0 2.5-4zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-    </svg>
-  </button>
-
 </div>
+
+<!-- ======================= AUDIO DE FONDO ======================= -->
+<!-- Fuera de #main a propósito: debe quedar visible ni bien se pasa el
+     gate, incluyendo durante las 3 pantallas del pre-holder, no solo
+     cuando se revela el contenido principal. -->
+<audio id="bgMusic" src="{{ asset('assets/showclinic/audio/event-music.mp3') }}" loop muted playsinline preload="auto"></audio>
+<button id="audioToggle" class="audio-toggle" type="button" hidden aria-label="Activar música" aria-pressed="false">
+  <svg class="icon-muted" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+    <path fill="currentColor" d="M16.5 12A4.5 4.5 0 0 0 14 8v2.18l2.45 2.45c.03-.2.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.63l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/>
+  </svg>
+  <svg class="icon-unmuted" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+    <path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.47 4.47 0 0 0 2.5-4zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+  </svg>
+</button>
 
 <script src="{{ asset('assets/showclinic/js/main.js') }}"></script>
 </body>
