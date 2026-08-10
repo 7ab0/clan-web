@@ -33,14 +33,22 @@
       </div>
 
       <div class="preholder-screen" data-screen="2">
-        @if ($guest->compliment)
-          <p class="preholder-compliment-eyebrow">{{ $guest->profession }}</p>
-          <p class="preholder-compliment">{{ $guest->compliment }}</p>
-        @else
-          <p class="preholder-compliment-eyebrow">Tienes una invitación especial</p>
-          <p class="preholder-compliment">Hoy, la noche es para ti.</p>
-        @endif
+        @php
+          $preholderEyebrow = $guest->compliment ? $guest->profession : 'Tienes una invitación especial';
+          $preholderComplimentRaw = trim($guest->compliment ?: 'Hoy, la noche es para ti.');
+          if (preg_match('/^(.*\s)(\S+?)([.,;:!?]*)$/u', $preholderComplimentRaw, $complimentParts)) {
+              $complimentLead = $complimentParts[1];
+              $complimentStrong = $complimentParts[2];
+              $complimentTrailing = $complimentParts[3];
+          } else {
+              $complimentLead = '';
+              $complimentStrong = $preholderComplimentRaw;
+              $complimentTrailing = '';
+          }
+        @endphp
+        <p class="preholder-compliment-eyebrow">{{ $preholderEyebrow }}</p>
         <h2 class="preholder-guest-name">{{ $guest->name }}</h2>
+        <p class="preholder-compliment">{{ $complimentLead }}<span class="compliment-strong">{{ $complimentStrong }}</span>{{ $complimentTrailing }}</p>
       </div>
 
       <div class="preholder-screen" data-screen="3">
