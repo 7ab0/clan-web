@@ -4,12 +4,25 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShowClinicGuestController;
 use App\Http\Controllers\ShowClinicAdminController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\PaymentController;
 
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index')->name('index');
     // Paginas reales del sitio, con slugs limpios (no /home/*)
     Route::get('/menu', 'menu')->name('menu');
     Route::get('/experiencias', 'experiencias')->name('experiencias');
+});
+
+// Íntimo: landing, reserva y pago (universo CLAN, mismo layout base)
+Route::get('/intimo/{token?}', [EventController::class, 'intimo'])->name('intimo');
+Route::post('/intimo/reservar', [ReservationController::class, 'store'])->name('intimo.reservar');
+
+Route::prefix('reservas/{code}')->group(function () {
+    Route::get('/pago', [PaymentController::class, 'show'])->name('reservas.pago');
+    Route::post('/pago', [PaymentController::class, 'process'])->name('reservas.pago.procesar');
+    Route::get('/confirmacion', [PaymentController::class, 'confirmation'])->name('reservas.confirmacion');
 });
 
 // Landing standalone de evento (identidad visual propia, sin header/footer de CLAN)

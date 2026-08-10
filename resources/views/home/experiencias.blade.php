@@ -39,8 +39,8 @@
                 <span class="experiencias-card-link">Ver invitación &rarr;</span>
             </a>
 
-            <a href="https://intimo.kavernario.com" target="_blank" rel="noopener noreferrer" class="experiencias-card is-active manifiesto-reveal">
-                <span class="experiencias-card-tag">Reservas abiertas</span>
+            <a href="{{ route('intimo') }}" class="experiencias-card is-active manifiesto-reveal">
+                <span class="experiencias-card-tag">Próximamente</span>
                 <h3 class="experiencias-card-title">Íntimo</h3>
                 <p class="experiencias-card-text">
                     Una mesa reducida, pensada para una conversación cercana con el
