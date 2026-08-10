@@ -28,8 +28,8 @@
       <div class="preholder-screen is-active" data-screen="1">
         <img src="{{ asset('assets/showclinic/img/logosinfondo.png') }}" alt="ShowClinic" class="preholder-logo">
         <p class="preholder-wordmark">SHOW CLINIC</p>
-        <p class="preholder-teaser-eyebrow">Estamos preparando algo grande</p>
-        <p class="preholder-teaser-text">Y tú serás parte de ella.</p>
+        <p class="preholder-teaser-eyebrow">Estamos preparando algo <span class="teaser-strong">grande</span></p>
+        <p class="preholder-teaser-text">Y tú serás parte de <span class="teaser-strong">ella.</span></p>
       </div>
 
       <div class="preholder-screen" data-screen="2">
