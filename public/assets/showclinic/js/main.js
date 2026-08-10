@@ -39,14 +39,12 @@ function initPreholder() {
   if (!PREHOLDER_EL) return;
 
   const screens = Array.from(PREHOLDER_EL.querySelectorAll('.preholder-screen'));
-  const bars = Array.from(PREHOLDER_EL.querySelectorAll('.preholder-progress-bar'));
   const prevZone = document.getElementById('preholderPrev');
   const nextZone = document.getElementById('preholderNext');
   let index = 0;
 
   function render() {
     screens.forEach((screen, i) => screen.classList.toggle('is-active', i === index));
-    bars.forEach((bar, i) => bar.classList.toggle('is-seen', i <= index));
   }
 
   function next() {

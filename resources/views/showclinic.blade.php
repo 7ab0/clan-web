@@ -18,23 +18,16 @@
 <!-- Sin gate intermedio: con ?inv=CODIGO valido se entra directo aca. -->
 <div id="preholder">
   <div class="preholder-frame">
-    <div class="preholder-progress" aria-hidden="true">
-      <span class="preholder-progress-bar" data-bar="1"></span>
-      <span class="preholder-progress-bar" data-bar="2"></span>
-      <span class="preholder-progress-bar" data-bar="3"></span>
-    </div>
-
     <div class="preholder-screens">
       <div class="preholder-screen is-active" data-screen="1">
         <img src="{{ asset('assets/showclinic/img/logosinfondo.png') }}" alt="ShowClinic" class="preholder-logo">
-        <p class="preholder-wordmark">SHOW CLINIC</p>
+        <p class="preholder-wordmark">SHOWCLINIC</p>
         <p class="preholder-teaser-eyebrow">Estamos preparando algo <span class="teaser-strong">grande</span></p>
         <p class="preholder-teaser-text">Y tú serás parte de <span class="teaser-strong">ella.</span></p>
       </div>
 
       <div class="preholder-screen" data-screen="2">
         @php
-          $preholderEyebrow = $guest->compliment ? $guest->profession : 'Tienes una invitación especial';
           $preholderComplimentRaw = trim($guest->compliment ?: 'Hoy, la noche es para ti.');
           if (preg_match('/^(.*\s)(\S+?)([.,;:!?]*)$/u', $preholderComplimentRaw, $complimentParts)) {
               $complimentLead = $complimentParts[1];
@@ -46,18 +39,18 @@
               $complimentTrailing = '';
           }
         @endphp
-        <p class="preholder-compliment-eyebrow">{{ $preholderEyebrow }}</p>
+        <p class="preholder-compliment-eyebrow">Tienes una invitación especial</p>
         <h2 class="preholder-guest-name">{{ $guest->name }}</h2>
         <p class="preholder-compliment">{{ $complimentLead }}<span class="compliment-strong">{{ $complimentStrong }}</span>{{ $complimentTrailing }}</p>
       </div>
 
       <div class="preholder-screen" data-screen="3">
+        <img class="preholder-dragonfly" src="{{ asset('assets/showclinic/img/icono-libelula-clan.png') }}" alt="CLAN">
         <div class="preholder-date">
           <span class="preholder-date-num">22</span>
-          <span class="preholder-date-month">AGO</span>
+          <span class="preholder-date-month">AGOSTO</span>
         </div>
         <p class="preholder-savedate-hint">Separa la fecha</p>
-        <img class="preholder-dragonfly" src="{{ asset('assets/showclinic/img/icono-libelula-clan.png') }}" alt="CLAN">
       </div>
     </div>
 
@@ -65,8 +58,6 @@
       <div class="preholder-tap-prev" id="preholderPrev"></div>
       <div class="preholder-tap-next" id="preholderNext"></div>
     </div>
-
-    <p class="preholder-hint">Toca para continuar</p>
   </div>
 </div>
 @endif
