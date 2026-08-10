@@ -14,9 +14,9 @@ class ClanPreholder
             return $next($request);
         }
 
-        // /showclinic (y sus sub-rutas) es de otro cliente, con su propia
-        // identidad visual: nunca debe quedar tapado por este pre-holder.
-        if ($request->is('showclinic*', 'mantenimiento', 'up')) {
+        // /showclinic (otro cliente) e /intimo + /reservas/* (su flujo de
+        // reserva/pago) siempre deben verse, sin pasar por el pre-holder.
+        if ($request->is('showclinic*', 'intimo*', 'reservas/*', 'mantenimiento', 'up')) {
             return $next($request);
         }
 
