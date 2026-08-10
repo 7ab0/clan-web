@@ -56,6 +56,7 @@
           <span class="preholder-date-num">22</span>
           <span class="preholder-date-month">AGO</span>
         </div>
+        <p class="preholder-savedate-hint">Separa la fecha</p>
         <img class="preholder-dragonfly" src="{{ asset('assets/showclinic/img/icono-libelula-clan.png') }}" alt="CLAN">
       </div>
     </div>

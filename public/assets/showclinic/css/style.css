@@ -339,7 +339,7 @@ body {
 }
 
 .preholder-date-num {
-  font-family: var(--font-display);
+  font-family: var(--font-accent);
   font-weight: 300;
   font-size: clamp(6rem, 26vw, 9.5rem);
   color: var(--primary);
@@ -353,6 +353,16 @@ body {
   letter-spacing: 0.4em;
   padding-left: 0.4em;
   color: var(--dark);
+}
+
+.preholder-savedate-hint {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 2.5rem;
 }
 
 .preholder-dragonfly {
