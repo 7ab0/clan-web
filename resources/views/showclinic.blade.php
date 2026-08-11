@@ -22,7 +22,8 @@
       <div class="preholder-screen is-active" data-screen="1">
         <img src="{{ asset('assets/showclinic/img/logosinfondo.png') }}" alt="ShowClinic" class="preholder-logo">
         <p class="preholder-wordmark">SHOWCLINIC</p>
-        <p class="preholder-teaser-eyebrow">Estamos preparando algo <span class="teaser-strong">grande</span></p>
+        <p class="preholder-teaser-eyebrow">Estamos preparando</p>
+        <p class="preholder-teaser-eyebrow">Algo <span class="teaser-strong">grande</span></p>
         <p class="preholder-teaser-text">Y tú serás parte de <span class="teaser-strong">ella.</span></p>
       </div>
 
@@ -38,9 +39,14 @@
               $complimentStrong = $preholderComplimentRaw;
               $complimentTrailing = '';
           }
+
+          // Nombre y apellido en líneas separadas (diseño Figma: dos líneas).
+          $guestNameParts = preg_split('/\s+/', trim($guest->name), 2);
+          $guestFirstName = $guestNameParts[0] ?? '';
+          $guestLastName = $guestNameParts[1] ?? '';
         @endphp
         <p class="preholder-compliment-eyebrow">Tienes una invitación especial</p>
-        <h2 class="preholder-guest-name">{{ $guest->name }}</h2>
+        <h2 class="preholder-guest-name">{{ $guestFirstName }}@if ($guestLastName)<br>{{ $guestLastName }}@endif</h2>
         <p class="preholder-compliment">{{ $complimentLead }}<span class="compliment-strong">{{ $complimentStrong }}</span>{{ $complimentTrailing }}</p>
       </div>
 
@@ -48,7 +54,7 @@
         <img class="preholder-dragonfly" src="{{ asset('assets/showclinic/img/icono-libelula-clan.png') }}" alt="CLAN">
         <div class="preholder-date">
           <span class="preholder-date-num">22</span>
-          <span class="preholder-date-month">AGOSTO</span>
+          <span class="preholder-date-month">Agosto</span>
         </div>
         <p class="preholder-savedate-hint">Separa la fecha</p>
       </div>
