@@ -25,6 +25,10 @@ Route::controller(HomeController::class)->group(function () {
 Route::get('/intimo/{token?}', [EventController::class, 'intimo'])->name('intimo');
 Route::post('/intimo/reservar', [ReservationController::class, 'store'])->name('intimo.reservar');
 
+// Fermento (CLAN x FORNO): landing y reserva de mesa por fecha
+Route::get('/fermento', [EventController::class, 'fermento'])->name('fermento');
+Route::post('/fermento/reservar', [ReservationController::class, 'store'])->name('fermento.reservar');
+
 Route::prefix('reservas/{code}')->group(function () {
     Route::get('/pago', [PaymentController::class, 'show'])->name('reservas.pago');
     Route::post('/pago', [PaymentController::class, 'process'])->name('reservas.pago.procesar');

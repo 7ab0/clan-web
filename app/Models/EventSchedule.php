@@ -48,4 +48,25 @@ class EventSchedule extends Model
     {
         return $this->available_spots <= 0;
     }
+
+    /**
+     * Mesas del evento con su disponibilidad para esta fecha puntual. Reservar
+     * la Mesa 3 para el viernes no toca su disponibilidad el sábado, porque
+     * cada fila de event_schedules es una fecha independiente.
+     */
+    public function tablesWithAvailability()
+    {
+        $takenTableIds = $this->reservations()
+            ->where('status', '!=', 'cancelled')
+            ->whereNotNull('event_table_id')
+            ->pluck('event_table_id');
+
+        return $this->event->tables->map(fn (EventTable $table) => [
+            'id' => $table->id,
+            'table_number' => $table->table_number,
+            'capacity_min' => $table->capacity_min,
+            'capacity_max' => $table->capacity_max,
+            'is_taken' => $takenTableIds->contains($table->id),
+        ]);
+    }
 }

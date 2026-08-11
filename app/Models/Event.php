@@ -40,6 +40,11 @@ class Event extends Model
         return $this->hasMany(Reservation::class);
     }
 
+    public function tables(): HasMany
+    {
+        return $this->hasMany(EventTable::class)->orderBy('table_number');
+    }
+
     /**
      * Turnos futuros y activos con cupo disponible, ordenados por fecha/hora.
      */

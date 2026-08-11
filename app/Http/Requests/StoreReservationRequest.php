@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\EventSchedule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
 
 class StoreReservationRequest extends FormRequest
 {
@@ -15,10 +17,11 @@ class StoreReservationRequest extends FormRequest
     {
         return [
             'event_schedule_id' => ['required', 'exists:event_schedules,id'],
+            'event_table_id' => ['nullable', 'exists:event_tables,id'],
             'customer_name' => ['required', 'string', 'max:120'],
             'customer_email' => ['required', 'email', 'max:150'],
             'customer_phone' => ['required', 'string', 'max:30'],
-            'party_size' => ['required', 'integer', 'min:2', 'max:2'],
+            'party_size' => ['required', 'integer', 'min:1', 'max:20'],
             'relationship_type' => ['nullable', 'string', 'max:60'],
             'notes' => ['nullable', 'string', 'max:500'],
         ];
@@ -33,5 +36,52 @@ class StoreReservationRequest extends FormRequest
             'customer_email.required' => 'Necesitamos un correo para confirmar tu reserva.',
             'customer_phone.required' => 'Déjanos un teléfono de contacto.',
         ];
+    }
+
+    /**
+     * Eventos con mesas propias (ej. Fermento) exigen elegir una mesa y acotan
+     * el tamaño del grupo a su aforo. Eventos sin mesas (ej. Íntimo) siguen
+     * reservando por cupo simple, con el tamaño de grupo fijo del evento.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $scheduleId = $this->input('event_schedule_id');
+            if (! $scheduleId) {
+                return;
+            }
+
+            $schedule = EventSchedule::with(['event.tables'])->find($scheduleId);
+            if (! $schedule) {
+                return;
+            }
+
+            $tables = $schedule->event->tables;
+            $partySize = (int) $this->input('party_size');
+
+            if ($tables->isNotEmpty()) {
+                $tableId = $this->input('event_table_id');
+
+                if (! $tableId) {
+                    $validator->errors()->add('event_table_id', 'Elige una mesa disponible.');
+
+                    return;
+                }
+
+                $table = $tables->firstWhere('id', (int) $tableId);
+
+                if (! $table) {
+                    $validator->errors()->add('event_table_id', 'Esa mesa no pertenece a este evento.');
+
+                    return;
+                }
+
+                if ($partySize > $table->capacity_max) {
+                    $validator->errors()->add('party_size', "La mesa elegida tiene capacidad para hasta {$table->capacity_max} personas.");
+                }
+            } elseif ($partySize !== (int) $schedule->event->party_size) {
+                $validator->errors()->add('party_size', 'El tamaño de grupo para este evento es fijo.');
+            }
+        });
     }
 }

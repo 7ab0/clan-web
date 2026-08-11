@@ -28,22 +28,45 @@ class ReservationController extends Controller
             // Bloqueamos la fila del horario para evitar overbooking con reservas simultáneas.
             $lockedSchedule = EventSchedule::whereKey($schedule->id)->lockForUpdate()->first();
 
-            if ($lockedSchedule->is_full) {
+            $tableId = $validated['event_table_id'] ?? null;
+
+            if ($tableId) {
+                // Eventos con mesas propias (ej. Fermento): el overbooking se controla
+                // por mesa+fecha, no por cupo agregado del horario.
+                $tableTaken = Reservation::where('event_schedule_id', $lockedSchedule->id)
+                    ->where('event_table_id', $tableId)
+                    ->where('status', '!=', 'cancelled')
+                    ->lockForUpdate()
+                    ->exists();
+
+                if ($tableTaken) {
+                    return back()
+                        ->withInput()
+                        ->withErrors(['event_table_id' => 'Esa mesa acaba de ser reservada para esta fecha. Elige otra, por favor.']);
+                }
+            } elseif ($lockedSchedule->is_full) {
                 return back()
                     ->withInput()
                     ->withErrors(['event_schedule_id' => 'Ese horario acaba de quedar sin cupo. Elige otro, por favor.']);
             }
 
+            // Eventos con mesas propias cobran por persona (Fermento); eventos sin
+            // mesas mantienen el precio plano por experiencia (Íntimo = por pareja).
+            $totalAmount = $tableId
+                ? $lockedSchedule->event->price * $validated['party_size']
+                : $lockedSchedule->event->price;
+
             $reservation = Reservation::create([
                 'event_id' => $lockedSchedule->event_id,
                 'event_schedule_id' => $lockedSchedule->id,
+                'event_table_id' => $tableId,
                 'customer_name' => $validated['customer_name'],
                 'customer_email' => $validated['customer_email'],
                 'customer_phone' => $validated['customer_phone'],
                 'party_size' => $validated['party_size'],
                 'relationship_type' => $validated['relationship_type'] ?? null,
                 'notes' => $validated['notes'] ?? null,
-                'total_amount' => $lockedSchedule->event->price,
+                'total_amount' => $totalAmount,
                 'status' => 'pending',
             ]);
 

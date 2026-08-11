@@ -16,6 +16,7 @@ class Reservation extends Model
         'code',
         'event_id',
         'event_schedule_id',
+        'event_table_id',
         'customer_name',
         'customer_email',
         'customer_phone',
@@ -30,15 +31,20 @@ class Reservation extends Model
     {
         static::creating(function (Reservation $reservation) {
             if (empty($reservation->code)) {
-                $reservation->code = static::generateCode();
+                $slug = optional(Event::find($reservation->event_id))->slug;
+                $prefix = match ($slug) {
+                    'fermento' => 'FER',
+                    default => 'INT',
+                };
+                $reservation->code = static::generateCode($prefix);
             }
         });
     }
 
-    public static function generateCode(): string
+    public static function generateCode(string $prefix = 'INT'): string
     {
         do {
-            $code = 'INT-' . strtoupper(Str::random(6));
+            $code = $prefix . '-' . strtoupper(Str::random(6));
         } while (static::where('code', $code)->exists());
 
         return $code;
@@ -52,6 +58,11 @@ class Reservation extends Model
     public function schedule(): BelongsTo
     {
         return $this->belongsTo(EventSchedule::class, 'event_schedule_id');
+    }
+
+    public function table(): BelongsTo
+    {
+        return $this->belongsTo(EventTable::class, 'event_table_id');
     }
 
     public function payment(): HasOne

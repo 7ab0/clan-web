@@ -54,4 +54,46 @@ class EventController extends Controller
             'guest' => $guest,
         ]);
     }
+
+    /**
+     * Landing de Fermento (CLAN x FORNO): historia, cocina y reserva de mesa
+     * por fecha. A diferencia de Íntimo, cada horario tiene mesas propias con
+     * su propio aforo, así que además del selector de fecha se manda al front
+     * la disponibilidad de las 12 mesas por horario para el picker de mesa.
+     */
+    public function fermento(): View
+    {
+        $event = Event::with('tables')
+            ->where('slug', 'fermento')
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $schedules = $event->upcomingSchedules();
+
+        $dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        $meses = [1 => 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+        $schedulesByDate = $schedules
+            ->groupBy(fn ($schedule) => $schedule->date->toDateString())
+            ->map(function ($group, $date) use ($dias, $meses) {
+                $carbonDate = $group->first()->date;
+
+                return [
+                    'label' => $dias[(int) $carbonDate->format('w')] . ' ' . (int) $carbonDate->format('j') . ' de ' . $meses[(int) $carbonDate->format('n')],
+                    'schedules' => $group,
+                ];
+            });
+
+        // Disponibilidad de mesas por horario, para que el front pinte el grid
+        // de 12 mesas apenas el visitante elige una fecha (sin ida y vuelta al server).
+        $tablesBySchedule = $schedules->mapWithKeys(
+            fn ($schedule) => [$schedule->id => $schedule->tablesWithAvailability()]
+        );
+
+        return view('home.fermento', [
+            'event' => $event,
+            'schedulesByDate' => $schedulesByDate,
+            'tablesBySchedule' => $tablesBySchedule,
+        ]);
+    }
 }

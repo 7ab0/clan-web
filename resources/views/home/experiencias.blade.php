@@ -49,6 +49,16 @@
                 <span class="experiencias-card-link">Ver experiencia &rarr;</span>
             </a>
 
+            <a href="{{ route('fermento') }}" class="experiencias-card is-active manifiesto-reveal">
+                <span class="experiencias-card-tag">Colaboración</span>
+                <h3 class="experiencias-card-title">Fermento</h3>
+                <p class="experiencias-card-text">
+                    CLAN x FORNO: una noche comunitaria de pizza al horno de leña,
+                    platos de autor y vino, bajo carpa.
+                </p>
+                <span class="experiencias-card-link">Ver experiencia &rarr;</span>
+            </a>
+
         </div>
     </div>
     <div class="ak-height-150 ak-height-lg-60"></div>

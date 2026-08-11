@@ -22,5 +22,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call(GuestSeeder::class);
         $this->call(IntimoSeeder::class);
+        $this->call(FermentoSeeder::class);
     }
 }
