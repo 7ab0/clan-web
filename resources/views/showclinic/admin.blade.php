@@ -334,6 +334,64 @@
     gap: 0.6rem;
     margin-top: 1.5rem;
   }
+
+  /* Plantilla de mensaje */
+  .template-box {
+    background: #fff;
+    border: 1px solid #e8e4dd;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .template-box summary {
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2a2a2a;
+    list-style: none;
+  }
+  .template-box summary::-webkit-details-marker { display: none; }
+  .template-box summary::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: 0.5rem;
+    font-size: 0.65rem;
+    color: #a3691f;
+    transition: transform 0.15s;
+  }
+  .template-box[open] summary::before {
+    transform: rotate(90deg);
+  }
+  .template-box .template-body {
+    margin-top: 0.85rem;
+  }
+  .template-box textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #d8d2c4;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    font-family: inherit;
+    resize: vertical;
+  }
+  .template-box .template-hint {
+    font-size: 0.76rem;
+    color: #7a7365;
+    margin-top: 0.4rem;
+  }
+  .template-box .template-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+  }
+  .template-box .template-status {
+    font-size: 0.76rem;
+    color: #2e7d32;
+    align-self: center;
+    margin-right: auto;
+  }
 </style>
 </head>
 <body>
@@ -344,6 +402,7 @@
       <p class="sub">Panel de administración del aniversario</p>
     </div>
     <div class="topbar-actions">
+      <button type="button" class="btn btn-outline" onclick="copyAllLinks(this)">Copiar todos los links</button>
       <button type="button" class="btn btn-accent" onclick="openAddModal()">+ Agregar invitado</button>
       <form method="POST" action="{{ route('showclinic.admin.logout') }}">
         @csrf
@@ -351,6 +410,18 @@
       </form>
     </div>
   </div>
+
+  <details class="template-box" id="template-box">
+    <summary>Mensaje de WhatsApp (plantilla)</summary>
+    <div class="template-body">
+      <textarea id="wa-template" spellcheck="false"></textarea>
+      <p class="template-hint">Se usa al presionar "WhatsApp" en cada invitado. Puedes usar <strong>{nombre}</strong> y <strong>{link}</strong> — se reemplazan automáticamente por los datos de cada invitado. Los cambios se guardan solos en este navegador.</p>
+      <div class="template-actions">
+        <span class="template-status" id="template-status"></span>
+        <button type="button" class="btn btn-sm btn-outline" onclick="resetWaTemplate()">Restablecer</button>
+      </div>
+    </div>
+  </details>
 
   @if (session('status'))
     <div class="flash">{{ session('status') }}</div>
@@ -425,20 +496,25 @@
           @php
             $link = route('showclinic', ['inv' => $guest->code]);
             $waPhone = $guest->phone ? '51' . preg_replace('/\D+/', '', $guest->phone) : null;
-            $waMessage = "Hola {$guest->name}, tienes una invitación especial para nuestro Aniversario ShowClinic. Ábrela aquí: {$link}";
           @endphp
-          <tr class="guest-row" data-detail-target="detail-{{ $guest->id }}">
+          <tr class="guest-row"
+              data-detail-target="detail-{{ $guest->id }}"
+              data-guest-name="{{ $guest->name }}"
+              data-guest-link="{{ $link }}">
             <td>{{ $guest->name }}</td>
             <td class="code">{{ $guest->code }}</td>
             <td>{{ $guest->phone ?: '—' }}</td>
             <td>{{ $guest->allowed_companions }}</td>
             <td><span class="badge {{ $guest->status }}">{{ ucfirst($guest->status) }}</span></td>
             <td onclick="event.stopPropagation()">
-              <input type="checkbox"
-                     data-guest-toggle
-                     data-guest-id="{{ $guest->id }}"
-                     data-field="pre_invitation_sent"
-                     @checked($guest->pre_invitation_sent)>
+              <div class="link-cell">
+                <input type="checkbox"
+                       data-guest-toggle
+                       data-guest-id="{{ $guest->id }}"
+                       data-field="pre_invitation_sent"
+                       @checked($guest->pre_invitation_sent)>
+                <button type="button" class="copy-btn" title="Copiar link" onclick="copyLink(this, '{{ $link }}')">Copiar</button>
+              </div>
             </td>
             <td onclick="event.stopPropagation()">
               <input type="checkbox"
@@ -457,7 +533,7 @@
               <button type="button"
                       class="btn btn-sm btn-whatsapp"
                       @if(! $waPhone) disabled title="Este invitado no tiene un celular válido" @endif
-                      onclick="sendWhatsapp('{{ $waPhone }}', {{ Js::from($waMessage) }})">WhatsApp</button>
+                      onclick="sendWhatsapp('{{ $waPhone }}', {{ Js::from($guest->name) }}, {{ Js::from($link) }})">WhatsApp</button>
               <button type="button"
                       class="btn btn-sm btn-outline"
                       onclick='openEditModal({{ Js::from([
@@ -606,8 +682,66 @@
     });
   }
 
-  function sendWhatsapp(phone, message) {
+  function copyAllLinks(button) {
+    const rows = document.querySelectorAll('tr.guest-row');
+    if (!rows.length) {
+      alert('No hay invitados para copiar con los filtros actuales.');
+      return;
+    }
+
+    const lines = Array.from(rows).map(function (row) {
+      return `${row.dataset.guestName}: ${row.dataset.guestLink}`;
+    });
+
+    navigator.clipboard.writeText(lines.join('\n')).then(function () {
+      const original = button.textContent;
+      button.textContent = `¡${rows.length} links copiados!`;
+      setTimeout(function () { button.textContent = original; }, 1800);
+    }).catch(function () {
+      alert('No se pudo copiar. Intenta de nuevo.');
+    });
+  }
+
+  // Plantilla del mensaje de WhatsApp — se guarda en este navegador (localStorage)
+  const WA_TEMPLATE_DEFAULT = 'Hola {nombre}, tienes una invitación especial para nuestro Aniversario ShowClinic. Ábrela aquí: {link}';
+  const WA_TEMPLATE_STORAGE_KEY = 'showclinic_admin_wa_template';
+  const waTemplateInput = document.getElementById('wa-template');
+  const waTemplateStatus = document.getElementById('template-status');
+  let waTemplateStatusTimeout = null;
+
+  function getWaTemplate() {
+    return localStorage.getItem(WA_TEMPLATE_STORAGE_KEY) || WA_TEMPLATE_DEFAULT;
+  }
+
+  function renderWaMessage(name, link) {
+    return getWaTemplate()
+      .replaceAll('{nombre}', name)
+      .replaceAll('{link}', link);
+  }
+
+  if (waTemplateInput) {
+    waTemplateInput.value = getWaTemplate();
+
+    waTemplateInput.addEventListener('input', function () {
+      localStorage.setItem(WA_TEMPLATE_STORAGE_KEY, waTemplateInput.value);
+      if (waTemplateStatus) {
+        waTemplateStatus.textContent = 'Guardado';
+        clearTimeout(waTemplateStatusTimeout);
+        waTemplateStatusTimeout = setTimeout(function () {
+          waTemplateStatus.textContent = '';
+        }, 1200);
+      }
+    });
+  }
+
+  function resetWaTemplate() {
+    localStorage.removeItem(WA_TEMPLATE_STORAGE_KEY);
+    if (waTemplateInput) waTemplateInput.value = WA_TEMPLATE_DEFAULT;
+  }
+
+  function sendWhatsapp(phone, name, link) {
     if (!phone) return;
+    const message = renderWaMessage(name, link);
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   }
