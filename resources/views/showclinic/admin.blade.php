@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Admin — Invitados ShowClinic</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -29,17 +30,57 @@
     font-size: 0.85rem;
     color: #7a7365;
   }
-  .logout-btn {
-    background: #2a2a2a;
-    color: #f5f1e4;
+  .topbar-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     border: none;
     padding: 0.55rem 1.1rem;
     border-radius: 4px;
     font-size: 0.85rem;
     cursor: pointer;
+    font-family: inherit;
   }
-  .logout-btn:hover {
+  .btn-dark {
+    background: #2a2a2a;
+    color: #f5f1e4;
+  }
+  .btn-dark:hover { background: #a3691f; }
+  .btn-accent {
     background: #a3691f;
+    color: #fff;
+  }
+  .btn-accent:hover { background: #8a5819; }
+  .btn-outline {
+    background: #fff;
+    border: 1px solid #d8d2c4;
+    color: #2a2a2a;
+  }
+  .btn-outline:hover { border-color: #a3691f; color: #a3691f; }
+  .btn-danger {
+    background: #fbe4e1;
+    color: #c0392b;
+  }
+  .btn-danger:hover { background: #f6cec8; }
+  .btn-sm {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.78rem;
+    border-radius: 4px;
+  }
+
+  .flash {
+    background: #e5f4e6;
+    border: 1px solid #bfe3c1;
+    color: #2e7d32;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    margin-bottom: 1.25rem;
   }
 
   /* Summary cards */
@@ -150,8 +191,37 @@
   th a:hover {
     color: #a3691f;
   }
-  tbody tr:hover {
+  tbody tr.guest-row {
+    cursor: pointer;
+  }
+  tbody tr.guest-row:hover {
     background: #fbf9f4;
+  }
+  tbody tr.detail-row {
+    display: none;
+    background: #faf8f3;
+  }
+  tbody tr.detail-row.open {
+    display: table-row;
+  }
+  tbody tr.detail-row td {
+    white-space: normal;
+    padding: 1rem 1.25rem;
+  }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.85rem;
+  }
+  .detail-grid dt {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #7a7365;
+    margin-bottom: 0.2rem;
+  }
+  .detail-grid dd {
+    font-size: 0.88rem;
   }
   .badge {
     display: inline-block;
@@ -181,6 +251,89 @@
     font-family: 'Courier New', monospace;
     font-size: 0.85rem;
   }
+  .link-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .link-cell .link-text {
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    color: #7a7365;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .copy-btn {
+    background: #f5f1e4;
+    border: 1px solid #d8d2c4;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    padding: 0.3rem 0.5rem;
+    cursor: pointer;
+  }
+  .copy-btn:hover { border-color: #a3691f; }
+  .actions-cell {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .actions-cell .btn-whatsapp {
+    background: #e5f4e6;
+    color: #1f7a3f;
+  }
+  .actions-cell .btn-whatsapp:hover { background: #cdeccf; }
+  .actions-cell .btn-whatsapp[disabled] {
+    background: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+  }
+
+  /* Modal */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 18, 12, 0.55);
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    z-index: 50;
+  }
+  .modal-backdrop.open {
+    display: flex;
+  }
+  .modal {
+    background: #fff;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 420px;
+    padding: 1.75rem;
+  }
+  .modal h2 {
+    font-size: 1.1rem;
+    margin-bottom: 1.25rem;
+  }
+  .modal label {
+    display: block;
+    font-size: 0.8rem;
+    color: #555;
+    margin-bottom: 0.35rem;
+    margin-top: 0.9rem;
+  }
+  .modal input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #d8d2c4;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+  }
 </style>
 </head>
 <body>
@@ -190,11 +343,18 @@
       <h1>Invitados — ShowClinic</h1>
       <p class="sub">Panel de administración del aniversario</p>
     </div>
-    <form method="POST" action="{{ route('showclinic.admin.logout') }}">
-      @csrf
-      <button type="submit" class="logout-btn">Cerrar sesión</button>
-    </form>
+    <div class="topbar-actions">
+      <button type="button" class="btn btn-accent" onclick="openAddModal()">+ Agregar invitado</button>
+      <form method="POST" action="{{ route('showclinic.admin.logout') }}">
+        @csrf
+        <button type="submit" class="btn btn-dark">Cerrar sesión</button>
+      </form>
+    </div>
   </div>
+
+  @if (session('status'))
+    <div class="flash">{{ session('status') }}</div>
+  @endif
 
   <div class="summary">
     <div class="card">
@@ -251,40 +411,230 @@
         <tr>
           <th><a href="{{ $sortLink('name') }}">Nombre{{ $arrow('name') }}</a></th>
           <th><a href="{{ $sortLink('code') }}">Código{{ $arrow('code') }}</a></th>
-          <th>Profesión</th>
-          <th>Cumplido</th>
-          <th><a href="{{ $sortLink('status') }}">Estado{{ $arrow('status') }}</a></th>
-          <th>Acompañante</th>
-          <th>Preferencias</th>
-          <th><a href="{{ $sortLink('confirmed_at') }}">Confirmado el{{ $arrow('confirmed_at') }}</a></th>
+          <th>Celular</th>
+          <th>Acomp. permitidos</th>
+          <th><a href="{{ $sortLink('status') }}">RSVP{{ $arrow('status') }}</a></th>
+          <th>Pre-invitación</th>
+          <th>Invitación</th>
+          <th>Link</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
         @forelse ($guests as $guest)
-          <tr>
+          @php
+            $link = route('showclinic', ['inv' => $guest->code]);
+            $waPhone = $guest->phone ? '51' . preg_replace('/\D+/', '', $guest->phone) : null;
+            $waMessage = "Hola {$guest->name}, tienes una invitación especial para nuestro Aniversario ShowClinic. Ábrela aquí: {$link}";
+          @endphp
+          <tr class="guest-row" data-detail-target="detail-{{ $guest->id }}">
             <td>{{ $guest->name }}</td>
             <td class="code">{{ $guest->code }}</td>
-            <td>{{ $guest->profession ?: '—' }}</td>
-            <td class="wrap">{{ $guest->compliment ?: '—' }}</td>
+            <td>{{ $guest->phone ?: '—' }}</td>
+            <td>{{ $guest->allowed_companions }}</td>
             <td><span class="badge {{ $guest->status }}">{{ ucfirst($guest->status) }}</span></td>
-            <td>
-              @if ($guest->plus_one)
-                Sí{{ $guest->companion_name ? ' — ' . $guest->companion_name : '' }}
-              @else
-                No
-              @endif
+            <td onclick="event.stopPropagation()">
+              <input type="checkbox"
+                     data-guest-toggle
+                     data-guest-id="{{ $guest->id }}"
+                     data-field="pre_invitation_sent"
+                     @checked($guest->pre_invitation_sent)>
             </td>
-            <td class="wrap">{{ $guest->preferences ?: '—' }}</td>
-            <td>{{ $guest->confirmed_at?->format('d/m/Y H:i') ?? '—' }}</td>
+            <td onclick="event.stopPropagation()">
+              <input type="checkbox"
+                     data-guest-toggle
+                     data-guest-id="{{ $guest->id }}"
+                     data-field="invitation_sent"
+                     @checked($guest->invitation_sent)>
+            </td>
+            <td onclick="event.stopPropagation()">
+              <div class="link-cell">
+                <span class="link-text">{{ $link }}</span>
+                <button type="button" class="copy-btn" onclick="copyLink(this, '{{ $link }}')">Copiar</button>
+              </div>
+            </td>
+            <td class="actions-cell" onclick="event.stopPropagation()">
+              <button type="button"
+                      class="btn btn-sm btn-whatsapp"
+                      @if(! $waPhone) disabled title="Este invitado no tiene un celular válido" @endif
+                      onclick="sendWhatsapp('{{ $waPhone }}', {{ Js::from($waMessage) }})">WhatsApp</button>
+              <button type="button"
+                      class="btn btn-sm btn-outline"
+                      onclick='openEditModal({{ Js::from([
+                          "id" => $guest->id,
+                          "name" => $guest->name,
+                          "phone" => $guest->phone,
+                          "allowed_companions" => $guest->allowed_companions,
+                      ]) }})'>Editar</button>
+              <form method="POST" action="{{ route('showclinic.admin.guests.destroy', $guest) }}"
+                    onsubmit="return confirm('¿Eliminar a {{ $guest->name }}? Esta acción no se puede deshacer.')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+          <tr class="detail-row" id="detail-{{ $guest->id }}">
+            <td colspan="9">
+              <dl class="detail-grid">
+                <div>
+                  <dt>Profesión</dt>
+                  <dd>{{ $guest->profession ?: '—' }}</dd>
+                </div>
+                <div>
+                  <dt>Cumplido</dt>
+                  <dd>{{ $guest->compliment ?: '—' }}</dd>
+                </div>
+                <div>
+                  <dt>Acompañante (RSVP)</dt>
+                  <dd>
+                    @if ($guest->plus_one)
+                      Sí{{ $guest->companion_name ? ' — ' . $guest->companion_name : '' }}
+                    @else
+                      No
+                    @endif
+                  </dd>
+                </div>
+                <div>
+                  <dt>Preferencias</dt>
+                  <dd>{{ $guest->preferences ?: '—' }}</dd>
+                </div>
+                <div>
+                  <dt>Notas</dt>
+                  <dd>{{ $guest->notes ?: '—' }}</dd>
+                </div>
+                <div>
+                  <dt>Confirmado el</dt>
+                  <dd>{{ $guest->confirmed_at?->format('d/m/Y H:i') ?? '—' }}</dd>
+                </div>
+              </dl>
+            </td>
           </tr>
         @empty
           <tr>
-            <td colspan="8" class="empty">No se encontraron invitados con esos filtros.</td>
+            <td colspan="9" class="empty">No se encontraron invitados con esos filtros.</td>
           </tr>
         @endforelse
       </tbody>
     </table>
   </div>
+
+  <!-- Modal: agregar invitado -->
+  <div class="modal-backdrop" id="add-modal-backdrop">
+    <div class="modal">
+      <h2>Agregar invitado</h2>
+      <form method="POST" action="{{ route('showclinic.admin.guests.store') }}">
+        @csrf
+        <label for="add-name">Nombre</label>
+        <input type="text" id="add-name" name="name" required>
+        <label for="add-phone">Celular</label>
+        <input type="text" id="add-phone" name="phone">
+        <label for="add-allowed-companions">Acompañantes permitidos</label>
+        <input type="number" id="add-allowed-companions" name="allowed_companions" min="0" value="0">
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="closeModal('add-modal-backdrop')">Cancelar</button>
+          <button type="submit" class="btn btn-accent">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: editar invitado -->
+  <div class="modal-backdrop" id="edit-modal-backdrop">
+    <div class="modal">
+      <h2>Editar invitado</h2>
+      <form method="POST" id="edit-form" action="">
+        @csrf
+        @method('PUT')
+        <label for="edit-name">Nombre</label>
+        <input type="text" id="edit-name" name="name" required>
+        <label for="edit-phone">Celular</label>
+        <input type="text" id="edit-phone" name="phone">
+        <label for="edit-allowed-companions">Acompañantes permitidos</label>
+        <input type="number" id="edit-allowed-companions" name="allowed_companions" min="0">
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="closeModal('edit-modal-backdrop')">Cancelar</button>
+          <button type="submit" class="btn btn-accent">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+  // Expandir/colapsar fila de detalle al hacer clic en la fila (no en checkboxes/links/botones)
+  document.querySelectorAll('tr.guest-row').forEach(function (row) {
+    row.addEventListener('click', function () {
+      const target = document.getElementById(row.dataset.detailTarget);
+      if (target) target.classList.toggle('open');
+    });
+  });
+
+  // Checkboxes de pre-invitación / invitación: guardan por AJAX sin recargar
+  document.querySelectorAll('[data-guest-toggle]').forEach(function (checkbox) {
+    checkbox.addEventListener('change', function () {
+      const guestId = checkbox.dataset.guestId;
+      const field = checkbox.dataset.field;
+      const value = checkbox.checked;
+
+      fetch(`/showclinic/admin/guests/${guestId}/toggle`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken,
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ field: field, value: value }),
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error('No se pudo guardar');
+          return res.json();
+        })
+        .catch(function () {
+          checkbox.checked = !value;
+          alert('No se pudo guardar el cambio. Intenta de nuevo.');
+        });
+    });
+  });
+
+  function copyLink(button, link) {
+    navigator.clipboard.writeText(link).then(function () {
+      const original = button.textContent;
+      button.textContent = '¡Copiado!';
+      setTimeout(function () { button.textContent = original; }, 1500);
+    });
+  }
+
+  function sendWhatsapp(phone, message) {
+    if (!phone) return;
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  }
+
+  function openAddModal() {
+    document.getElementById('add-modal-backdrop').classList.add('open');
+  }
+
+  function openEditModal(guest) {
+    const form = document.getElementById('edit-form');
+    form.action = `/showclinic/admin/guests/${guest.id}`;
+    document.getElementById('edit-name').value = guest.name || '';
+    document.getElementById('edit-phone').value = guest.phone || '';
+    document.getElementById('edit-allowed-companions').value = guest.allowed_companions ?? 0;
+    document.getElementById('edit-modal-backdrop').classList.add('open');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
+    backdrop.addEventListener('click', function (e) {
+      if (e.target === backdrop) backdrop.classList.remove('open');
+    });
+  });
+</script>
 
 </body>
 </html>

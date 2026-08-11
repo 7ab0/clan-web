@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Guest;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -78,5 +79,73 @@ class ShowClinicAdminController extends Controller
             'sort' => $sort,
             'dir' => $dir,
         ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'allowed_companions' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        Guest::create([
+            'name' => $validated['name'],
+            'phone' => $this->cleanPhone($validated['phone'] ?? null),
+            'allowed_companions' => $validated['allowed_companions'] ?? 0,
+        ]);
+
+        return back()->with('status', 'Invitado agregado.');
+    }
+
+    public function update(Request $request, Guest $guest): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'allowed_companions' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $guest->update([
+            'name' => $validated['name'],
+            'phone' => $this->cleanPhone($validated['phone'] ?? null),
+            'allowed_companions' => $validated['allowed_companions'] ?? 0,
+        ]);
+
+        return back()->with('status', 'Invitado actualizado.');
+    }
+
+    public function destroy(Guest $guest): RedirectResponse
+    {
+        $guest->delete();
+
+        return back()->with('status', 'Invitado eliminado.');
+    }
+
+    public function toggle(Request $request, Guest $guest): JsonResponse
+    {
+        $validated = $request->validate([
+            'field' => ['required', 'in:pre_invitation_sent,invitation_sent'],
+            'value' => ['required', 'boolean'],
+        ]);
+
+        $guest->update([$validated['field'] => $validated['value']]);
+
+        return response()->json([
+            'ok' => true,
+            'field' => $validated['field'],
+            'value' => $guest->{$validated['field']},
+        ]);
+    }
+
+    private function cleanPhone(?string $phone): ?string
+    {
+        if ($phone === null) {
+            return null;
+        }
+
+        $digits = preg_replace('/\D+/', '', $phone);
+
+        return $digits !== '' ? $digits : null;
     }
 }

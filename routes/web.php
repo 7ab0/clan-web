@@ -7,6 +7,12 @@ use App\Http\Controllers\ShowClinicAdminController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\MaintenanceController;
+
+Route::controller(MaintenanceController::class)->group(function () {
+    Route::get('/mantenimiento', 'show')->name('maintenance.show');
+    Route::post('/mantenimiento', 'unlock')->name('maintenance.unlock');
+});
 
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index')->name('index');
@@ -37,6 +43,10 @@ Route::prefix('showclinic/admin')->name('showclinic.admin.')->group(function () 
 
     Route::middleware('showclinic.admin')->group(function () {
         Route::get('/', [ShowClinicAdminController::class, 'index'])->name('index');
+        Route::post('/guests', [ShowClinicAdminController::class, 'store'])->name('guests.store');
+        Route::put('/guests/{guest}', [ShowClinicAdminController::class, 'update'])->name('guests.update');
+        Route::delete('/guests/{guest}', [ShowClinicAdminController::class, 'destroy'])->name('guests.destroy');
+        Route::patch('/guests/{guest}/toggle', [ShowClinicAdminController::class, 'toggle'])->name('guests.toggle');
     });
 });
 
