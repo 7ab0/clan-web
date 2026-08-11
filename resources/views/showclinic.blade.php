@@ -192,11 +192,15 @@
   </section>
   @endif
 
-  <!-- ITINERARIO -->
+  <!-- ITINERARIO (VISTA GENERAL) -->
   <section id="itinerario" class="section">
     <div class="section-head reveal">
       <p class="eyebrow">Programa de la noche</p>
       <h2>Así viviremos la velada</h2>
+      <p class="section-lead">
+        Un vistazo rápido al programa completo — baja a cada momento para ver
+        el detalle.
+      </p>
     </div>
 
     <div class="timeline">
@@ -205,7 +209,8 @@
         <div class="tl-line"><span class="tl-dot"></span></div>
         <div class="tl-body">
           <h3>Bienvenida</h3>
-          <p>Recepción de invitados, welcome drink, bocaditos de bienvenida, photocall y networking.</p>
+          <p>Recepción, welcome drink y photocall para abrir la noche.</p>
+          <a class="tl-more" href="#momento-bienvenida">Ver detalle ↓</a>
         </div>
       </div>
       <div class="tl-item reveal">
@@ -213,23 +218,26 @@
         <div class="tl-line"><span class="tl-dot"></span></div>
         <div class="tl-body">
           <h3>Show Cooking Experience</h3>
-          <p>Una experiencia gastronómica en vivo junto a nuestro chef invitado, acompañada de cócteles y bocaditos.</p>
+          <p>Show en vivo con nuestro chef invitado, cócteles y bocaditos.</p>
+          <a class="tl-more" href="#momento-show-cooking">Ver detalle ↓</a>
         </div>
       </div>
       <div class="tl-item reveal">
         <div class="tl-time">8:30 p.m.</div>
         <div class="tl-line"><span class="tl-dot"></span></div>
         <div class="tl-body">
-          <h3>Bienvenida oficial</h3>
+          <h3>Bienvenida Oficial</h3>
           <p>Palabras del Dr. Erick Espetia y brindis de aniversario.</p>
+          <a class="tl-more" href="#momento-bienvenida-oficial">Ver detalle ↓</a>
         </div>
       </div>
       <div class="tl-item reveal">
         <div class="tl-time">8:40 p.m.</div>
         <div class="tl-line"><span class="tl-dot"></span></div>
         <div class="tl-body">
-          <h3>Música en vivo</h3>
-          <p>Una velada con música en vivo, cócteles y bocaditos. Activa tu participación en el Gran Sorteo de Aniversario.</p>
+          <h3>Música en Vivo</h3>
+          <p>Banda en vivo y arranque del Gran Sorteo de Aniversario.</p>
+          <a class="tl-more" href="#momento-musica-en-vivo">Ver detalle ↓</a>
         </div>
       </div>
       <div class="tl-item reveal">
@@ -237,7 +245,8 @@
         <div class="tl-line"><span class="tl-dot"></span></div>
         <div class="tl-body">
           <h3>DJ Session</h3>
-          <p>El ambiente cambia para seguir celebrando una noche especial junto a nuestros invitados.</p>
+          <p>La pista se enciende para seguir celebrando.</p>
+          <a class="tl-more" href="#momento-dj-session">Ver detalle ↓</a>
         </div>
       </div>
       <div class="tl-item reveal">
@@ -245,8 +254,202 @@
         <div class="tl-line"><span class="tl-dot"></span></div>
         <div class="tl-body">
           <h3>Sorteo &amp; Gift Bags</h3>
-          <p>Anuncio de los ganadores y entrega de premios. Cada invitado recibirá un Gift Bag exclusivo de ShowClinic.</p>
+          <p>Anuncio de ganadores y Gift Bag exclusivo para cada invitado.</p>
+          <a class="tl-more" href="#momento-sorteo-gift-bags">Ver detalle ↓</a>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOMENTO 1 — BIENVENIDA -->
+  <section id="momento-bienvenida" class="section section-dark itinerary-detail">
+    <div class="particles" aria-hidden="true"></div>
+    <div class="section-head reveal">
+      <p class="eyebrow">Momento 1 de 6 · 7:30 p.m.</p>
+      <h2>Bienvenida</h2>
+      <p class="section-lead">
+        Las puertas de Clan se abren para dar inicio a la velada. Cada invitado
+        es recibido con calidez, copa en mano, mientras el espacio se llena de
+        música suave y los primeros bocaditos empiezan a circular entre los
+        asistentes.
+      </p>
+    </div>
+
+    <ul class="tl-list detail-list reveal">
+      <li>Recepción de invitados</li>
+      <li>Welcome Drink de bienvenida</li>
+      <li>Bocaditos de bienvenida</li>
+      <li>Photocall &amp; Networking</li>
+    </ul>
+
+    <div class="photo-gallery reveal">
+      <div class="photo-slot tall" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+      <div class="photo-slot" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+      <div class="photo-slot" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOMENTO 2 — SHOW COOKING EXPERIENCE -->
+  <section id="momento-show-cooking" class="section itinerary-detail">
+    <div class="section-head reveal">
+      <p class="eyebrow">Momento 2 de 6 · 8:00 p.m.</p>
+      <h2>Show Cooking Experience</h2>
+      <p class="section-lead">
+        Nuestro chef invitado toma el centro del escenario para una
+        experiencia gastronómica en vivo: técnica, fuego y sabor a la vista de
+        todos, mientras los cócteles de autor y los bocaditos de la casa
+        siguen acompañando la noche.
+      </p>
+    </div>
+
+    <ul class="tl-list detail-list reveal">
+      <li>Show cooking en vivo con chef invitado</li>
+      <li>Cócteles de autor</li>
+      <li>Bocaditos de la casa</li>
+    </ul>
+
+    <div class="photo-gallery reveal">
+      <div class="photo-slot wide" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+      <div class="photo-slot" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+      <div class="photo-slot" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOMENTO 3 — BIENVENIDA OFICIAL -->
+  <section id="momento-bienvenida-oficial" class="section section-dark itinerary-detail">
+    <div class="particles" aria-hidden="true"></div>
+    <div class="section-head reveal">
+      <p class="eyebrow">Momento 3 de 6 · 8:30 p.m.</p>
+      <h2>Bienvenida Oficial</h2>
+      <p class="section-lead">
+        Con todos los invitados ya instalados, el Dr. Erick Espetia toma la
+        palabra para dar la bienvenida oficial a esta nueva edición del
+        aniversario de ShowClinic — un brindis compartido para celebrar un año
+        más de historia.
+      </p>
+    </div>
+
+    <ul class="tl-list detail-list reveal">
+      <li>Palabras del Dr. Erick Espetia</li>
+      <li>Brindis de aniversario</li>
+    </ul>
+
+    <div class="photo-gallery reveal">
+      <div class="photo-slot" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+      <div class="photo-slot" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOMENTO 4 — MÚSICA EN VIVO -->
+  <section id="momento-musica-en-vivo" class="section itinerary-detail">
+    <div class="section-head reveal">
+      <p class="eyebrow">Momento 4 de 6 · 8:40 p.m.</p>
+      <h2>Música en Vivo</h2>
+      <p class="section-lead">
+        La velada sube de tono con música en vivo, mientras cócteles y
+        bocaditos siguen circulando entre los invitados. Es también el
+        momento en que se activa la participación de todos en el Gran Sorteo
+        de Aniversario.
+      </p>
+    </div>
+
+    <ul class="tl-list detail-list reveal">
+      <li>Música en vivo</li>
+      <li>Continúan cócteles y bocaditos</li>
+      <li>Activación del Gran Sorteo de Aniversario</li>
+    </ul>
+
+    <div class="photo-gallery reveal">
+      <div class="photo-slot" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+      <div class="photo-slot" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOMENTO 5 — DJ SESSION -->
+  <section id="momento-dj-session" class="section section-dark itinerary-detail">
+    <div class="particles" aria-hidden="true"></div>
+    <div class="section-head reveal">
+      <p class="eyebrow">Momento 5 de 6 · 9:30 p.m.</p>
+      <h2>DJ Session</h2>
+      <p class="section-lead">
+        El ambiente cambia por completo: las luces bajan, el volumen sube y la
+        pista se abre para que los invitados sigan celebrando una noche
+        especial hasta el momento del gran sorteo.
+      </p>
+    </div>
+
+    <div class="photo-gallery reveal">
+      <div class="photo-slot" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+      <div class="photo-slot" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOMENTO 6 — SORTEO & GIFT BAGS -->
+  <section id="momento-sorteo-gift-bags" class="section itinerary-detail">
+    <div class="section-head reveal">
+      <p class="eyebrow">Momento 6 de 6 · 10:00 p.m.</p>
+      <h2>Sorteo &amp; Gift Bags</h2>
+      <p class="section-lead">
+        El cierre de la noche llega con el anuncio de los ganadores del Gran
+        Sorteo de Aniversario. Como agradecimiento por acompañarnos, cada
+        invitado se lleva a casa un Gift Bag exclusivo de ShowClinic.
+      </p>
+    </div>
+
+    <ul class="tl-list detail-list reveal">
+      <li>Anuncio de ganadores</li>
+      <li>Entrega de premios</li>
+      <li>Gift Bag exclusivo para cada invitado</li>
+    </ul>
+
+    <div class="photo-gallery reveal">
+      <div class="photo-slot tall" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+      <div class="photo-slot" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
+      </div>
+      <div class="photo-slot" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+        <span>Foto pendiente</span>
       </div>
     </div>
   </section>
