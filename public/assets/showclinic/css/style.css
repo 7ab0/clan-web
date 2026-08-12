@@ -382,11 +382,11 @@ body {
 }
 
 .nav-logo {
-  width: 50px;
-  height: 50px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: var(--primary-light);
-  padding: 8px;
+  display: block;
+  object-fit: contain;
 }
 
 .nav-links {
@@ -438,11 +438,12 @@ body {
 
 .hero {
   position: relative;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  padding-bottom: 4.5rem;
 }
 
 .hero-bg {
@@ -735,6 +736,107 @@ body {
 
 .section-dark .section-lead {
   color: #ccc;
+}
+
+/* ==================== BOTÓN FLOTANTE DE CONFIRMACIÓN (RSVP) ==================== */
+
+.rsvp-fab {
+  position: fixed;
+  top: 98px;
+  right: 1.5rem;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  padding: 0.7rem 1.1rem;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  box-shadow: 0 8px 24px rgba(163, 105, 32, 0.35);
+  transition: var(--transition);
+}
+
+.rsvp-fab:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(163, 105, 32, 0.45);
+}
+
+.rsvp-fab-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.rsvp-fab-pendiente {
+  animation: rsvpPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes rsvpPulse {
+  0%, 100% { box-shadow: 0 8px 24px rgba(163, 105, 32, 0.35); }
+  50% { box-shadow: 0 8px 30px rgba(163, 105, 32, 0.65); }
+}
+
+.rsvp-fab-confirmado {
+  background: #4a7c59;
+  box-shadow: 0 8px 24px rgba(74, 124, 89, 0.3);
+}
+
+.rsvp-fab-confirmado:hover {
+  box-shadow: 0 12px 28px rgba(74, 124, 89, 0.4);
+}
+
+.rsvp-fab-rechazado {
+  background: #6b6b6b;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rsvp-fab-pendiente {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .rsvp-fab {
+    /* apilado arriba del botón de audio (fixed, bottom-right) para que no se encimen */
+    top: auto;
+    bottom: 4.75rem;
+    right: 1.25rem;
+    padding: 0.65rem 1rem;
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .rsvp-fab {
+    bottom: 4.5rem;
+    right: 1rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .rsvp-fab span:not(.rsvp-fab-icon) {
+    display: none;
+  }
+  .rsvp-fab {
+    padding: 0.65rem;
+  }
+  .rsvp-fab-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 0.8rem;
+  }
 }
 
 /* ==================== CONFIRMACIÓN DE ASISTENCIA ==================== */
@@ -1588,12 +1690,12 @@ body {
 }
 
 .footer-logo {
-  width: 80px;
-  height: 80px;
+  width: 92px;
+  height: 92px;
   border-radius: 50%;
-  background: var(--primary-light);
-  padding: 12px;
-  margin-bottom: 2rem;
+  display: block;
+  object-fit: contain;
+  margin: 0 auto 2rem;
 }
 
 .footer-tagline {

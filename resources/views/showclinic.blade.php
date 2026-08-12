@@ -128,74 +128,16 @@
   </header>
 
   @if ($guest)
-  <!-- CONFIRMACIÓN DE ASISTENCIA -->
-  <section id="confirmacion" class="section confirmacion">
-    <div class="section-head reveal">
-      <p class="eyebrow">Tu respuesta</p>
-      <h2>Confirma tu asistencia</h2>
-    </div>
-
-    <div class="confirm-box reveal">
-
-      <div id="confirmSummary" class="confirm-summary" @if ($guest->status === 'pendiente') hidden @endif>
-        @if ($guest->status === 'confirmado')
-          <p class="confirm-icon">✓</p>
-          <h3>¡Gracias, {{ $guest->name }}!</h3>
-          <p class="confirm-text">Ya confirmaste tu asistencia. Te esperamos el 22 de agosto en Clan Restaurant.</p>
-          @if ($guest->plus_one)
-            <p class="confirm-detail">Acompañante: {{ $guest->companion_name ?: 'sí' }}</p>
-          @endif
-          @if ($guest->preferences)
-            <p class="confirm-detail">Preferencias: {{ $guest->preferences }}</p>
-          @endif
-        @elseif ($guest->status === 'rechazado')
-          <p class="confirm-icon">·</p>
-          <h3>Gracias por avisarnos, {{ $guest->name }}</h3>
-          <p class="confirm-text">Registramos que no podrás acompañarnos esta vez. ¡Esperamos verte en la próxima!</p>
-        @endif
-        <button type="button" id="updateResponseBtn" class="btn-outline">Actualizar mi respuesta</button>
-      </div>
-
-      <div id="confirmForm" @if ($guest->status !== 'pendiente') hidden @endif>
-        <p class="confirm-question">¿Confirmas tu asistencia, {{ $guest->name }}?</p>
-
-        <div class="confirm-choice">
-          <button type="button" id="choiceYes" class="btn-enter"><span>Sí, confirmo</span></button>
-          <button type="button" id="choiceNo" class="btn-outline">No podré asistir</button>
-        </div>
-
-        <form method="POST" action="{{ route('showclinic.confirmar') }}" id="confirmDetails" class="confirm-details" hidden>
-          @csrf
-          <input type="hidden" name="code" value="{{ $guest->code }}">
-          <input type="hidden" name="response" value="confirmado">
-
-          <label class="toggle-row" for="plusOneToggle">
-            <input type="checkbox" name="plus_one" value="1" id="plusOneToggle" @checked($guest->plus_one)>
-            <span>¿Vienes acompañado/a?</span>
-          </label>
-
-          <div id="companionField" class="field" @if (! $guest->plus_one) hidden @endif>
-            <label for="companion_name">Nombre de tu acompañante</label>
-            <input type="text" id="companion_name" name="companion_name" value="{{ old('companion_name', $guest->companion_name) }}" placeholder="Nombre completo">
-          </div>
-
-          <div class="field">
-            <label for="preferences">Preferencias o restricciones alimentarias</label>
-            <textarea id="preferences" name="preferences" rows="3" placeholder="Ej. vegetariano, alergias, etc. (opcional)">{{ old('preferences', $guest->preferences) }}</textarea>
-          </div>
-
-          <button type="submit" class="btn-enter"><span>Enviar confirmación</span></button>
-        </form>
-
-        <form method="POST" action="{{ route('showclinic.confirmar') }}" id="declineForm" hidden>
-          @csrf
-          <input type="hidden" name="code" value="{{ $guest->code }}">
-          <input type="hidden" name="response" value="rechazado">
-        </form>
-      </div>
-
-    </div>
-  </section>
+  <!-- BOTÓN FLOTANTE DE CONFIRMACIÓN (siempre accesible, lleva a la sección grande al final) -->
+  <a href="#confirmacion" id="rsvpFab" class="rsvp-fab rsvp-fab-{{ $guest->status }}">
+    @if ($guest->status === 'confirmado')
+      <span class="rsvp-fab-icon">✓</span><span>Asistencia confirmada</span>
+    @elseif ($guest->status === 'rechazado')
+      <span class="rsvp-fab-icon">·</span><span>Actualizar respuesta</span>
+    @else
+      <span class="rsvp-fab-icon">✓</span><span>Confirmar asistencia</span>
+    @endif
+  </a>
   @endif
 
   <!-- ITINERARIO (VISTA GENERAL) -->
@@ -460,8 +402,8 @@
     <div class="particles" aria-hidden="true"></div>
     <div class="split-col reveal">
       <p class="eyebrow">Dress code</p>
-      <h2>Elegante</h2>
-      <p class="section-lead">Ven a celebrar con nosotros vestido/a para la ocasión — una noche elegante merece una entrada elegante.</p>
+      <h2>Cóctel</h2>
+      <p class="section-lead">Ven a celebrar con nosotros con vestimenta de cóctel — una noche elegante merece una entrada elegante.</p>
     </div>
     <div class="split-col reveal">
       <p class="eyebrow">Ubicación</p>
@@ -470,6 +412,77 @@
       <a class="btn-outline" href="https://www.google.com/maps/search/?api=1&query=Calle+Santa+Catalina+105+Arequipa+Clan+Restaurant" target="_blank" rel="noopener">Ver en Google Maps →</a>
     </div>
   </section>
+
+  @if ($guest)
+  <!-- CONFIRMACIÓN DE ASISTENCIA (al final de la invitación) -->
+  <section id="confirmacion" class="section confirmacion">
+    <div class="section-head reveal">
+      <p class="eyebrow">Tu respuesta</p>
+      <h2>Confirma tu asistencia</h2>
+    </div>
+
+    <div class="confirm-box reveal">
+
+      <div id="confirmSummary" class="confirm-summary" @if ($guest->status === 'pendiente') hidden @endif>
+        @if ($guest->status === 'confirmado')
+          <p class="confirm-icon">✓</p>
+          <h3>¡Gracias, {{ $guest->name }}!</h3>
+          <p class="confirm-text">Ya confirmaste tu asistencia. Te esperamos el 22 de agosto en Clan Restaurant.</p>
+          @if ($guest->plus_one)
+            <p class="confirm-detail">Acompañante: {{ $guest->companion_name ?: 'sí' }}</p>
+          @endif
+          @if ($guest->preferences)
+            <p class="confirm-detail">Preferencias: {{ $guest->preferences }}</p>
+          @endif
+        @elseif ($guest->status === 'rechazado')
+          <p class="confirm-icon">·</p>
+          <h3>Gracias por avisarnos, {{ $guest->name }}</h3>
+          <p class="confirm-text">Registramos que no podrás acompañarnos esta vez. ¡Esperamos verte en la próxima!</p>
+        @endif
+        <button type="button" id="updateResponseBtn" class="btn-outline">Actualizar mi respuesta</button>
+      </div>
+
+      <div id="confirmForm" @if ($guest->status !== 'pendiente') hidden @endif>
+        <p class="confirm-question">¿Confirmas tu asistencia, {{ $guest->name }}?</p>
+
+        <div class="confirm-choice">
+          <button type="button" id="choiceYes" class="btn-enter"><span>Sí, confirmo</span></button>
+          <button type="button" id="choiceNo" class="btn-outline">No podré asistir</button>
+        </div>
+
+        <form method="POST" action="{{ route('showclinic.confirmar') }}" id="confirmDetails" class="confirm-details" hidden>
+          @csrf
+          <input type="hidden" name="code" value="{{ $guest->code }}">
+          <input type="hidden" name="response" value="confirmado">
+
+          <label class="toggle-row" for="plusOneToggle">
+            <input type="checkbox" name="plus_one" value="1" id="plusOneToggle" @checked($guest->plus_one)>
+            <span>¿Vienes acompañado/a?</span>
+          </label>
+
+          <div id="companionField" class="field" @if (! $guest->plus_one) hidden @endif>
+            <label for="companion_name">Nombre de tu acompañante</label>
+            <input type="text" id="companion_name" name="companion_name" value="{{ old('companion_name', $guest->companion_name) }}" placeholder="Nombre completo">
+          </div>
+
+          <div class="field">
+            <label for="preferences">Preferencias o restricciones alimentarias</label>
+            <textarea id="preferences" name="preferences" rows="3" placeholder="Ej. vegetariano, alergias, etc. (opcional)">{{ old('preferences', $guest->preferences) }}</textarea>
+          </div>
+
+          <button type="submit" class="btn-enter"><span>Enviar confirmación</span></button>
+        </form>
+
+        <form method="POST" action="{{ route('showclinic.confirmar') }}" id="declineForm" hidden>
+          @csrf
+          <input type="hidden" name="code" value="{{ $guest->code }}">
+          <input type="hidden" name="response" value="rechazado">
+        </form>
+      </div>
+
+    </div>
+  </section>
+  @endif
 
   <!-- FOOTER -->
   <footer class="footer">
