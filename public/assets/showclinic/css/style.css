@@ -61,6 +61,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 110px;
 }
 
 body {
@@ -127,6 +128,13 @@ body {
   align-items: center;
   justify-content: center;
   background: #17130d;
+}
+
+/* El atributo [hidden] pierde contra el selector de ID #preholder en
+   especificidad — sin esta regla, JS pone hidden=true pero el overlay
+   se queda visible (display:flex) y bloquea el sitio para siempre. */
+#preholder[hidden] {
+  display: none;
 }
 
 .preholder-frame {
@@ -419,6 +427,10 @@ body {
   .nav-links {
     gap: 1.5rem;
     font-size: 0.9rem;
+  }
+
+  html {
+    scroll-padding-top: 145px;
   }
 }
 
@@ -1001,6 +1013,7 @@ body {
   justify-content: center;
   gap: 0.65rem;
   color: var(--primary);
+  text-decoration: none;
   transition: var(--transition);
 }
 
@@ -1082,6 +1095,218 @@ body {
 
 .gallery-img.wide {
   grid-column: span 2;
+}
+
+/* ==================== PHOTO CAROUSEL ==================== */
+
+.photo-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 4rem;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding: 0.25rem 0.25rem 0.75rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-light) transparent;
+}
+
+.carousel-track::-webkit-scrollbar {
+  height: 6px;
+}
+
+.carousel-track::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 3px;
+}
+
+.carousel-slide {
+  flex: 0 0 auto;
+  height: 480px;
+  width: auto;
+  max-width: 82vw;
+  object-fit: cover;
+  border-radius: 2px;
+  scroll-snap-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  transition: var(--transition);
+}
+
+.carousel-slide:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+.carousel-arrow {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--primary-light);
+  background: transparent;
+  color: var(--primary-light);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  z-index: 2;
+}
+
+.carousel-arrow:hover {
+  background: var(--primary-light);
+  color: var(--dark);
+}
+
+@media (max-width: 768px) {
+  .carousel-slide {
+    height: 300px;
+    max-width: 88vw;
+  }
+  .carousel-arrow {
+    display: none;
+  }
+}
+
+/* ==================== DETAIL HERO BANNER (momento a pantalla completa) ==================== */
+
+.detail-hero-banner {
+  position: relative;
+  min-height: 55vh;
+  display: flex;
+  align-items: flex-end;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.detail-hero-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+}
+
+.detail-hero-banner .section-head {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  text-align: left;
+}
+
+.detail-hero-body {
+  padding: 4rem 2rem 7rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.detail-hero-body .section-lead {
+  text-align: center;
+}
+
+.detail-hero-body .detail-list {
+  margin-top: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .detail-hero-banner {
+    min-height: 40vh;
+  }
+  .detail-hero-body {
+    padding: 3rem 1.5rem 5rem;
+  }
+}
+
+/* ==================== DETAIL SPLIT (momento con foto + texto en 2 columnas) ==================== */
+
+.detail-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  padding: 7rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.detail-split.reverse {
+  grid-template-columns: 1fr 1fr;
+}
+
+.detail-split.reverse .detail-split-media { order: 2; }
+.detail-split.reverse .detail-split-text { order: 1; }
+
+.detail-split-media {
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.detail-split-media img {
+  width: 100%;
+  height: 480px;
+  object-fit: cover;
+  display: block;
+  border-radius: 2px;
+  transition: var(--transition);
+}
+
+.detail-split-media:hover img {
+  transform: scale(1.04);
+}
+
+.detail-split-media .photo-slot {
+  height: 480px;
+  width: 100%;
+}
+
+.detail-split-text .section-head {
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.detail-split-text .section-lead {
+  margin: 1.25rem 0 0;
+  text-align: left;
+  max-width: none;
+}
+
+.detail-split-text .detail-list {
+  margin: 2rem 0 0;
+  max-width: none;
+}
+
+.detail-split-text .detail-list li {
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  .detail-split,
+  .detail-split.reverse {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    padding: 5rem 1.5rem;
+  }
+  .detail-split.reverse .detail-split-media,
+  .detail-split.reverse .detail-split-text {
+    order: initial;
+  }
+  .detail-split-media img,
+  .detail-split-media .photo-slot {
+    height: 320px;
+  }
 }
 
 /* ==================== HOST CARD ==================== */

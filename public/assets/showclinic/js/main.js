@@ -156,6 +156,27 @@ function updateCountdown() {
 setInterval(updateCountdown, 1000);
 updateCountdown();
 
+// ========== CARRUSEL DE FOTOS ==========
+
+function initPhotoCarousel() {
+  document.querySelectorAll('.photo-carousel').forEach(carousel => {
+    const track = carousel.querySelector('.carousel-track');
+    const prevBtn = carousel.querySelector('.carousel-prev');
+    const nextBtn = carousel.querySelector('.carousel-next');
+    if (!track) return;
+
+    function scrollByOne(direction) {
+      const slide = track.querySelector('.carousel-slide');
+      const gap = 24; // 1.5rem
+      const amount = (slide ? slide.getBoundingClientRect().width : 400) + gap;
+      track.scrollBy({ left: amount * direction, behavior: 'smooth' });
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', () => scrollByOne(-1));
+    if (nextBtn) nextBtn.addEventListener('click', () => scrollByOne(1));
+  });
+}
+
 // ========== SMOOTH SCROLL NAV LINKS ==========
 
 document.querySelectorAll('.nav-links a').forEach(link => {
@@ -233,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initAudioToggle();
   initParticles();
   initConfirmForm();
+  initPhotoCarousel();
 
   // Sin invitado (sin ?inv= valido) no hay pre-holder que mostrar:
   // se entra directo al sitio principal.

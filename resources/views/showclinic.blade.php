@@ -90,9 +90,8 @@
     <div class="hero-bg" style="background-image:url('{{ asset('assets/showclinic/img/hero-recepcion.jpg') }}')"></div>
     <div class="hero-overlay"></div>
     <div class="hero-content reveal">
-      <p class="eyebrow">Celebramos juntos</p>
-      <h1 class="hero-title">Aniversario<br><em>ShowClinic</em></h1>
-      <p class="hero-tagline">Seguridad que se siente, belleza que se nota.</p>
+      <p class="eyebrow">@if ($guest){{ $guestFirstName }}@else Bienvenido/a @endif</p>
+      <h1 class="hero-title">Celebramos juntos<br><em>nuestro 4to aniversario</em></h1>
 
       <div class="hero-meta">
         <div class="meta-item">
@@ -195,11 +194,11 @@
   <!-- ITINERARIO (VISTA GENERAL) -->
   <section id="itinerario" class="section">
     <div class="section-head reveal">
-      <p class="eyebrow">Programa de la noche</p>
-      <h2>Así viviremos la velada</h2>
+      <p class="eyebrow">Disfruta de esta experiencia con nosotros</p>
+      <h2>Así viviremos el aniversario</h2>
       <p class="section-lead">
-        Un vistazo rápido al programa completo — baja a cada momento para ver
-        el detalle.
+        Comparte con nosotros el programa completo — desliza para ver más
+        detalles de cada momento.
       </p>
     </div>
 
@@ -218,12 +217,12 @@
         <div class="tl-line"><span class="tl-dot"></span></div>
         <div class="tl-body">
           <h3>Show Cooking Experience</h3>
-          <p>Show en vivo con nuestro chef invitado, cócteles y bocaditos.</p>
+          <p>Una experiencia gastronómica exclusiva junto a nuestro chef invitado desde Lima, Paolo Zambrano.</p>
           <a class="tl-more" href="#momento-show-cooking">Ver detalle ↓</a>
         </div>
       </div>
       <div class="tl-item reveal">
-        <div class="tl-time">8:30 p.m.</div>
+        <div class="tl-time">8:45 p.m.</div>
         <div class="tl-line"><span class="tl-dot"></span></div>
         <div class="tl-body">
           <h3>Bienvenida Oficial</h3>
@@ -232,11 +231,11 @@
         </div>
       </div>
       <div class="tl-item reveal">
-        <div class="tl-time">8:40 p.m.</div>
+        <div class="tl-time">9:00 p.m.</div>
         <div class="tl-line"><span class="tl-dot"></span></div>
         <div class="tl-body">
-          <h3>Música en Vivo</h3>
-          <p>Banda en vivo y arranque del Gran Sorteo de Aniversario.</p>
+          <h3>Show Musical</h3>
+          <p>Presentación musical a cargo de Javier Lazo, compositor y productor musical dedicado a reinterpretar la música afroperuana.</p>
           <a class="tl-more" href="#momento-musica-en-vivo">Ver detalle ↓</a>
         </div>
       </div>
@@ -262,123 +261,105 @@
   </section>
 
   <!-- MOMENTO 1 — BIENVENIDA -->
-  <section id="momento-bienvenida" class="section section-dark itinerary-detail">
+  <section id="momento-bienvenida" class="section-dark itinerary-detail">
     <div class="particles" aria-hidden="true"></div>
-    <div class="section-head reveal">
-      <p class="eyebrow">Momento 1 de 6 · 7:30 p.m.</p>
-      <h2>Bienvenida</h2>
-      <p class="section-lead">
+
+    <div class="detail-hero-banner" style="background-image:url('{{ asset('assets/showclinic/img/hero-recepcion.jpg') }}')">
+      <div class="section-head reveal">
+        <p class="eyebrow">Momento 1 de 6 · 7:30 p.m.</p>
+        <h2>Bienvenida</h2>
+      </div>
+    </div>
+
+    <div class="detail-hero-body">
+      <p class="section-lead reveal">
         Las puertas de Clan se abren para dar inicio a la velada. Cada invitado
         es recibido con calidez, copa en mano, mientras el espacio se llena de
         música suave y los primeros bocaditos empiezan a circular entre los
         asistentes.
       </p>
-    </div>
 
-    <ul class="tl-list detail-list reveal">
-      <li>Recepción de invitados</li>
-      <li>Welcome Drink de bienvenida</li>
-      <li>Bocaditos de bienvenida</li>
-      <li>Photocall &amp; Networking</li>
-    </ul>
-
-    <div class="photo-gallery reveal">
-      <div class="photo-slot tall" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
-      </div>
-      <div class="photo-slot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
-      </div>
-      <div class="photo-slot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
-      </div>
+      <ul class="tl-list detail-list reveal">
+        <li>Recepción de invitados</li>
+        <li>Welcome Drink de bienvenida</li>
+        <li>Bocaditos de bienvenida</li>
+        <li>Photocall &amp; Networking</li>
+      </ul>
     </div>
   </section>
 
   <!-- MOMENTO 2 — SHOW COOKING EXPERIENCE -->
-  <section id="momento-show-cooking" class="section itinerary-detail">
-    <div class="section-head reveal">
-      <p class="eyebrow">Momento 2 de 6 · 8:00 p.m.</p>
-      <h2>Show Cooking Experience</h2>
-      <p class="section-lead">
-        Nuestro chef invitado toma el centro del escenario para una
-        experiencia gastronómica en vivo: técnica, fuego y sabor a la vista de
-        todos, mientras los cócteles de autor y los bocaditos de la casa
-        siguen acompañando la noche.
-      </p>
-    </div>
-
-    <ul class="tl-list detail-list reveal">
-      <li>Show cooking en vivo con chef invitado</li>
-      <li>Cócteles de autor</li>
-      <li>Bocaditos de la casa</li>
-    </ul>
-
-    <div class="photo-gallery reveal">
-      <div class="photo-slot wide" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
+  <section id="momento-show-cooking" class="itinerary-detail">
+    <div class="detail-split reveal">
+      <div class="detail-split-media">
+        <div class="photo-slot wide" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
+          <span>Foto de Paolo Zambrano pendiente</span>
+        </div>
       </div>
-      <div class="photo-slot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
-      </div>
-      <div class="photo-slot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
+      <div class="detail-split-text">
+        <div class="section-head">
+          <p class="eyebrow">Momento 2 de 6 · 8:00 p.m.</p>
+          <h2>Show Cooking Experience</h2>
+        </div>
+        <p class="section-lead">
+          Una experiencia gastronómica exclusiva junto a nuestro chef
+          invitado desde Lima, Paolo Zambrano, quien toma el centro del
+          escenario para un show cooking en vivo: técnica, fuego y sabor a
+          la vista de todos, mientras los cócteles de autor y los
+          bocaditos de la casa siguen acompañando la noche.
+        </p>
+        <ul class="tl-list detail-list">
+          <li>Show cooking en vivo con el chef Paolo Zambrano</li>
+          <li>Cócteles de autor</li>
+          <li>Bocaditos de la casa</li>
+        </ul>
       </div>
     </div>
   </section>
 
   <!-- MOMENTO 3 — BIENVENIDA OFICIAL -->
-  <section id="momento-bienvenida-oficial" class="section section-dark itinerary-detail">
+  <section id="momento-bienvenida-oficial" class="section-dark itinerary-detail">
     <div class="particles" aria-hidden="true"></div>
-    <div class="section-head reveal">
-      <p class="eyebrow">Momento 3 de 6 · 8:30 p.m.</p>
-      <h2>Bienvenida Oficial</h2>
-      <p class="section-lead">
-        Con todos los invitados ya instalados, el Dr. Erick Espetia toma la
-        palabra para dar la bienvenida oficial a esta nueva edición del
-        aniversario de ShowClinic — un brindis compartido para celebrar un año
-        más de historia.
-      </p>
-    </div>
-
-    <ul class="tl-list detail-list reveal">
-      <li>Palabras del Dr. Erick Espetia</li>
-      <li>Brindis de aniversario</li>
-    </ul>
-
-    <div class="photo-gallery reveal">
-      <div class="photo-slot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
+    <div class="detail-split reverse reveal">
+      <div class="detail-split-media">
+        <img src="{{ asset('assets/showclinic/img/dr-erick.jpg') }}" alt="Dr. Erick Espetia">
       </div>
-      <div class="photo-slot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
+      <div class="detail-split-text">
+        <div class="section-head">
+          <p class="eyebrow">Momento 3 de 6 · 8:45 p.m.</p>
+          <h2>Bienvenida Oficial</h2>
+        </div>
+        <p class="section-lead">
+          Con todos los invitados ya instalados, el Dr. Erick Espetia toma la
+          palabra para dar la bienvenida oficial a esta nueva edición del
+          aniversario de ShowClinic — un brindis compartido para celebrar un
+          año más de historia.
+        </p>
+        <ul class="tl-list detail-list">
+          <li>Palabras del Dr. Erick Espetia</li>
+          <li>Brindis de aniversario</li>
+        </ul>
       </div>
     </div>
   </section>
 
-  <!-- MOMENTO 4 — MÚSICA EN VIVO -->
+  <!-- MOMENTO 4 — SHOW MUSICAL -->
   <section id="momento-musica-en-vivo" class="section itinerary-detail">
     <div class="section-head reveal">
-      <p class="eyebrow">Momento 4 de 6 · 8:40 p.m.</p>
-      <h2>Música en Vivo</h2>
+      <p class="eyebrow">Momento 4 de 6 · 9:00 p.m.</p>
+      <h2>Show Musical</h2>
       <p class="section-lead">
-        La velada sube de tono con música en vivo, mientras cócteles y
-        bocaditos siguen circulando entre los invitados. Es también el
-        momento en que se activa la participación de todos en el Gran Sorteo
-        de Aniversario.
+        Presentación musical a cargo de Javier Lazo, compositor y productor
+        musical dedicado a reinterpretar la música afroperuana, mientras
+        cócteles y bocaditos siguen circulando entre los invitados. Es
+        también el momento en que se activa la participación de todos en el
+        Gran Sorteo de Aniversario.
       </p>
     </div>
 
     <ul class="tl-list detail-list reveal">
-      <li>Música en vivo</li>
+      <li>Show musical con Javier Lazo</li>
       <li>Continúan cócteles y bocaditos</li>
       <li>Activación del Gran Sorteo de Aniversario</li>
     </ul>
@@ -386,12 +367,12 @@
     <div class="photo-gallery reveal">
       <div class="photo-slot" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
+        <span>Foto de Javier Lazo pendiente</span>
       </div>
-      <div class="photo-slot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
-      </div>
+      <a class="photo-slot" href="https://www.youtube.com/watch?v=EsBH1UY__3s" target="_blank" rel="noopener" aria-label="Ver video en YouTube">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M10 8.5l6 3.5-6 3.5v-7Z" fill="currentColor" stroke="none"/><rect x="3" y="6" width="18" height="12" rx="2.5"/></svg>
+        <span>Ver video en YouTube</span>
+      </a>
     </div>
   </section>
 
@@ -468,11 +449,17 @@
       </p>
     </div>
 
-    <div class="gallery reveal">
-      <img src="{{ asset('assets/showclinic/img/tratamiento-1.jpg') }}" alt="ShowClinic" class="gallery-img tall">
-      <img src="{{ asset('assets/showclinic/img/editorial-1.jpg') }}" alt="ShowClinic" class="gallery-img">
-      <img src="{{ asset('assets/showclinic/img/editorial-4.jpg') }}" alt="ShowClinic" class="gallery-img wide">
-      <img src="{{ asset('assets/showclinic/img/editorial-2.jpg') }}" alt="ShowClinic" class="gallery-img">
+    <div class="photo-carousel reveal" aria-label="Galería de platos de Clan Restaurant">
+      <button type="button" class="carousel-arrow carousel-prev" aria-label="Foto anterior">&#8592;</button>
+      <div class="carousel-track">
+        <img src="{{ asset('assets/showclinic/img/platos/plato-01.jpg') }}" alt="Plato de autor — Clan Restaurant" class="carousel-slide">
+        <img src="{{ asset('assets/showclinic/img/platos/plato-02.jpg') }}" alt="Plato de autor — Clan Restaurant" class="carousel-slide">
+        <img src="{{ asset('assets/showclinic/img/platos/plato-03.jpg') }}" alt="Plato de autor — Clan Restaurant" class="carousel-slide">
+        <img src="{{ asset('assets/showclinic/img/platos/plato-04.jpg') }}" alt="Plato de autor — Clan Restaurant" class="carousel-slide">
+        <img src="{{ asset('assets/showclinic/img/platos/plato-05.jpg') }}" alt="Plato de autor — Clan Restaurant" class="carousel-slide">
+        <img src="{{ asset('assets/showclinic/img/platos/plato-06.jpg') }}" alt="Plato de autor — Clan Restaurant" class="carousel-slide">
+      </div>
+      <button type="button" class="carousel-arrow carousel-next" aria-label="Foto siguiente">&#8594;</button>
     </div>
 
     <div class="host-card reveal">
