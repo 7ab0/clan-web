@@ -24,11 +24,16 @@ function revealMain() {
   document.querySelector('.hero').style.animation = 'fadeIn 0.6s ease-out';
 }
 
+const BG_MUSIC_VOLUME = 0.35; // volumen tenue cuando el invitado activa el sonido
+
 function startBackgroundAudio() {
   // Arranca de una al cargar, en mute (autoplay con sonido esta
   // bloqueado por los navegadores). El boton de audio ya es visible
   // desde el primer render, sin esperar ninguna interaccion previa.
+  // El volumen queda bajo desde el inicio: cuando el invitado la activa
+  // con el boton, empieza tenue en vez de a todo volumen.
   if (BG_MUSIC) {
+    BG_MUSIC.volume = BG_MUSIC_VOLUME;
     BG_MUSIC.play().catch(() => {});
   }
 }

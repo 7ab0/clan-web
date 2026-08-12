@@ -14,62 +14,20 @@
 <body>
 
 @if ($guest)
-<!-- ======================= PRE-HOLDER (HISTORIA DE 3 PANTALLAS) ======================= -->
-<!-- Sin gate intermedio: con ?inv=CODIGO valido se entra directo aca. -->
-<div id="preholder">
-  <div class="preholder-frame">
-    <div class="preholder-screens">
-      <div class="preholder-screen is-active" data-screen="1">
-        <img src="{{ asset('assets/showclinic/img/logosinfondo.png') }}" alt="ShowClinic" class="preholder-logo">
-        <p class="preholder-wordmark">SHOWCLINIC</p>
-        <p class="preholder-teaser-eyebrow">Estamos preparando</p>
-        <p class="preholder-teaser-eyebrow">Algo <span class="teaser-strong">grande</span></p>
-        <p class="preholder-teaser-text">Y tú serás parte de <span class="teaser-strong">ella.</span></p>
-      </div>
-
-      <div class="preholder-screen" data-screen="2">
-        @php
-          $preholderComplimentRaw = trim($guest->compliment ?: 'Hoy, la noche es para ti.');
-          if (preg_match('/^(.*\s)(\S+?)([.,;:!?]*)$/u', $preholderComplimentRaw, $complimentParts)) {
-              $complimentLead = $complimentParts[1];
-              $complimentStrong = $complimentParts[2];
-              $complimentTrailing = $complimentParts[3];
-          } else {
-              $complimentLead = '';
-              $complimentStrong = $preholderComplimentRaw;
-              $complimentTrailing = '';
-          }
-
-          // Nombre y apellido en líneas separadas (diseño Figma: dos líneas).
-          $guestNameParts = preg_split('/\s+/', trim($guest->name), 2);
-          $guestFirstName = $guestNameParts[0] ?? '';
-          $guestLastName = $guestNameParts[1] ?? '';
-        @endphp
-        <p class="preholder-compliment-eyebrow">Tienes una invitación especial</p>
-        <h2 class="preholder-guest-name">{{ $guestFirstName }}@if ($guestLastName)<br>{{ $guestLastName }}@endif</h2>
-        <p class="preholder-compliment">{{ $complimentLead }}<span class="compliment-strong">{{ $complimentStrong }}</span>{{ $complimentTrailing }}</p>
-      </div>
-
-      <div class="preholder-screen" data-screen="3">
-        <img class="preholder-dragonfly" src="{{ asset('assets/showclinic/img/icono-libelula-clan.png') }}" alt="CLAN">
-        <div class="preholder-date">
-          <span class="preholder-date-num">22</span>
-          <span class="preholder-date-month">Agosto</span>
-        </div>
-        <p class="preholder-savedate-hint">Separa la fecha</p>
-      </div>
-    </div>
-
-    <div class="preholder-tap" aria-hidden="true">
-      <div class="preholder-tap-prev" id="preholderPrev"></div>
-      <div class="preholder-tap-next" id="preholderNext"></div>
-    </div>
-  </div>
-</div>
+  @php
+    // Nombre y apellido en líneas separadas (se usa en el saludo del Hero).
+    // Antes se calculaba dentro del pre-holder (ya eliminado) — se mantiene
+    // aquí para no romper el saludo personalizado.
+    $guestNameParts = preg_split('/\s+/', trim($guest->name), 2);
+    $guestFirstName = $guestNameParts[0] ?? '';
+    $guestLastName = $guestNameParts[1] ?? '';
+  @endphp
 @endif
 
 <!-- ======================= CONTENIDO PRINCIPAL ======================= -->
-<div id="main" hidden>
+<!-- Pre-holder (historia de 3 pantallas) eliminado a pedido del cliente:
+     se entra directo al sitio principal, sin pantalla intermedia. -->
+<div id="main">
 
   <!-- NAV -->
   <nav class="nav">
@@ -501,7 +459,7 @@
 
 <!-- ======================= AUDIO DE FONDO ======================= -->
 <!-- Fuera de #main a propósito: sin gate, debe quedar visible desde el
-     primer render, durante las 3 pantallas del pre-holder y despues. -->
+     primer render. -->
 <audio id="bgMusic" src="{{ asset('assets/showclinic/audio/event-music.mp3') }}" loop muted playsinline preload="auto"></audio>
 <button id="audioToggle" class="audio-toggle" type="button" aria-label="Activar música" aria-pressed="false">
   <svg class="icon-muted" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
