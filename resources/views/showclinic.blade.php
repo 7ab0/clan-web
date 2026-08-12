@@ -271,11 +271,7 @@
   <section id="momento-bienvenida" class="section-dark itinerary-detail">
     <div class="particles" aria-hidden="true"></div>
 
-    {{-- TODO: en Figma esta banner usa la foto real de "la Cava" (el salón
-         con arco de ladrillo e iluminación de colores) — todavía no la
-         tenemos en el código, así que por ahora se reutiliza la foto del
-         Hero. Reemplazar en cuanto el cliente la envíe. --}}
-    <div class="detail-hero-banner" style="background-image:url('{{ asset('assets/showclinic/img/hero-recepcion.jpg') }}')">
+    <div class="detail-hero-banner" style="background-image:url('{{ asset('assets/showclinic/img/momento1-cava.jpg') }}')">
       <div class="section-head reveal">
         <p class="eyebrow">Momento 1 de 6 · 7:30 p.m.</p>
         <h2>Bienvenida</h2>
@@ -303,10 +299,7 @@
   <section id="momento-show-cooking" class="itinerary-detail">
     <div class="detail-split reveal">
       <div class="detail-split-media">
-        <div class="photo-slot wide" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-          <span>Foto de Paolo Zambrano pendiente</span>
-        </div>
+        <img src="{{ asset('assets/showclinic/img/paolo-zambrano.jpg') }}" alt="Chef Paolo Zambrano">
       </div>
       <div class="detail-split-text">
         <div class="section-head">
@@ -376,10 +369,7 @@
     </ul>
 
     <div class="photo-gallery reveal">
-      <div class="photo-slot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto de Javier Lazo pendiente</span>
-      </div>
+      <img src="{{ asset('assets/showclinic/img/javier-lazo.jpg') }}" alt="Javier Lazo" class="photo-gallery-img">
       <a class="photo-slot" href="https://www.youtube.com/watch?v=EsBH1UY__3s" target="_blank" rel="noopener" aria-label="Ver video en YouTube">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M10 8.5l6 3.5-6 3.5v-7Z" fill="currentColor" stroke="none"/><rect x="3" y="6" width="18" height="12" rx="2.5"/></svg>
         <span>Ver video en YouTube</span>
