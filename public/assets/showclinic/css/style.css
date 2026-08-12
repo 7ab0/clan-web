@@ -1268,8 +1268,6 @@ body {
 .detail-hero-banner {
   position: relative;
   min-height: 55vh;
-  display: flex;
-  align-items: flex-end;
   background-size: cover;
   background-position: center;
   overflow: hidden;
@@ -1279,23 +1277,17 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
-}
-
-.detail-hero-banner .section-head {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 3rem 2rem;
-  text-align: left;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.35) 100%);
 }
 
 .detail-hero-body {
   padding: 4rem 2rem 7rem;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.detail-hero-body .section-head {
+  margin-bottom: 2.5rem;
 }
 
 .detail-hero-body .section-lead {
@@ -1360,6 +1352,32 @@ body {
 .detail-split-text .section-head {
   text-align: left;
   margin-bottom: 1.5rem;
+}
+
+/* Momento 2 (Show Cooking Experience) — encabezado centrado, según Figma */
+.detail-split-text .section-head.section-head-center {
+  text-align: center;
+}
+
+.detail-split-media-framed {
+  border: 1px solid var(--primary-light);
+  background: linear-gradient(160deg, var(--cream) 0%, #fff 100%);
+  padding: 1.1rem;
+  border-radius: 2px;
+}
+
+.detail-split-media-framed img {
+  height: 460px;
+  border-radius: 1px;
+}
+
+@media (max-width: 900px) {
+  .detail-split-media-framed {
+    padding: 0.75rem;
+  }
+  .detail-split-media-framed img {
+    height: 300px;
+  }
 }
 
 .detail-split-text .section-lead {
@@ -1441,6 +1459,19 @@ body {
 }
 
 /* ==================== PRIZES ==================== */
+
+.gift-bag-caption {
+  text-align: center;
+  margin: -1.5rem 0 3rem;
+}
+
+.prizes-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 400;
+  text-align: center;
+  margin: 0 0 2.5rem;
+}
 
 .prizes {
   display: grid;

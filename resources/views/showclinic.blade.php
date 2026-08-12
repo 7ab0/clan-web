@@ -80,7 +80,7 @@
       @endif
       <a href="#itinerario">Itinerario</a>
       <a href="#experiencia">Experiencia</a>
-      <a href="#sorteo">Sorteo</a>
+      <a href="#momento-sorteo-gift-bags">Sorteo</a>
       <a href="#ubicacion">Ubicación</a>
     </div>
   </nav>
@@ -271,14 +271,14 @@
   <section id="momento-bienvenida" class="section-dark itinerary-detail">
     <div class="particles" aria-hidden="true"></div>
 
-    <div class="detail-hero-banner" style="background-image:url('{{ asset('assets/showclinic/img/momento1-cava.jpg') }}')">
+    <div class="detail-hero-banner" style="background-image:url('{{ asset('assets/showclinic/img/momento1-cava.jpg') }}')"></div>
+
+    <div class="detail-hero-body">
       <div class="section-head reveal">
         <p class="eyebrow">Momento 1 de 6 · 7:30 p.m.</p>
         <h2>Bienvenida</h2>
       </div>
-    </div>
 
-    <div class="detail-hero-body">
       <p class="section-lead reveal">
         Las puertas de Clan se abren para dar inicio a la velada. Cada invitado
         es recibido con calidez, copa en mano, mientras el espacio se llena de
@@ -298,11 +298,11 @@
   <!-- MOMENTO 2 — SHOW COOKING EXPERIENCE -->
   <section id="momento-show-cooking" class="itinerary-detail">
     <div class="detail-split reveal">
-      <div class="detail-split-media">
+      <div class="detail-split-media detail-split-media-framed">
         <img src="{{ asset('assets/showclinic/img/paolo-zambrano.jpg') }}" alt="Chef Paolo Zambrano">
       </div>
       <div class="detail-split-text">
-        <div class="section-head">
+        <div class="section-head section-head-center">
           <p class="eyebrow">Momento 2 de 6 · 8:00 p.m.</p>
           <h2>Show Cooking Experience</h2>
         </div>
@@ -389,17 +389,6 @@
         especial hasta el momento del gran sorteo.
       </p>
     </div>
-
-    <div class="photo-gallery reveal">
-      <div class="photo-slot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
-      </div>
-      <div class="photo-slot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
-      </div>
-    </div>
   </section>
 
   <!-- MOMENTO 6 — SORTEO & GIFT BAGS -->
@@ -414,24 +403,25 @@
       </p>
     </div>
 
-    <ul class="tl-list detail-list reveal">
-      <li>Anuncio de ganadores</li>
-      <li>Entrega de premios</li>
-      <li>Gift Bag exclusivo para cada invitado</li>
-    </ul>
+    <p class="eyebrow gift-bag-caption reveal">Gift Bag exclusivo para cada invitado</p>
 
-    <div class="photo-gallery reveal">
-      <div class="photo-slot tall" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
+    <h3 class="prizes-title reveal">Participa por estos premios</h3>
+
+    <div class="prizes reveal">
+      <div class="prize-card">
+        <h3>Botox</h3>
       </div>
-      <div class="photo-slot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
+      <div class="prize-card">
+        <h3>Aumento de labios</h3>
+        <p>con ácido hialurónico</p>
       </div>
-      <div class="photo-slot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 8.5c0-.83.67-1.5 1.5-1.5h2l1-1.5h7l1 1.5h2c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.3"/></svg>
-        <span>Foto pendiente</span>
+      <div class="prize-card">
+        <h3>Gift Card 50%</h3>
+        <p>de descuento en cualquier tratamiento</p>
+      </div>
+      <div class="prize-card">
+        <h3>Limpieza facial</h3>
+        <p>profesional</p>
       </div>
     </div>
   </section>
@@ -463,44 +453,6 @@
       <button type="button" class="carousel-arrow carousel-next" aria-label="Foto siguiente">&#8594;</button>
     </div>
 
-    <div class="host-card reveal">
-      <img src="{{ asset('assets/showclinic/img/dr-erick.jpg') }}" alt="Dr. Erick Espetia">
-      <div>
-        <p class="eyebrow">Tu anfitrión</p>
-        <h3>Dr. Erick Espetia</h3>
-        <p>Nos dará la bienvenida oficial de la noche y brindará con nosotros por
-          este nuevo año de ShowClinic.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- SORTEO -->
-  <section id="sorteo" class="section">
-    <div class="section-head reveal">
-      <p class="eyebrow">Gran Sorteo de Aniversario</p>
-      <h2>Participa por estos premios</h2>
-    </div>
-    <div class="prizes reveal">
-      <div class="prize-card">
-        <span class="prize-num">01</span>
-        <h3>Botox</h3>
-      </div>
-      <div class="prize-card">
-        <span class="prize-num">02</span>
-        <h3>Aumento de labios</h3>
-        <p>con ácido hialurónico</p>
-      </div>
-      <div class="prize-card">
-        <span class="prize-num">03</span>
-        <h3>Gift Card 50%</h3>
-        <p>de descuento en cualquier tratamiento</p>
-      </div>
-      <div class="prize-card">
-        <span class="prize-num">04</span>
-        <h3>Limpieza facial</h3>
-        <p>profesional</p>
-      </div>
-    </div>
   </section>
 
   <!-- DRESS CODE + UBICACIÓN -->
