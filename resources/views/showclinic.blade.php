@@ -90,8 +90,15 @@
     <div class="hero-bg" style="background-image:url('{{ asset('assets/showclinic/img/hero-recepcion.jpg') }}')"></div>
     <div class="hero-overlay"></div>
     <div class="hero-content reveal">
-      <p class="eyebrow">@if ($guest){{ $guestFirstName }}@else Bienvenido/a @endif</p>
-      <h1 class="hero-title">Celebramos juntos<br><em>nuestro 4to aniversario</em></h1>
+      <p class="hero-greeting">
+        <strong>@if ($guest){{ $guestFirstName }}@else Bienvenido/a @endif</strong> Celebramos juntos
+        <span class="hero-greeting-sub">Nuestro 4<span class="ord">to</span> Aniversario</span>
+      </p>
+
+      <img src="{{ asset('assets/showclinic/img/logosinfondo.png') }}" alt="ShowClinic" class="hero-logo">
+      <p class="hero-wordmark">SHOWCLINIC</p>
+
+      <p class="hero-tagline">Seguridad que se siente, belleza que se nota.</p>
 
       <div class="hero-meta">
         <div class="meta-item">
@@ -264,6 +271,10 @@
   <section id="momento-bienvenida" class="section-dark itinerary-detail">
     <div class="particles" aria-hidden="true"></div>
 
+    {{-- TODO: en Figma esta banner usa la foto real de "la Cava" (el salón
+         con arco de ladrillo e iluminación de colores) — todavía no la
+         tenemos en el código, así que por ahora se reutiliza la foto del
+         Hero. Reemplazar en cuanto el cliente la envíe. --}}
     <div class="detail-hero-banner" style="background-image:url('{{ asset('assets/showclinic/img/hero-recepcion.jpg') }}')">
       <div class="section-head reveal">
         <p class="eyebrow">Momento 1 de 6 · 7:30 p.m.</p>
@@ -279,7 +290,7 @@
         asistentes.
       </p>
 
-      <ul class="tl-list detail-list reveal">
+      <ul class="tl-list detail-list detail-list-2col reveal">
         <li>Recepción de invitados</li>
         <li>Welcome Drink de bienvenida</li>
         <li>Bocaditos de bienvenida</li>
