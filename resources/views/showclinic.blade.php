@@ -320,8 +320,7 @@
         <p>de descuento en cualquier tratamiento</p>
       </div>
       <div class="prize-card">
-        <h3>Limpieza facial</h3>
-        <p>profesional</p>
+        <h3>Armonización Full Face</h3>
       </div>
     </div>
   </section>
