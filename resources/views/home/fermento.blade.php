@@ -494,13 +494,14 @@
         <h2 class="fermento-menu-title">FERMENTO</h2>
         <ul class="fermento-tempos-list">
             <li><span class="num">I TEMPO</span><span class="dish">Pesto con hierbas del andes</span></li>
-            <li><span class="num">II TEMPO</span><span class="dish">Pan de hongos, zapallo y queso de Lluta</span></li>
-            <li><span class="num">III TEMPO</span><span class="dish">Hot honey Cheesecake</span></li>
-            <li><span class="num">IV TEMPO</span><span class="dish">Piazza de truta y tumbo al Pesto</span></li>
-            <li><span class="num">V TEMPO</span><span class="dish">Pizza French onion soup</span></li>
-            <li><span class="num">VI TEMPO</span><span class="dish">Pizza Fuoco e Miele</span></li>
-            <li><span class="num">VII TEMPO</span><span class="dish">Cremoso de piña con hongos braseados</span></li>
-            <li><span class="num">VIII TEMPO</span><span class="dish">Trufa de cioccolato con tubérculos andinos</span></li>
+            <li><span class="num">II TEMPO</span><span class="dish">Higo fresco relleno de ruda de cabra, prosciutto, miel y reducción balsámica</span></li>
+            <li><span class="num">III TEMPO</span><span class="dish">Pan de hongos, zapallo y queso de Lluta</span></li>
+            <li><span class="num">IV TEMPO</span><span class="dish">Hot honey Cheesecake</span></li>
+            <li><span class="num">V TEMPO</span><span class="dish">Piazza de truta y tumbo al Pesto</span></li>
+            <li><span class="num">VI TEMPO</span><span class="dish">Pizza French onion soup</span></li>
+            <li><span class="num">VII TEMPO</span><span class="dish">Pizza Fuoco e Miele</span></li>
+            <li><span class="num">VIII TEMPO</span><span class="dish">Cremoso de piña con hongos braseados</span></li>
+            <li><span class="num">IX TEMPO</span><span class="dish">Trufa de cioccolato con tubérculos andinos</span></li>
         </ul>
     </div>
 </section>
