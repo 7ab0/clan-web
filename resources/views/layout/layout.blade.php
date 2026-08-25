@@ -7,6 +7,13 @@
 
 <body>
 
+    {{-- Hijo directo de <body>, fuera de #scrollsmoother-container: cualquier
+         `position: fixed` dentro de un contenedor con `transform` (como el que
+         aplica GSAP ScrollSmoother) deja de ser fijo respecto al viewport. Las
+         páginas que necesiten pintar algo por encima de todo (ej. el preloader
+         propio de Fermento) lo declaran aquí en vez de dentro de @yield('content'). --}}
+    @yield('body-start')
+
     <!-- Start preloader  -->
     <x-preloader />
     <!-- End preloader  -->
