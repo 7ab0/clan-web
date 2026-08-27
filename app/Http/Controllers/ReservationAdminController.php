@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Event;
+use App\Models\FermentoGuest;
 use App\Models\Reservation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -165,5 +166,92 @@ class ReservationAdminController extends Controller
         $customer->update($validated);
 
         return back()->with('status', "Cliente {$customer->name} actualizado.");
+    }
+
+    /**
+     * Lista los invitados de Fermento y su avance en el envío de WhatsApp
+     * por etapas, cruzando por teléfono normalizado con las reservas reales
+     * (sin tocar el modelo Reservation ni el flujo de reserva).
+     */
+    public function guests(): View
+    {
+        $event = Event::where('slug', 'fermento')->firstOrFail();
+
+        $guests = FermentoGuest::where('event_id', $event->id)->orderBy('name')->get();
+
+        // Ascendente a propósito: si un mismo teléfono tiene varias reservas,
+        // keyBy() se queda con la última procesada — con orden ascendente esa
+        // es la más reciente.
+        $reservationsByPhone = Reservation::whereHas('event', fn ($q) => $q->where('slug', 'fermento'))
+            ->orderBy('created_at')
+            ->get()
+            ->keyBy(fn (Reservation $reservation) => Customer::normalizePhone($reservation->customer_phone));
+
+        $guests->each(function (FermentoGuest $guest) use ($reservationsByPhone) {
+            $phone = Customer::normalizePhone($guest->phone);
+            $guest->reservation = $phone ? $reservationsByPhone->get($phone) : null;
+        });
+
+        return view('reservas.invitados', [
+            'guests' => $guests,
+        ]);
+    }
+
+    /**
+     * Edita a mano nombre/teléfono del invitado (varios de la primera tanda
+     * se cargaron sin teléfono — hay que poder completarlo acá).
+     */
+    public function updateGuest(Request $request, FermentoGuest $guest): RedirectResponse
+    {
+        $normalizedPhone = Customer::normalizePhone((string) $request->input('phone'));
+        $request->merge(['phone' => $normalizedPhone]);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'phone' => ['nullable', 'string', 'max:30'],
+        ]);
+
+        $guest->update($validated);
+
+        return back()->with('status', "Invitado {$guest->name} actualizado.");
+    }
+
+    /**
+     * Marca el mensaje 1 (intriga) como enviado. Idempotente: si ya estaba
+     * marcado, no lo pisa (evita perder la fecha real del primer envío).
+     */
+    public function markMensaje1(FermentoGuest $guest): RedirectResponse
+    {
+        if (! $guest->whatsapp_sent_at) {
+            $guest->update(['whatsapp_sent_at' => now()]);
+        }
+
+        return back();
+    }
+
+    /**
+     * Marca/desmarca que el invitado respondió con interés al mensaje 1 —
+     * mismo patrón de checkbox-toggle que el VIP de clientes.blade.php.
+     */
+    public function toggleAceptado(FermentoGuest $guest): RedirectResponse
+    {
+        $guest->update([
+            'interest_confirmed_at' => $guest->interest_confirmed_at ? null : now(),
+        ]);
+
+        return back();
+    }
+
+    /**
+     * Marca el mensaje 2 (invitación completa) como enviado. Idempotente,
+     * igual que markMensaje1().
+     */
+    public function markMensaje2(FermentoGuest $guest): RedirectResponse
+    {
+        if (! $guest->invite_sent_at) {
+            $guest->update(['invite_sent_at' => now()]);
+        }
+
+        return back();
     }
 }

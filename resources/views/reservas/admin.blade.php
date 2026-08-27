@@ -151,6 +151,7 @@
     </div>
     <div style="display:flex;gap:0.75rem;align-items:center;">
       <a href="{{ route('reservas.admin.clientes') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Clientes</a>
+      <a href="{{ route('reservas.admin.guests') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Invitados</a>
       <form method="POST" action="{{ route('reservas.admin.logout') }}">
         @csrf
         <button type="submit" class="btn btn-dark">Cerrar sesión</button>
@@ -219,6 +220,7 @@
         <tr>
           <th><a href="{{ $sortLink('code') }}">Código{{ $arrow('code') }}</a></th>
           <th><a href="{{ $sortLink('customer_name') }}">Cliente{{ $arrow('customer_name') }}</a></th>
+          <th>Teléfono</th>
           <th>Evento</th>
           <th>Fecha</th>
           <th>Mesa</th>
@@ -240,6 +242,7 @@
           <tr>
             <td class="code">{{ $reservation->code }}</td>
             <td>{{ $reservation->customer_name }}</td>
+            <td>{{ $reservation->customer_phone ?: '—' }}</td>
             <td>{{ $reservation->event->name }}</td>
             <td>{{ $reservation->schedule->date->format('d/m/Y') }} {{ \Illuminate\Support\Str::of($reservation->schedule->start_time)->substr(0, 5) }}</td>
             <td>{{ $reservation->table ? '#' . $reservation->table->table_number : '—' }}</td>
@@ -262,7 +265,7 @@
           </tr>
         @empty
           <tr>
-            <td colspan="9" class="empty">No se encontraron reservas con esos filtros.</td>
+            <td colspan="10" class="empty">No se encontraron reservas con esos filtros.</td>
           </tr>
         @endforelse
       </tbody>

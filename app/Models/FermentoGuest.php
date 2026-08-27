@@ -27,11 +27,15 @@ class FermentoGuest extends Model
         'token',
         'opened_at',
         'whatsapp_sent_at',
+        'interest_confirmed_at',
+        'invite_sent_at',
     ];
 
     protected $casts = [
         'opened_at' => 'datetime',
         'whatsapp_sent_at' => 'datetime',
+        'interest_confirmed_at' => 'datetime',
+        'invite_sent_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -63,5 +67,54 @@ class FermentoGuest extends Model
     public function getFirstNameAttribute(): string
     {
         return trim(explode(' ', trim($this->name))[0]);
+    }
+
+    /**
+     * Link de WhatsApp para el mensaje 1 (intriga, sin link personalizado
+     * todavía) — null si el invitado no tiene teléfono cargado.
+     */
+    public function waLinkIntriga(): ?string
+    {
+        $phone = Customer::normalizePhone($this->phone);
+
+        if ($phone === null) {
+            return null;
+        }
+
+        $lines = [
+            'Hola, *' . $this->first_name . "* 👋",
+            '*MOLTO* × *FORNO* estamos preparando algo especial.',
+            '¿Te *gustaría* conocer los detalles? ✨',
+        ];
+
+        return 'https://wa.me/' . $phone . '?text=' . rawurlencode(implode("\n", $lines));
+    }
+
+    /**
+     * Link de WhatsApp para el mensaje 2 (invitación completa, con su link
+     * personalizado) — null si el invitado no tiene teléfono cargado.
+     */
+    public function waLinkInvitacion(): ?string
+    {
+        $phone = Customer::normalizePhone($this->phone);
+
+        if ($phone === null) {
+            return null;
+        }
+
+        $lines = [
+            '*' . $this->first_name . '*, llegó el momento.',
+            '*MOLTO* × *FORNO* presentan *FERMENTO*',
+            'Transmutación de la masa madre.',
+            'Una experiencia a cuatro manos donde el tiempo, el fuego y la creatividad se encuentran.',
+            'Queremos que seas parte de esta noche.',
+            '✨ Viernes 4 o sábado 5 de septiembre · 7:00 p. m.',
+            '📍 Pasaje Violín 101 F, San Lázaro',
+            'Plaza Campo Redondo – Arequipa',
+            'Tu invitación es personal:',
+            '👉 ' . route('fermento', $this->token),
+        ];
+
+        return 'https://wa.me/' . $phone . '?text=' . rawurlencode(implode("\n", $lines));
     }
 }

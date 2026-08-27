@@ -48,6 +48,12 @@ Route::prefix('reservas/admin')->name('reservas.admin.')->group(function () {
         Route::post('/{reservation}/confirmar', [ReservationAdminController::class, 'confirmPayment'])->name('confirmar');
         Route::get('/clientes', [ReservationAdminController::class, 'customers'])->name('clientes');
         Route::put('/clientes/{customer}', [ReservationAdminController::class, 'updateCustomer'])->name('clientes.update');
+
+        Route::get('/invitados', [ReservationAdminController::class, 'guests'])->name('guests');
+        Route::put('/invitados/{guest}', [ReservationAdminController::class, 'updateGuest'])->name('guests.update');
+        Route::post('/invitados/{guest}/mensaje1', [ReservationAdminController::class, 'markMensaje1'])->name('guests.mensaje1');
+        Route::post('/invitados/{guest}/aceptar', [ReservationAdminController::class, 'toggleAceptado'])->name('guests.aceptar');
+        Route::post('/invitados/{guest}/mensaje2', [ReservationAdminController::class, 'markMensaje2'])->name('guests.mensaje2');
     });
 });
 

@@ -161,6 +161,7 @@
     </div>
     <div style="display:flex;gap:0.75rem;align-items:center;">
       <a href="{{ route('reservas.admin.index') }}" class="btn btn-outline">Reservas</a>
+      <a href="{{ route('reservas.admin.guests') }}" class="btn btn-outline">Invitados</a>
       <form method="POST" action="{{ route('reservas.admin.logout') }}">
         @csrf
         <button type="submit" class="btn btn-dark">Cerrar sesión</button>
