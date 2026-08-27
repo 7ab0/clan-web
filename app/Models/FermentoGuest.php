@@ -83,13 +83,13 @@ class FermentoGuest extends Model
             return null;
         }
 
-        $lines = [
+        $blocks = [
             'Hola, *' . $this->first_name . "* 👋",
-            '*MOLTO* × *FORNO* estamos preparando algo especial.',
-            '¿Te *gustaría* conocer los detalles? ✨',
+            '*MOLTO* × *FORNO* estamos preparando algo *especial.*',
+            '¿Te gustaría conocer los detalles? ✨',
         ];
 
-        return 'https://wa.me/' . $phone . '?text=' . rawurlencode(implode("\n", $lines));
+        return 'https://wa.me/' . $phone . '?text=' . rawurlencode(implode("\n\n", $blocks));
     }
 
     /**
@@ -104,19 +104,15 @@ class FermentoGuest extends Model
             return null;
         }
 
-        $lines = [
+        $blocks = [
             '*' . $this->first_name . '*, llegó el momento.',
-            '*MOLTO* × *FORNO* presentan *FERMENTO*',
-            'Transmutación de la masa madre.',
-            'Una experiencia a cuatro manos donde el tiempo, el fuego y la creatividad se encuentran.',
-            'Queremos que seas parte de esta noche.',
-            '✨ Viernes 4 o sábado 5 de septiembre · 7:00 p. m.',
-            '📍 Pasaje Violín 101 F, San Lázaro',
-            'Plaza Campo Redondo – Arequipa',
-            'Tu invitación es personal:',
-            '👉 ' . route('fermento', $this->token),
+            "*MOLTO* × *FORNO* presentan *FERMENTO*\nTransmutación de la masa madre.",
+            'Una *experiencia* a cuatro manos donde el tiempo, el *fuego* y la *creatividad* se encuentran.',
+            "Queremos que seas parte de esta noche.\n✨ *Viernes 4* o *sábado 5* de septiembre · *7:00 p. m.*",
+            "📍 Pasaje Violín 101 F, San Lázaro\nPlaza Campo Redondo – Arequipa",
+            "Tu *invitación* es *personal*:\n👉 " . route('fermento', $this->token),
         ];
 
-        return 'https://wa.me/' . $phone . '?text=' . rawurlencode(implode("\n", $lines));
+        return 'https://wa.me/' . $phone . '?text=' . rawurlencode(implode("\n\n", $blocks));
     }
 }

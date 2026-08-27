@@ -313,6 +313,27 @@
                   <button type="submit" class="btn btn-sm btn-accent">Confirmar pago</button>
                 </form>
               @endif
+              @if ($reservation->event->slug === 'fermento')
+                <a class="btn btn-sm btn-outline" target="_blank" rel="noopener"
+                   href="{{ route('reservas.confirmacion', $reservation->code) }}">Ver imagen</a>
+              @endif
+              @if ($reservation->event->slug === 'fermento' && $reservation->status === 'confirmed' && $waPhone)
+                @php
+                  $storyFirstName = explode(' ', trim($reservation->customer_name))[0];
+                  $storyFecha = $reservation->schedule->date->format('d/m/Y');
+                  $storyHora = \Illuminate\Support\Str::of($reservation->schedule->start_time)->substr(0, 5);
+                  $storyMesa = $reservation->table ? '#' . $reservation->table->table_number : '—';
+                  $storyBlocks = [
+                      'Hola, *' . $storyFirstName . '* 👋',
+                      "Tu reserva para *FERMENTO* está confirmada ✅\n📅 {$storyFecha} {$storyHora} · 🍽️ Mesa {$storyMesa}",
+                      "Aquí puedes ver y descargar tu tarjeta de confirmación:\n👉 " . route('reservas.confirmacion', $reservation->code),
+                      '¡Nos vemos pronto!',
+                  ];
+                  $storyText = rawurlencode(implode("\n\n", $storyBlocks));
+                @endphp
+                <a class="btn btn-sm btn-whatsapp" target="_blank" rel="noopener"
+                   href="https://wa.me/{{ $waPhone }}?text={{ $storyText }}">Enviar story</a>
+              @endif
               <button type="button" class="btn btn-sm btn-outline"
                       onclick="openEditModal({{ Js::from([
                           'action' => route('reservas.admin.update', $reservation),
