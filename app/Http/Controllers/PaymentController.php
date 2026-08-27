@@ -29,7 +29,7 @@ class PaymentController extends Controller
 
     public function confirmation(string $code): View
     {
-        $reservation = Reservation::with(['event', 'schedule', 'payment'])
+        $reservation = Reservation::with(['event', 'schedule', 'table', 'payment'])
             ->where('code', $code)
             ->firstOrFail();
 
