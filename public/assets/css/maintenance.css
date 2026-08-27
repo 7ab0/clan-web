@@ -1,0 +1,136 @@
+/*--------------------------------------------------------------
+  Maintenance — "Se esta cocinando"
+  Pagina autonoma (no usa el layout principal), con acento en
+  Cinzel para el titular y Poppins para el resto del texto.
+----------------------------------------------------------------*/
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap');
+
+.maintenance-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--body-bg-color, #040D10);
+  color: var(--common-color-white, #FFF);
+  font-family: "Poppins", sans-serif;
+  position: relative;
+  overflow: hidden;
+  padding: 32px 20px;
+}
+
+.maintenance-page::before {
+  content: "";
+  position: absolute;
+  top: -25%;
+  left: 50%;
+  width: 1100px;
+  height: 1100px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(251, 177, 47, 0.1), rgba(251, 177, 47, 0) 70%);
+  pointer-events: none;
+}
+
+.maintenance-card {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+
+.maintenance-logo {
+  height: 48px;
+  width: auto;
+  margin: 0 auto 40px;
+}
+
+.maintenance-eyebrow {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #FBB12F;
+  margin: 0 0 20px;
+}
+
+.maintenance-title {
+  font-family: "Cinzel", serif;
+  font-weight: 600;
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.2;
+  color: var(--common-color-white, #FFF);
+  margin: 0 0 22px;
+}
+
+.maintenance-lead {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.8;
+  color: var(--body-color, #C8C8C8);
+  margin: 0 0 40px;
+}
+
+.maintenance-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.maintenance-input {
+  width: 100%;
+  max-width: 320px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--common-color-white, #FFF);
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: lowercase;
+  padding: 10px 4px;
+  transition: border-color 0.3s ease;
+}
+
+.maintenance-input::placeholder {
+  color: rgba(200, 200, 200, 0.45);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.maintenance-input:focus {
+  outline: none;
+  border-bottom-color: #FBB12F;
+}
+
+.maintenance-submit {
+  background: transparent;
+  border: 1px solid #FBB12F;
+  color: #FBB12F;
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.maintenance-submit:hover {
+  background-color: #FBB12F;
+  color: #040D10;
+}
+
+.maintenance-error {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #e0654f;
+  margin: 4px 0 0;
+}

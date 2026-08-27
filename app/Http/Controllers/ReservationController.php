@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreReservationRequest;
+use App\Models\Customer;
 use App\Models\EventSchedule;
 use App\Models\Payment;
 use App\Models\Reservation;
@@ -56,6 +57,11 @@ class ReservationController extends Controller
                 ? $lockedSchedule->event->price * $validated['party_size']
                 : $lockedSchedule->event->price;
 
+            // Seña que el cliente elige coordinar por WhatsApp (Fermento). Si el
+            // formulario no la manda (ej. Íntimo, que aún no pide seña variable),
+            // se sigue depositando el total completo, como hasta ahora.
+            $depositAmount = $validated['deposit_amount'] ?? $totalAmount;
+
             $reservation = Reservation::create([
                 'event_id' => $lockedSchedule->event_id,
                 'event_schedule_id' => $lockedSchedule->id,
@@ -72,13 +78,65 @@ class ReservationController extends Controller
 
             Payment::create([
                 'reservation_id' => $reservation->id,
-                'amount' => $reservation->total_amount,
+                'amount' => $depositAmount,
                 'currency' => $lockedSchedule->event->currency,
-                'provider' => 'simulated',
+                'provider' => 'whatsapp',
                 'status' => 'pending',
             ]);
 
+            // Base de clientes: por ahora solo para Fermento (ver plan). Para
+            // extenderla a otros eventos más adelante, basta con quitar este
+            // chequeo de slug.
+            if ($lockedSchedule->event->slug === 'fermento') {
+                $this->upsertCustomer($validated);
+            }
+
             return redirect()->route('reservas.pago', $reservation->code);
         });
+    }
+
+    /**
+     * Crea o actualiza el registro del cliente en la base simple de
+     * clientes (deduplicada por teléfono). Nunca pisa "frequency", "vip"
+     * ni "notes" de un cliente existente — esos los cura el staff a mano
+     * desde /reservas/admin/clientes. Solo agrega la marca "Molto" si
+     * todavía no la tenía, y completa el email si no tenía uno.
+     */
+    private function upsertCustomer(array $validated): void
+    {
+        $phone = Customer::normalizePhone($validated['customer_phone']);
+
+        if ($phone === null) {
+            return;
+        }
+
+        $customer = Customer::where('phone', $phone)->first();
+
+        if (! $customer) {
+            Customer::create([
+                'name' => $validated['customer_name'],
+                'phone' => $phone,
+                'email' => $validated['customer_email'] ?? null,
+                'brands' => ['Molto'],
+                'frequency' => 'nueva',
+                'vip' => false,
+            ]);
+
+            return;
+        }
+
+        $updates = [];
+
+        if (! in_array('Molto', $customer->brands ?? [], true)) {
+            $updates['brands'] = array_values(array_unique([...($customer->brands ?? []), 'Molto']));
+        }
+
+        if (! $customer->email && ! empty($validated['customer_email'])) {
+            $updates['email'] = $validated['customer_email'];
+        }
+
+        if ($updates !== []) {
+            $customer->update($updates);
+        }
     }
 }

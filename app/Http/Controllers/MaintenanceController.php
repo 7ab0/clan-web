@@ -4,26 +4,26 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
 use Illuminate\View\View;
 
 class MaintenanceController extends Controller
 {
     public function show(): View
     {
-        return view('maintenance');
+        return view('maintenance.index');
     }
 
     public function unlock(Request $request): RedirectResponse
     {
-        $request->validate(['keyword' => ['required', 'string']]);
+        $word = strtolower(trim((string) $request->input('word')));
 
-        if (! hash_equals('clandestino', (string) $request->input('keyword'))) {
-            return back()->withErrors(['keyword' => 'Palabra clave incorrecta.']);
+        if ($word !== config('maintenance.access_word')) {
+            return redirect()
+                ->route('maintenance.show')
+                ->with('error', 'Esa no es la palabra.');
         }
 
-        return redirect()->route('index')->withCookie(
-            Cookie::forever('clan_access', 'clandestino')
-        );
+        return redirect('/')
+            ->cookie(config('maintenance.access_cookie'), 'granted', 60 * 24 * 30);
     }
 }

@@ -46,6 +46,17 @@
         <p class="fermento-preloader-hint">Haz clic para continuar</p>
     </div>
 </div>
+
+{{-- CTA flotante persistente: mismo motivo que el preloader arriba, tiene que
+     vivir fuera de #scrollsmoother-container para que position:fixed sea
+     realmente fijo contra el viewport. Se muestra/oculta por JS al final de
+     @section('content') (ver #fermentoFloatingCta). --}}
+<a href="#reservar" id="fermentoFloatingCta" class="fermento-floating-cta" aria-label="Reservar mi mesa">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 20.6 7.4 19.2 6z"/>
+    </svg>
+    <span>Reservar mi mesa</span>
+</a>
 @endsection
 
 @section('content')
@@ -387,12 +398,34 @@
     .fermento-audio-toggle.is-unmuted .icon-muted { display: none; }
     .fermento-audio-toggle.is-unmuted .icon-unmuted { display: block; }
 
+    /* CTA flotante "Reservar mi mesa": pastilla dorada fija abajo-centro,
+       aparece tras bajar ~30% del alto de pantalla y se oculta cerca de
+       Hero/Precio/Reservas (ahí ya hay un CTA grande o el formulario mismo). */
+    .fermento-floating-cta {
+        position: fixed; left: 50%; bottom: 1.75rem; z-index: 9000;
+        display: inline-flex; align-items: center; gap: 10px;
+        padding: 15px 28px; border-radius: 999px;
+        background: var(--yellow-color); color: var(--body-bg-color);
+        border: 1px solid var(--border-color);
+        text-transform: uppercase; letter-spacing: .12em; font-size: 13px;
+        font-family: var(--body-font-family); text-decoration: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,.35);
+        opacity: 0; visibility: hidden; pointer-events: none;
+        transform: translate(-50%, 12px);
+        transition: opacity .4s ease, transform .4s ease, visibility .4s;
+    }
+    .fermento-floating-cta svg { flex: none; }
+    .fermento-floating-cta.is-visible {
+        opacity: 1; visibility: visible; pointer-events: auto; transform: translate(-50%, 0);
+    }
+
     @media (max-width: 991px) {
         .fermento-kitchen-grid { grid-template-columns: 1fr 1fr; }
     }
 
     @media (max-width: 767px) {
         .fermento-audio-toggle { bottom: 1.25rem; right: 1.25rem; width: 44px; height: 44px; }
+        .fermento-floating-cta { bottom: 1.25rem; padding: 13px 22px; font-size: 12px; }
 
         /* Hero mobile: una sola columna — foto arriba, texto centrado abajo. */
         .fermento-hero { min-height: auto; }
@@ -567,7 +600,7 @@
 </section>
 
 <!-- Precio -->
-<section class="fermento-section">
+<section id="precio" class="fermento-section">
     <div class="ak-height-120 ak-height-lg-60"></div>
     <div class="container">
         <div class="ak-section-heading ak-style-1 ak-type-1" style="text-align:center;">
@@ -650,6 +683,7 @@
                 <label style="margin-top:6px;">3 · Tus datos</label>
             </div>
 
+
             <div class="fermento-field-row">
                 <div class="fermento-field">
                     <label for="customer_name">Nombre</label>
@@ -673,15 +707,23 @@
             </div>
 
             <div class="fermento-field">
+                <label for="deposit_amount">4 · Tu seña</label>
+                <input type="number" name="deposit_amount" id="deposit_amount" min="20" step="5" value="{{ old('deposit_amount', 50) }}" required>
+                <p class="fermento-note" style="margin-top:8px;">
+                    Sugerido S/ 50 · mínimo S/ 20. El resto de la cuenta se paga en el local la noche del evento.
+                </p>
+            </div>
+
+            <div class="fermento-field">
                 <label for="notes">¿Algo que debamos saber? (opcional)</label>
                 <textarea name="notes" id="notes" rows="3">{{ old('notes') }}</textarea>
             </div>
 
             <button type="submit" class="fermento-btn solid" style="width:100%;justify-content:center;border:none;">
-                Continuar al pago
+                Continuar
             </button>
             <p class="fermento-note" style="text-align:center;">
-                No se realiza ningún cobro todavía. En el siguiente paso confirmas el pago de tu reserva.
+                No se realiza ningún cobro todavía. En el siguiente paso te escribimos por WhatsApp para coordinar el pago de tu seña.
             </p>
         </form>
     </div>
@@ -838,6 +880,35 @@
                 renderTables();
             }
         }
+    })();
+
+    (function () {
+        var cta = document.getElementById('fermentoFloatingCta');
+        if (!cta) return;
+
+        // Secciones donde ya hay un CTA grande visible (Hero, Precio) o el
+        // usuario ya está parado en el formulario (Reservas) — ahí el botón
+        // flotante sería redundante.
+        var hideSelectors = ['.fermento-hero', '#precio', '#reservar'];
+        var hideEls = hideSelectors
+            .map(function (sel) { return document.querySelector(sel); })
+            .filter(Boolean);
+
+        function isNearViewportCenter(el) {
+            var rect = el.getBoundingClientRect();
+            var center = window.innerHeight / 2;
+            return rect.top <= center && rect.bottom >= center;
+        }
+
+        function updateVisibility() {
+            var scrolledEnough = window.scrollY > window.innerHeight * 0.3;
+            var nearHiddenSection = hideEls.some(isNearViewportCenter);
+            cta.classList.toggle('is-visible', scrolledEnough && !nearHiddenSection);
+        }
+
+        window.addEventListener('scroll', updateVisibility, { passive: true });
+        window.addEventListener('resize', updateVisibility);
+        updateVisibility();
     })();
 
     document.addEventListener('DOMContentLoaded', function () {

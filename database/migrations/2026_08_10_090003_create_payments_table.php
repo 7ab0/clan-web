@@ -13,7 +13,9 @@ return new class extends Migration
             $table->foreignId('reservation_id')->constrained()->cascadeOnDelete();
             $table->decimal('amount', 10, 2);
             $table->string('currency', 3)->default('PEN');
-            // simulated | culqi | mercadopago | stripe
+            // simulated | whatsapp | culqi | mercadopago | stripe
+            // "whatsapp" = seña coordinada por WhatsApp, confirmada a mano por
+            // el staff desde el panel admin de reservas (sin pasarela real).
             $table->string('provider')->default('simulated');
             $table->string('provider_reference')->nullable(); // id de cargo/transacción de la pasarela
             $table->enum('status', ['pending', 'paid', 'failed', 'refunded'])->default('pending');

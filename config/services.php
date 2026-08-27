@@ -35,4 +35,9 @@ return [
         'admin_password' => env('SHOWCLINIC_ADMIN_PASSWORD'),
     ],
 
+    'reservas' => [
+        'admin_password' => env('RESERVAS_ADMIN_PASSWORD'),
+        'whatsapp_number' => env('RESERVAS_WHATSAPP_NUMBER', '51932817621'),
+    ],
+
 ];

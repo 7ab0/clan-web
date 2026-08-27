@@ -7,6 +7,7 @@ use App\Http\Controllers\ShowClinicAdminController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ReservationAdminController;
 use App\Http\Controllers\MaintenanceController;
 
 Route::controller(MaintenanceController::class)->group(function () {
@@ -31,8 +32,23 @@ Route::post('/fermento/reservar', [ReservationController::class, 'store'])->name
 
 Route::prefix('reservas/{code}')->group(function () {
     Route::get('/pago', [PaymentController::class, 'show'])->name('reservas.pago');
-    Route::post('/pago', [PaymentController::class, 'process'])->name('reservas.pago.procesar');
     Route::get('/confirmacion', [PaymentController::class, 'confirmation'])->name('reservas.confirmacion');
+});
+
+// Panel admin de reservas (Fermento + Íntimo): confirma manualmente el pago
+// de la seña coordinado por WhatsApp. Protegido por contraseña simple,
+// mismo patrón que showclinic/admin.
+Route::prefix('reservas/admin')->name('reservas.admin.')->group(function () {
+    Route::get('/login', [ReservationAdminController::class, 'loginForm'])->name('login');
+    Route::post('/login', [ReservationAdminController::class, 'login'])->name('login.submit');
+    Route::post('/logout', [ReservationAdminController::class, 'logout'])->name('logout');
+
+    Route::middleware('reservas.admin')->group(function () {
+        Route::get('/', [ReservationAdminController::class, 'index'])->name('index');
+        Route::post('/{reservation}/confirmar', [ReservationAdminController::class, 'confirmPayment'])->name('confirmar');
+        Route::get('/clientes', [ReservationAdminController::class, 'customers'])->name('clientes');
+        Route::put('/clientes/{customer}', [ReservationAdminController::class, 'updateCustomer'])->name('clientes.update');
+    });
 });
 
 // Landing standalone de evento (identidad visual propia, sin header/footer de CLAN)

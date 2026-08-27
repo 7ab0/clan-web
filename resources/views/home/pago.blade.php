@@ -3,6 +3,28 @@
 @php
     $title = 'Pago';
     $subTitle = 'Confirma tu reserva';
+
+    // Seña a coordinar por WhatsApp: el monto que el cliente eligió al
+    // reservar (Fermento) o el total de la reserva si no se pidió seña
+    // variable (Íntimo, hasta ahora).
+    $depositAmount = $reservation->payment->amount ?? $reservation->total_amount;
+
+    $waMessageLines = [
+        'Hola! Quiero coordinar el pago de mi reserva ' . $reservation->code . '.',
+        'Experiencia: ' . $reservation->event->name,
+        'Fecha: ' . $reservation->schedule->date->format('d/m/Y') . ' — ' . \Illuminate\Support\Str::of($reservation->schedule->start_time)->substr(0, 5) . ' h',
+    ];
+
+    if ($reservation->table) {
+        $waMessageLines[] = 'Mesa: #' . $reservation->table->table_number;
+    }
+
+    $waMessageLines[] = 'Personas: ' . $reservation->party_size;
+    $waMessageLines[] = 'A nombre de: ' . $reservation->customer_name;
+    $waMessageLines[] = 'Monto de la seña: S/ ' . number_format($depositAmount, 2);
+
+    $waNumber = config('services.reservas.whatsapp_number');
+    $waLink = 'https://wa.me/' . $waNumber . '?text=' . rawurlencode(implode("\n", $waMessageLines));
 @endphp
 
 @section('content')
@@ -55,8 +77,12 @@
                 <span>A nombre de</span>
                 <span>{{ $reservation->customer_name }}</span>
             </div>
+            <div class="pago-row">
+                <span>Seña a coordinar</span>
+                <span>S/ {{ number_format($depositAmount, 2) }}</span>
+            </div>
             <div class="pago-total">
-                <span>Total</span>
+                <span>Total de la experiencia</span>
                 <span>S/ {{ number_format($reservation->total_amount, 2) }}</span>
             </div>
 
@@ -68,12 +94,12 @@
                     Ver confirmación
                 </a>
             @else
-                <form method="POST" action="{{ route('reservas.pago.procesar', $reservation->code) }}">
-                    @csrf
-                    <button type="submit" class="pago-btn">Pagar S/ {{ number_format($reservation->total_amount, 2) }}</button>
-                </form>
+                <a href="{{ $waLink }}" target="_blank" rel="noopener" class="pago-btn" style="display:block;text-align:center;text-decoration:none;">
+                    Reservar por WhatsApp
+                </a>
                 <p class="pago-note">
-                    Pasarela de pago en modo de prueba. Aquí se integrará el cobro real (Culqi / Mercado Pago / Stripe).
+                    Te escribimos por WhatsApp para coordinar el pago de tu seña (Yape, Plin o transferencia).
+                    Tu reserva queda pendiente hasta que confirmemos que la recibimos.
                 </p>
             @endif
         </div>

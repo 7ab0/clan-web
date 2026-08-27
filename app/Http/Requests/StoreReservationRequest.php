@@ -24,6 +24,10 @@ class StoreReservationRequest extends FormRequest
             'party_size' => ['required', 'integer', 'min:1', 'max:20'],
             'relationship_type' => ['nullable', 'string', 'max:60'],
             'notes' => ['nullable', 'string', 'max:500'],
+            // Monto de la seña que el cliente elige coordinar por WhatsApp.
+            // Si no se manda (ej. Íntimo, que aún no pide seña variable),
+            // ReservationController usa el total de la reserva como antes.
+            'deposit_amount' => ['nullable', 'numeric', 'min:20'],
         ];
     }
 
@@ -35,6 +39,7 @@ class StoreReservationRequest extends FormRequest
             'customer_name.required' => 'Cuéntanos tu nombre.',
             'customer_email.required' => 'Necesitamos un correo para confirmar tu reserva.',
             'customer_phone.required' => 'Déjanos un teléfono de contacto.',
+            'deposit_amount.min' => 'La seña mínima es S/ 20.',
         ];
     }
 
@@ -81,6 +86,20 @@ class StoreReservationRequest extends FormRequest
                 }
             } elseif ($partySize !== (int) $schedule->event->party_size) {
                 $validator->errors()->add('party_size', 'El tamaño de grupo para este evento es fijo.');
+            }
+
+            // La seña elegida no puede superar el total de la reserva (misma
+            // fórmula que ReservationController::store: precio × personas si
+            // el evento tiene mesas propias, precio plano si no).
+            $depositAmount = $this->input('deposit_amount');
+            if ($depositAmount !== null && $depositAmount !== '') {
+                $total = $tables->isNotEmpty()
+                    ? $schedule->event->price * $partySize
+                    : $schedule->event->price;
+
+                if ((float) $depositAmount > (float) $total) {
+                    $validator->errors()->add('deposit_amount', 'La seña no puede ser mayor al total de la reserva.');
+                }
             }
         });
     }
