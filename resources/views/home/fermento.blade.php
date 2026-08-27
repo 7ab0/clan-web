@@ -346,6 +346,17 @@
         padding: 14px 16px; font-family: var(--body-font-family); font-size: 15px;
     }
     .fermento-field input:focus, .fermento-field select:focus, .fermento-field textarea:focus { outline: none; border-color: var(--yellow-color); }
+    .fermento-field select {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8' fill='none'%3E%3Cpath d='M1 1L7 7L13 1' stroke='%23FBB12F' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        padding-right: 44px; /* deja espacio para el chevron, no lo tape el texto */
+    }
+    .fermento-field select option {
+        color: #1A1410;
+    }
     .fermento-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .fermento-alert-error { border: 1px solid #b95a4a; color: #f3c9c1; padding: 16px 20px; margin-bottom: 26px; font-size: 14px; }
     .fermento-alert-error ul { margin: 0; padding-left: 18px; }
@@ -371,8 +382,14 @@
     .fermento-table-btn:hover:not(:disabled) { border-color: var(--yellow-color); background: rgba(251,177,47,.08); }
     .fermento-table-btn.is-selected { border-color: var(--yellow-color); background: var(--yellow-color); }
     .fermento-table-btn.is-selected .n, .fermento-table-btn.is-selected .cap { color: #1A1410; }
-    .fermento-table-btn:disabled { opacity: .4; cursor: not-allowed; border-style: dashed; }
-    .fermento-table-btn:disabled .cap { text-decoration: line-through; }
+    .fermento-table-btn:disabled {
+        cursor: not-allowed;
+        border-style: dashed;
+        border-color: #5a4d3d;
+        background: rgba(255,255,255,.02);
+    }
+    .fermento-table-btn:disabled .n { color: #8a7a68; }
+    .fermento-table-btn:disabled .cap { color: #9c8f7f; text-decoration: line-through; }
     .fermento-table-hint { color: var(--body-color); font-size: 13px; margin-top: 16px; }
     .fermento-table-hint strong { color: var(--heading-color); }
 
@@ -738,8 +755,9 @@
     <div class="container fermento-footer-inner">
         <img src="{{ $img('logos/molto-logo.png') }}" alt="MOLTO Horno Social" class="fermento-footer-logo">
 
+        @php $waDisplay = config('services.reservas.whatsapp_number'); @endphp
         <div class="line">
-            Reservas al <a href="tel:+51941486154">941 486 154</a>
+            Reservas al <a href="tel:+{{ $waDisplay }}">{{ substr($waDisplay, 0, 2) . ' ' . substr($waDisplay, 2, 3) . ' ' . substr($waDisplay, 5, 3) . ' ' . substr($waDisplay, 8) }}</a>
         </div>
 
         {{-- Texto literal del Figma: "📍Psj. Violin..." sin espacio después

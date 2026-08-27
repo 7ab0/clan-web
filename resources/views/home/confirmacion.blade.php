@@ -8,6 +8,8 @@
 
 @section('content')
 
+<style>#preloader { display: none !important; }</style>
+
 @if ($isFermento)
     @php
         $mesaText = $reservation->table
