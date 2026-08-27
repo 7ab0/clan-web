@@ -41,9 +41,10 @@ return [
         // Panel de solo revisión (reservas ya confirmadas), contraseña propia
         // e independiente de admin_password — pensado para compartir con
         // FORNO/MOLTO sin darles acceso a editar/eliminar/confirmar pagos.
-        // El default 'fermento' queda commiteado a propósito (así pedido);
-        // para mayor privacidad basta con setear RESERVAS_REVIEW_PASSWORD en .env.
-        'review_password' => env('RESERVAS_REVIEW_PASSWORD', 'fermento'),
+        // Sin default: si RESERVAS_REVIEW_PASSWORD no está seteada, el login
+        // falla siempre (mismo criterio que admin_password, ver
+        // ReservationReviewController::login()).
+        'review_password' => env('RESERVAS_REVIEW_PASSWORD'),
     ],
 
 ];

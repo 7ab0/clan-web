@@ -61,8 +61,10 @@ integrada:
   sin darles el acceso completo de `/reservas/admin`. Login y sesión
   propios (`reservas_review_authenticated`), middleware
   `reservas.review` → `ReservasReviewAuth`, contraseña en
-  `RESERVAS_REVIEW_PASSWORD` (default commiteado: `fermento` — ver
-  `config/services.php`, clave `reservas.review_password`)
+  `RESERVAS_REVIEW_PASSWORD`, sin default — si la env var no está
+  seteada el login falla siempre (mismo criterio que
+  `RESERVAS_ADMIN_PASSWORD`; ver `config/services.php`, clave
+  `reservas.review_password`)
 - /mantenimiento — vista del muro de mantenimiento general (ver
   `MaintenanceMode` abajo), con su propio formulario de acceso
 - /showclinic — landing standalone del evento (pre-holder personalizado

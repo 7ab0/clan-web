@@ -167,11 +167,11 @@ class ReservationAdminController extends Controller
             $tableId = $validated['event_table_id'] ?? null;
             $hasTables = $lockedSchedule->event->tables->isNotEmpty();
 
-            if ($hasTables && ! $tableId) {
-                return back()->withInput()->withErrors(['event_table_id' => 'Elige una mesa para este evento.']);
-            }
+            if ($hasTables) {
+                if (! $tableId) {
+                    return back()->withInput()->withErrors(['event_table_id' => 'Elige una mesa para este evento.']);
+                }
 
-            if ($tableId) {
                 $table = $lockedSchedule->event->tables->firstWhere('id', (int) $tableId);
 
                 if (! $table) {
@@ -188,6 +188,8 @@ class ReservationAdminController extends Controller
                 if ($tableTaken) {
                     return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa ya está ocupada para esta fecha.']);
                 }
+            } elseif ($lockedSchedule->is_full) {
+                return back()->withInput()->withErrors(['event_schedule_id' => 'Ese horario ya no tiene cupo disponible. Si necesitas forzarlo, sube la capacidad del turno primero.']);
             }
 
             $totalAmount = $tableId
