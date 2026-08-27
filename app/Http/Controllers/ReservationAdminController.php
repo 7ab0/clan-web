@@ -9,6 +9,7 @@ use App\Models\EventTable;
 use App\Models\FermentoGuest;
 use App\Models\Payment;
 use App\Models\Reservation;
+use App\Models\ReservationChange;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -302,10 +303,12 @@ class ReservationAdminController extends Controller
     }
 
     /**
-     * Edita a mano los datos de contacto, personas, notas y estado de una
-     * reserva (ej. corregir un typo, o revertir una confirmación hecha por
-     * error). No permite cambiar mesa/horario — eso implica re-chequear
-     * disponibilidad y se maneja mejor cancelando y creando una reserva nueva.
+     * Edita a mano los datos de contacto, personas, notas, estado, seña y
+     * mesa/horario de una reserva. Reasignar mesa/fecha repite el mismo
+     * candado (lockForUpdate + chequeo de mesa ocupada) que storeReservation(),
+     * excluyendo esta misma reserva de la comprobación — así puede "seguir
+     * ocupando" su propia mesa sin rechazarse a sí misma. No permite mover la
+     * reserva a otro evento (Fermento sigue siendo Fermento).
      */
     public function updateReservation(Request $request, Reservation $reservation): RedirectResponse
     {
@@ -316,11 +319,149 @@ class ReservationAdminController extends Controller
             'party_size' => ['required', 'integer', 'min:1', 'max:20'],
             'notes' => ['nullable', 'string', 'max:500'],
             'status' => ['required', 'in:pending,confirmed,cancelled,completed'],
+            'event_schedule_id' => ['required', 'exists:event_schedules,id'],
+            'event_table_id' => ['nullable', 'exists:event_tables,id'],
+            'payment_amount' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $reservation->update($validated);
+        $schedule = EventSchedule::with('event.tables')->findOrFail($validated['event_schedule_id']);
 
-        return back()->with('status', "Reserva {$reservation->code} actualizada.");
+        if ($schedule->event_id !== $reservation->event_id) {
+            return back()->withInput()->withErrors(['event_schedule_id' => 'No se puede mover la reserva a otro evento.']);
+        }
+
+        return DB::transaction(function () use ($validated, $reservation, $schedule) {
+            $lockedSchedule = EventSchedule::whereKey($schedule->id)->lockForUpdate()->first();
+            $tableId = $validated['event_table_id'] ?? null;
+            $hasTables = $lockedSchedule->event->tables->isNotEmpty();
+
+            if ($hasTables) {
+                if (! $tableId) {
+                    return back()->withInput()->withErrors(['event_table_id' => 'Elige una mesa para este evento.']);
+                }
+
+                $table = $lockedSchedule->event->tables->firstWhere('id', (int) $tableId);
+                if (! $table) {
+                    return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa no pertenece a este evento.']);
+                }
+
+                $tableTaken = Reservation::where('id', '!=', $reservation->id)
+                    ->where('event_schedule_id', $lockedSchedule->id)
+                    ->where('event_table_id', $tableId)
+                    ->where('status', '!=', 'cancelled')
+                    ->where('is_test', false)
+                    ->lockForUpdate()
+                    ->exists();
+
+                if ($tableTaken) {
+                    return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa ya está ocupada para esta fecha.']);
+                }
+            } elseif ($lockedSchedule->id !== $reservation->event_schedule_id && $lockedSchedule->is_full) {
+                return back()->withInput()->withErrors(['event_schedule_id' => 'Ese horario ya no tiene cupo disponible.']);
+            }
+
+            $this->logReservationChanges($reservation, [
+                'customer_name' => $validated['customer_name'],
+                'customer_phone' => $validated['customer_phone'],
+                'customer_email' => $validated['customer_email'],
+                'party_size' => $validated['party_size'],
+                'notes' => $validated['notes'],
+                'status' => $validated['status'],
+            ], [
+                'event_schedule_id' => [$reservation->schedule->date->format('d/m/Y') . ' ' . \Illuminate\Support\Str::of($reservation->schedule->start_time)->substr(0, 5), $lockedSchedule->date->format('d/m/Y') . ' ' . \Illuminate\Support\Str::of($lockedSchedule->start_time)->substr(0, 5), 'Fecha'],
+                'event_table_id' => [$reservation->table ? '#' . $reservation->table->table_number : '—', $tableId ? '#' . $lockedSchedule->event->tables->firstWhere('id', (int) $tableId)->table_number : '—', 'Mesa'],
+            ]);
+
+            $reservation->update([
+                'customer_name' => $validated['customer_name'],
+                'customer_phone' => $validated['customer_phone'],
+                'customer_email' => $validated['customer_email'],
+                'party_size' => $validated['party_size'],
+                'notes' => $validated['notes'],
+                'status' => $validated['status'],
+                'event_schedule_id' => $lockedSchedule->id,
+                'event_table_id' => $tableId,
+            ]);
+
+            $oldAmount = $reservation->payment->amount ?? null;
+            if ($reservation->payment) {
+                $reservation->payment->update(['amount' => $validated['payment_amount']]);
+            } else {
+                // No debería pasar nunca (toda reserva se crea con su Payment),
+                // pero por si acaso no rompe si falta.
+                $reservation->payment()->create([
+                    'amount' => $validated['payment_amount'],
+                    'currency' => $lockedSchedule->event->currency,
+                    'provider' => 'manual',
+                    'status' => in_array($validated['status'], ['confirmed', 'completed'], true) ? 'paid' : 'pending',
+                ]);
+            }
+            if ((float) $oldAmount !== (float) $validated['payment_amount']) {
+                ReservationChange::create([
+                    'reservation_id' => $reservation->id,
+                    'field' => 'Seña',
+                    'old_value' => $oldAmount !== null ? 'S/ ' . number_format($oldAmount, 2) : '—',
+                    'new_value' => 'S/ ' . number_format($validated['payment_amount'], 2),
+                ]);
+            }
+
+            return back()->with('status', "Reserva {$reservation->code} actualizada.");
+        });
+    }
+
+    /**
+     * Compara los valores viejos de la reserva contra los nuevos y registra
+     * solo los campos que de verdad cambiaron. Los campos "simples" (texto/
+     * número) se comparan tal cual contra $reservation->{campo}; los que
+     * necesitan texto legible en vez del ID crudo (fecha/mesa/seña) se pasan
+     * ya resueltos en $specialFields. Debe correr ANTES de $reservation->update()
+     * para poder comparar contra los valores viejos.
+     */
+    private function logReservationChanges(Reservation $reservation, array $newValues, array $specialFields = []): void
+    {
+        $labels = [
+            'customer_name' => 'Nombre',
+            'customer_phone' => 'Teléfono',
+            'customer_email' => 'Correo',
+            'party_size' => 'Personas',
+            'notes' => 'Notas',
+            'status' => 'Estado',
+        ];
+
+        foreach ($newValues as $field => $newValue) {
+            $oldValue = $reservation->{$field};
+            if ((string) $oldValue !== (string) $newValue) {
+                ReservationChange::create([
+                    'reservation_id' => $reservation->id,
+                    'field' => $labels[$field] ?? $field,
+                    'old_value' => $oldValue,
+                    'new_value' => $newValue,
+                ]);
+            }
+        }
+
+        foreach ($specialFields as $field => [$oldValue, $newValue, $label]) {
+            if ((string) $oldValue !== (string) $newValue) {
+                ReservationChange::create([
+                    'reservation_id' => $reservation->id,
+                    'field' => $label,
+                    'old_value' => $oldValue,
+                    'new_value' => $newValue,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Historial de cambios de una reserva (sin identificar quién los hizo —
+     * el staff comparte una sola contraseña, no hay usuarios individuales).
+     */
+    public function history(Reservation $reservation): View
+    {
+        return view('reservas.historial', [
+            'reservation' => $reservation,
+            'changes' => $reservation->changes,
+        ]);
     }
 
     /**

@@ -50,6 +50,7 @@ Route::prefix('reservas/admin')->name('reservas.admin.')->group(function () {
         Route::post('/{reservation}/confirmar', [ReservationAdminController::class, 'confirmPayment'])->name('confirmar');
         Route::put('/{reservation}', [ReservationAdminController::class, 'updateReservation'])->name('update');
         Route::delete('/{reservation}', [ReservationAdminController::class, 'destroy'])->name('destroy');
+        Route::get('/{reservation}/historial', [ReservationAdminController::class, 'history'])->name('history');
         Route::get('/clientes', [ReservationAdminController::class, 'customers'])->name('clientes');
         Route::put('/clientes/{customer}', [ReservationAdminController::class, 'updateCustomer'])->name('clientes.update');
 

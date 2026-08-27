@@ -388,6 +388,7 @@
                 <a class="btn btn-sm btn-whatsapp" target="_blank" rel="noopener"
                    href="https://wa.me/{{ $waPhone }}?text={{ $storyText }}">Enviar story</a>
               @endif
+              <a class="btn btn-sm btn-outline" href="{{ route('reservas.admin.history', $reservation) }}">Historial</a>
               <button type="button" class="btn btn-sm btn-outline"
                       onclick="openEditModal({{ Js::from([
                           'action' => route('reservas.admin.update', $reservation),
@@ -398,6 +399,10 @@
                           'party_size' => $reservation->party_size,
                           'notes' => $reservation->notes,
                           'status' => $reservation->status,
+                          'event_id' => $reservation->event_id,
+                          'event_schedule_id' => $reservation->event_schedule_id,
+                          'event_table_id' => $reservation->event_table_id,
+                          'payment_amount' => $reservation->payment->amount ?? $reservation->total_amount,
                       ]) }})">Editar</button>
               <form method="POST" action="{{ route('reservas.admin.destroy', $reservation) }}"
                     onsubmit="return confirm('¿Eliminar definitivamente la reserva {{ $reservation->code }} de {{ $reservation->customer_name }}? Esto no se puede deshacer.')">
@@ -432,8 +437,20 @@
         <label for="edit_customer_email">Correo</label>
         <input type="email" name="customer_email" id="edit_customer_email" required>
 
+        <label for="edit_event_schedule_id">Fecha</label>
+        <select name="event_schedule_id" id="edit_event_schedule_id" required
+                onchange="populateEditTables(window.editContext.eventId, parseInt(this.value, 10), null)"></select>
+
+        <div id="edit_table_wrap">
+          <label for="edit_event_table_id">Mesa</label>
+          <select name="event_table_id" id="edit_event_table_id"></select>
+        </div>
+
         <label for="edit_party_size">Personas</label>
         <input type="number" name="party_size" id="edit_party_size" min="1" max="20" required>
+
+        <label for="edit_payment_amount">Seña (S/)</label>
+        <input type="number" name="payment_amount" id="edit_payment_amount" min="0" step="0.01" required>
 
         <label for="edit_status">Estado</label>
         <select name="status" id="edit_status" required>
@@ -521,15 +538,64 @@
     window.RESERVAS_TAKEN = @json($takenForForm);
 
     function openEditModal(data) {
+      window.editContext = {
+        eventId: data.event_id,
+        originalScheduleId: data.event_schedule_id,
+        originalTableId: data.event_table_id,
+      };
+      populateEditSchedules(data.event_id, data.event_schedule_id);
+      populateEditTables(data.event_id, data.event_schedule_id, data.event_table_id);
+
       document.getElementById('editModalTitle').textContent = 'Editar reserva ' + data.code;
       document.getElementById('editReservationForm').action = data.action;
       document.getElementById('edit_customer_name').value = data.customer_name || '';
       document.getElementById('edit_customer_phone').value = data.customer_phone || '';
       document.getElementById('edit_customer_email').value = data.customer_email || '';
       document.getElementById('edit_party_size').value = data.party_size || 1;
+      document.getElementById('edit_payment_amount').value = data.payment_amount || 0;
       document.getElementById('edit_status').value = data.status || 'pending';
       document.getElementById('edit_notes').value = data.notes || '';
       document.getElementById('editModalOverlay').classList.add('open');
+    }
+
+    function populateEditSchedules(eventId, selectedScheduleId) {
+      const select = document.getElementById('edit_event_schedule_id');
+      select.innerHTML = '';
+      window.RESERVAS_SCHEDULES
+        .filter((s) => s.event_id === eventId)
+        .forEach((s) => {
+          const option = document.createElement('option');
+          option.value = s.id;
+          option.textContent = s.label;
+          select.appendChild(option);
+        });
+      select.value = selectedScheduleId;
+    }
+
+    function populateEditTables(eventId, scheduleId, selectedTableId) {
+      const select = document.getElementById('edit_event_table_id');
+      select.innerHTML = '<option value="">Elige una mesa</option>';
+      const ctx = window.editContext;
+      const isOwnOriginalSchedule = scheduleId === ctx.originalScheduleId;
+      const taken = (window.RESERVAS_TAKEN[scheduleId] || []).filter((id) => {
+        // La mesa que la reserva YA tenía no cuenta como "ocupada" si
+        // seguimos viendo su mismo turno original — es su propia ocupación.
+        return !(isOwnOriginalSchedule && id === ctx.originalTableId);
+      });
+      const event = window.RESERVAS_EVENTS.find((e) => e.id === eventId);
+      document.getElementById('edit_table_wrap').style.display = (event && event.has_tables) ? 'block' : 'none';
+
+      window.RESERVAS_TABLES
+        .filter((t) => t.event_id === eventId)
+        .forEach((t) => {
+          const isTaken = taken.includes(t.id);
+          const option = document.createElement('option');
+          option.value = t.id;
+          option.textContent = `Mesa ${t.table_number} (${t.capacity_min}-${t.capacity_max} personas)` + (isTaken ? ' — ocupada' : '');
+          option.disabled = isTaken;
+          select.appendChild(option);
+        });
+      select.value = selectedTableId != null ? selectedTableId : '';
     }
 
     function closeEditModal() {
@@ -572,15 +638,16 @@
       const scheduleId = parseInt(document.getElementById('create_schedule_id').value, 10);
       const tableSelect = document.getElementById('create_table_id');
       tableSelect.innerHTML = '<option value="">Elige una mesa</option>';
-
       const taken = window.RESERVAS_TAKEN[scheduleId] || [];
 
       window.RESERVAS_TABLES
-        .filter((table) => table.event_id === eventId && ! taken.includes(table.id))
+        .filter((table) => table.event_id === eventId)
         .forEach((table) => {
+          const isTaken = taken.includes(table.id);
           const option = document.createElement('option');
           option.value = table.id;
-          option.textContent = `Mesa ${table.table_number} (${table.capacity_min}-${table.capacity_max} personas)`;
+          option.textContent = `Mesa ${table.table_number} (${table.capacity_min}-${table.capacity_max} personas)` + (isTaken ? ' — ocupada' : '');
+          option.disabled = isTaken;
           tableSelect.appendChild(option);
         });
     }

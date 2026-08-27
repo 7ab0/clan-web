@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Event;
+use App\Models\EventSchedule;
 use App\Models\Reservation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -63,8 +65,26 @@ class ReservationReviewController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $event = Event::where('slug', 'fermento')->firstOrFail();
+
+        $schedules = EventSchedule::where('event_id', $event->id)
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get()
+            ->map(function (EventSchedule $schedule) {
+                $tables = $schedule->tablesWithAvailability();
+
+                return [
+                    'fecha' => $schedule->date->format('d/m/Y') . ' · ' . \Illuminate\Support\Str::of($schedule->start_time)->substr(0, 5),
+                    'total' => $tables->count(),
+                    'ocupadas' => $tables->where('is_taken', true)->count(),
+                    'libres' => $tables->where('is_taken', false)->count(),
+                ];
+            });
+
         return view('reservas.review', [
             'reservations' => $reservations,
+            'schedules' => $schedules,
         ]);
     }
 }

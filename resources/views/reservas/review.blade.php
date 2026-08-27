@@ -99,6 +99,22 @@
     color: #2e7d32;
   }
 
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #e8e4dd;
+    border-radius: 6px;
+    padding: 1rem 1.15rem;
+  }
+  .card .fecha { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .card .ocupacion { font-size: 0.82rem; color: #7a7365; }
+  .card .ocupacion strong { color: #2a2a2a; }
+
   @media (max-width: 720px) {
     .filters { flex-direction: column; align-items: stretch; }
     .filters select, .filters button, .filters a.clear { width: 100%; text-align: center; }
@@ -160,6 +176,15 @@
       @csrf
       <button type="submit" class="btn btn-dark">Cerrar sesión</button>
     </form>
+  </div>
+
+  <div class="summary">
+    @foreach ($schedules as $schedule)
+      <div class="card">
+        <div class="fecha">{{ $schedule['fecha'] }}</div>
+        <div class="ocupacion"><strong>{{ $schedule['ocupadas'] }}</strong> de {{ $schedule['total'] }} mesas ocupadas ({{ $schedule['libres'] }} libres)</div>
+      </div>
+    @endforeach
   </div>
 
   <div class="table-wrap">
