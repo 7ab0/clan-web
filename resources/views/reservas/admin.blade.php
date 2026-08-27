@@ -202,6 +202,7 @@
       <p class="sub">Confirma el pago de la seña una vez recibido por WhatsApp</p>
     </div>
     <div style="display:flex;gap:0.75rem;align-items:center;">
+      <button type="button" class="btn btn-accent" onclick="openCreateModal()">+ Agregar reserva</button>
       <a href="{{ route('reservas.admin.clientes') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Clientes</a>
       <a href="{{ route('reservas.admin.guests') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Invitados</a>
       <form method="POST" action="{{ route('reservas.admin.logout') }}">
@@ -213,6 +214,10 @@
 
   @if (session('status'))
     <div class="flash">{{ session('status') }}</div>
+  @endif
+
+  @if ($errors->any())
+    <div class="flash" style="background:#fbe4e1;border-color:#f3c6bf;color:#c0392b;">{{ $errors->first() }}</div>
   @endif
 
   <div class="summary">
@@ -400,7 +405,72 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="createModalOverlay">
+    <div class="modal">
+      <h3>Agregar reserva</h3>
+      <form method="POST" id="createReservationForm" action="{{ route('reservas.admin.store') }}">
+        @csrf
+
+        <label for="create_event_id">Evento</label>
+        <select name="event_id" id="create_event_id" required onchange="onCreateEventChange()">
+          <option value="">Elige un evento</option>
+          @foreach ($eventsForForm as $eventOption)
+            <option value="{{ $eventOption['id'] }}">{{ $eventOption['name'] }}</option>
+          @endforeach
+        </select>
+
+        <label for="create_schedule_id">Fecha</label>
+        <select name="event_schedule_id" id="create_schedule_id" required onchange="populateCreateTables()">
+          <option value="">Elige un evento primero</option>
+        </select>
+
+        <div id="create_table_wrap" style="display:none;">
+          <label for="create_table_id">Mesa</label>
+          <select name="event_table_id" id="create_table_id">
+            <option value="">Elige una mesa</option>
+          </select>
+        </div>
+
+        <label for="create_customer_name">Nombre</label>
+        <input type="text" name="customer_name" id="create_customer_name" required>
+
+        <label for="create_customer_phone">Teléfono</label>
+        <input type="text" name="customer_phone" id="create_customer_phone" placeholder="987654321">
+
+        <label for="create_customer_email">Correo</label>
+        <input type="email" name="customer_email" id="create_customer_email" required>
+
+        <label for="create_party_size">Personas</label>
+        <input type="number" name="party_size" id="create_party_size" min="1" max="20" value="2" required>
+
+        <label for="create_deposit_amount">Seña (S/, opcional)</label>
+        <input type="number" name="deposit_amount" id="create_deposit_amount" min="0" step="0.01" placeholder="Si se deja vacío, se usa el total">
+
+        <label for="create_status">Estado</label>
+        <select name="status" id="create_status" required>
+          <option value="confirmed" selected>Confirmada</option>
+          <option value="pending">Pendiente</option>
+          <option value="completed">Completada</option>
+          <option value="cancelled">Cancelada</option>
+        </select>
+
+        <label for="create_notes">Notas</label>
+        <textarea name="notes" id="create_notes"></textarea>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-sm btn-outline" onclick="closeCreateModal()">Cancelar</button>
+          <button type="submit" class="btn btn-sm btn-accent">Crear reserva</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
+    window.RESERVAS_EVENTS = @json($eventsForForm);
+    window.RESERVAS_SCHEDULES = @json($schedulesForForm);
+    window.RESERVAS_TABLES = @json($tablesForForm);
+    window.RESERVAS_TAKEN = @json($takenForForm);
+
     function openEditModal(data) {
       document.getElementById('editModalTitle').textContent = 'Editar reserva ' + data.code;
       document.getElementById('editReservationForm').action = data.action;
@@ -416,6 +486,78 @@
     function closeEditModal() {
       document.getElementById('editModalOverlay').classList.remove('open');
     }
+
+    function openCreateModal() {
+      document.getElementById('createReservationForm').reset();
+      document.getElementById('create_schedule_id').innerHTML = '<option value="">Elige un evento primero</option>';
+      document.getElementById('create_table_id').innerHTML = '<option value="">Elige una mesa</option>';
+      document.getElementById('create_table_wrap').style.display = 'none';
+      document.getElementById('createModalOverlay').classList.add('open');
+    }
+
+    function closeCreateModal() {
+      document.getElementById('createModalOverlay').classList.remove('open');
+    }
+
+    function onCreateEventChange() {
+      const eventId = parseInt(document.getElementById('create_event_id').value, 10);
+      const scheduleSelect = document.getElementById('create_schedule_id');
+      scheduleSelect.innerHTML = '<option value="">Elige una fecha</option>';
+
+      window.RESERVAS_SCHEDULES
+        .filter((schedule) => schedule.event_id === eventId)
+        .forEach((schedule) => {
+          const option = document.createElement('option');
+          option.value = schedule.id;
+          option.textContent = schedule.label;
+          scheduleSelect.appendChild(option);
+        });
+
+      const event = window.RESERVAS_EVENTS.find((e) => e.id === eventId);
+      document.getElementById('create_table_wrap').style.display = (event && event.has_tables) ? 'block' : 'none';
+      document.getElementById('create_table_id').innerHTML = '<option value="">Elige una mesa</option>';
+    }
+
+    function populateCreateTables() {
+      const eventId = parseInt(document.getElementById('create_event_id').value, 10);
+      const scheduleId = parseInt(document.getElementById('create_schedule_id').value, 10);
+      const tableSelect = document.getElementById('create_table_id');
+      tableSelect.innerHTML = '<option value="">Elige una mesa</option>';
+
+      const taken = window.RESERVAS_TAKEN[scheduleId] || [];
+
+      window.RESERVAS_TABLES
+        .filter((table) => table.event_id === eventId && ! taken.includes(table.id))
+        .forEach((table) => {
+          const option = document.createElement('option');
+          option.value = table.id;
+          option.textContent = `Mesa ${table.table_number} (${table.capacity_min}-${table.capacity_max} personas)`;
+          tableSelect.appendChild(option);
+        });
+    }
+
+    document.getElementById('createModalOverlay').addEventListener('click', function (e) {
+      if (e.target === this) closeCreateModal();
+    });
+
+    @if ($errors->any() && old('event_id'))
+      // Si el error vino del modal "Agregar reserva" (identificado por
+      // tener event_id en el input viejo — el modal de editar no usa old()),
+      // lo reabrimos con lo que el staff ya había escrito.
+      openCreateModal();
+      document.getElementById('create_event_id').value = @json(old('event_id'));
+      onCreateEventChange();
+      document.getElementById('create_schedule_id').value = @json(old('event_schedule_id'));
+      populateCreateTables();
+      document.getElementById('create_table_id').value = @json(old('event_table_id'));
+      document.getElementById('create_customer_name').value = @json(old('customer_name'));
+      document.getElementById('create_customer_phone').value = @json(old('customer_phone'));
+      document.getElementById('create_customer_email').value = @json(old('customer_email'));
+      document.getElementById('create_party_size').value = @json(old('party_size'));
+      document.getElementById('create_deposit_amount').value = @json(old('deposit_amount'));
+      document.getElementById('create_status').value = @json(old('status'));
+      document.getElementById('create_notes').value = @json(old('notes'));
+    @endif
   </script>
 
 </body>

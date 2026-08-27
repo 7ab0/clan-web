@@ -8,6 +8,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReservationAdminController;
+use App\Http\Controllers\ReservationReviewController;
 use App\Http\Controllers\MaintenanceController;
 
 Route::controller(MaintenanceController::class)->group(function () {
@@ -45,6 +46,7 @@ Route::prefix('reservas/admin')->name('reservas.admin.')->group(function () {
 
     Route::middleware('reservas.admin')->group(function () {
         Route::get('/', [ReservationAdminController::class, 'index'])->name('index');
+        Route::post('/', [ReservationAdminController::class, 'storeReservation'])->name('store');
         Route::post('/{reservation}/confirmar', [ReservationAdminController::class, 'confirmPayment'])->name('confirmar');
         Route::put('/{reservation}', [ReservationAdminController::class, 'updateReservation'])->name('update');
         Route::delete('/{reservation}', [ReservationAdminController::class, 'destroy'])->name('destroy');
@@ -52,10 +54,23 @@ Route::prefix('reservas/admin')->name('reservas.admin.')->group(function () {
         Route::put('/clientes/{customer}', [ReservationAdminController::class, 'updateCustomer'])->name('clientes.update');
 
         Route::get('/invitados', [ReservationAdminController::class, 'guests'])->name('guests');
+        Route::post('/invitados', [ReservationAdminController::class, 'storeGuest'])->name('guests.store');
         Route::put('/invitados/{guest}', [ReservationAdminController::class, 'updateGuest'])->name('guests.update');
         Route::post('/invitados/{guest}/mensaje1', [ReservationAdminController::class, 'markMensaje1'])->name('guests.mensaje1');
         Route::post('/invitados/{guest}/aceptar', [ReservationAdminController::class, 'toggleAceptado'])->name('guests.aceptar');
         Route::post('/invitados/{guest}/mensaje2', [ReservationAdminController::class, 'markMensaje2'])->name('guests.mensaje2');
+    });
+});
+
+// Panel de solo revisión (reservas ya confirmadas), contraseña propia y
+// distinta de reservas.admin — pensado para compartir con FORNO/MOLTO.
+Route::prefix('reservas/revision')->name('reservas.review.')->group(function () {
+    Route::get('/login', [ReservationReviewController::class, 'loginForm'])->name('login');
+    Route::post('/login', [ReservationReviewController::class, 'login'])->name('login.submit');
+    Route::post('/logout', [ReservationReviewController::class, 'logout'])->name('logout');
+
+    Route::middleware('reservas.review')->group(function () {
+        Route::get('/', [ReservationReviewController::class, 'index'])->name('index');
     });
 });
 

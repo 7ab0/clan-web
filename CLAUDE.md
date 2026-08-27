@@ -49,9 +49,20 @@ integrada:
   `ReservationController`)
 - /reservas/admin, /reservas/admin/clientes, /reservas/admin/invitados
   — panel admin de reservas de Fermento + Íntimo: confirma pago
-  manualmente, ve la base de clientes, y hace outreach por WhatsApp a
-  los invitados de Fermento. Login propio, middleware `reservas.admin`
-  (contraseña simple, mismo patrón que showclinic/admin)
+  manualmente, edita/elimina reservas, agrega reservas e invitados a
+  mano (botones "Agregar reserva"/"Agregar invitado", ver
+  `ReservationAdminController::storeReservation()`/`storeGuest()`), ve
+  la base de clientes, y hace outreach por WhatsApp a los invitados de
+  Fermento. Login propio, middleware `reservas.admin` (contraseña
+  simple, mismo patrón que showclinic/admin)
+- /reservas/revision — panel SEPARADO de solo lectura (sin editar,
+  eliminar ni confirmar pagos) que lista únicamente reservas ya
+  confirmadas (nunca `is_test`), pensado para compartir con FORNO/MOLTO
+  sin darles el acceso completo de `/reservas/admin`. Login y sesión
+  propios (`reservas_review_authenticated`), middleware
+  `reservas.review` → `ReservasReviewAuth`, contraseña en
+  `RESERVAS_REVIEW_PASSWORD` (default commiteado: `fermento` — ver
+  `config/services.php`, clave `reservas.review_password`)
 - /mantenimiento — vista del muro de mantenimiento general (ver
   `MaintenanceMode` abajo), con su propio formulario de acceso
 - /showclinic — landing standalone del evento (pre-holder personalizado

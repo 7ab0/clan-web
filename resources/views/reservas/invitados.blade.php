@@ -110,6 +110,7 @@
       <p class="sub">Envío de WhatsApp por etapas: intriga → aceptó → invitación con link personalizado.</p>
     </div>
     <div style="display:flex;gap:0.75rem;align-items:center;">
+      <button type="button" class="btn btn-accent" onclick="openCreateGuestModal()">+ Agregar invitado</button>
       <a href="{{ route('reservas.admin.index') }}" class="btn btn-outline">Reservas</a>
       <a href="{{ route('reservas.admin.clientes') }}" class="btn btn-outline">Clientes</a>
       <form method="POST" action="{{ route('reservas.admin.logout') }}">
@@ -228,6 +229,28 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="create-guest-modal-backdrop">
+    <div class="modal">
+      <h2>Agregar invitado</h2>
+      <form method="POST" action="{{ route('reservas.admin.guests.store') }}">
+        @csrf
+        <input type="hidden" name="form_type" value="create_guest">
+        <label for="create-guest-name">Nombre</label>
+        <input type="text" id="create-guest-name" name="name" required>
+        <label for="create-guest-phone">Celular</label>
+        <input type="text" id="create-guest-phone" name="phone" placeholder="987654321">
+        <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.9rem;">
+          <input type="checkbox" name="is_test" value="1" style="width:auto;">
+          <span style="font-size:0.82rem;color:#555;">Es de prueba (su reserva no cuenta como real)</span>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="closeCreateGuestModal()">Cancelar</button>
+          <button type="submit" class="btn btn-accent">Agregar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 <script>
   function markSent(url) {
     fetch(url, {
@@ -251,9 +274,27 @@
     document.getElementById('edit-modal-backdrop').classList.remove('open');
   }
 
-  document.querySelector('.modal-backdrop').addEventListener('click', function (e) {
+  document.getElementById('edit-modal-backdrop').addEventListener('click', function (e) {
     if (e.target === this) closeModal();
   });
+
+  function openCreateGuestModal() {
+    document.getElementById('create-guest-modal-backdrop').classList.add('open');
+  }
+
+  function closeCreateGuestModal() {
+    document.getElementById('create-guest-modal-backdrop').classList.remove('open');
+  }
+
+  document.getElementById('create-guest-modal-backdrop').addEventListener('click', function (e) {
+    if (e.target === this) closeCreateGuestModal();
+  });
+
+  @if ($errors->any() && old('form_type') === 'create_guest')
+    openCreateGuestModal();
+    document.getElementById('create-guest-name').value = @json(old('name'));
+    document.getElementById('create-guest-phone').value = @json(old('phone'));
+  @endif
 </script>
 
 </body>

@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Event;
+use App\Models\EventSchedule;
+use App\Models\EventTable;
 use App\Models\FermentoGuest;
+use App\Models\Payment;
 use App\Models\Reservation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ReservationAdminController extends Controller
@@ -72,7 +76,7 @@ class ReservationAdminController extends Controller
             'cancelled' => Reservation::where('status', 'cancelled')->count(),
         ];
 
-        return view('reservas.admin', [
+        return view('reservas.admin', array_merge([
             'reservations' => $reservations,
             'summary' => $summary,
             'events' => Event::orderBy('name')->get(['slug', 'name']),
@@ -80,7 +84,195 @@ class ReservationAdminController extends Controller
             'status' => $status,
             'sort' => $sort,
             'dir' => $dir,
+        ], $this->manualCreateFormData()));
+    }
+
+    /**
+     * Datos que alimentan el <script> del modal "Agregar reserva": eventos,
+     * horarios y mesas ya cargados en un solo viaje, para que el cascadeo
+     * evento → fecha → mesa se resuelva en JS sin pegarle al server por
+     * cada selección. La verificación real de disponibilidad (evitar
+     * doble-reservar una mesa) igual se repite en storeReservation().
+     */
+    private function manualCreateFormData(): array
+    {
+        $eventsForForm = Event::withCount('tables')->orderBy('name')->get(['id', 'slug', 'name'])
+            ->map(fn (Event $event) => [
+                'id' => $event->id,
+                'slug' => $event->slug,
+                'name' => $event->name,
+                'has_tables' => $event->tables_count > 0,
+            ])
+            ->values();
+
+        $schedulesForForm = EventSchedule::orderBy('date')->orderBy('start_time')
+            ->get(['id', 'event_id', 'date', 'start_time'])
+            ->map(fn (EventSchedule $schedule) => [
+                'id' => $schedule->id,
+                'event_id' => $schedule->event_id,
+                'label' => $schedule->date->format('d/m/Y') . ' · ' . \Illuminate\Support\Str::of($schedule->start_time)->substr(0, 5),
+            ])
+            ->values();
+
+        $tablesForForm = EventTable::orderBy('table_number')
+            ->get(['id', 'event_id', 'table_number', 'capacity_min', 'capacity_max'])
+            ->values();
+
+        $takenForForm = Reservation::where('status', '!=', 'cancelled')
+            ->where('is_test', false)
+            ->whereNotNull('event_table_id')
+            ->get(['event_schedule_id', 'event_table_id'])
+            ->groupBy('event_schedule_id')
+            ->map(fn ($rows) => $rows->pluck('event_table_id')->values());
+
+        return [
+            'eventsForForm' => $eventsForForm,
+            'schedulesForForm' => $schedulesForForm,
+            'tablesForForm' => $tablesForForm,
+            'takenForForm' => $takenForForm,
+        ];
+    }
+
+    /**
+     * Alta manual de una reserva desde el panel (ej. cliente que coordinó
+     * todo por teléfono/en persona, sin pasar por el link público). Repite
+     * el mismo candado de mesa+fecha que ReservationController::store para
+     * no poder duplicar una mesa ya ocupada; a diferencia del flujo público,
+     * el staff elige el estado directamente (normalmente "confirmed", ya
+     * que si la está cargando a mano es porque ya coordinó el pago).
+     */
+    public function storeReservation(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'event_id' => ['required', 'exists:events,id'],
+            'event_schedule_id' => ['required', 'exists:event_schedules,id'],
+            'event_table_id' => ['nullable', 'exists:event_tables,id'],
+            'customer_name' => ['required', 'string', 'max:120'],
+            'customer_email' => ['required', 'email', 'max:150'],
+            'customer_phone' => ['nullable', 'string', 'max:30'],
+            'party_size' => ['required', 'integer', 'min:1', 'max:20'],
+            'deposit_amount' => ['nullable', 'numeric', 'min:0'],
+            'notes' => ['nullable', 'string', 'max:500'],
+            'status' => ['required', 'in:pending,confirmed,cancelled,completed'],
         ]);
+
+        $schedule = EventSchedule::with('event.tables')->findOrFail($validated['event_schedule_id']);
+
+        if ($schedule->event_id !== (int) $validated['event_id']) {
+            return back()->withInput()->withErrors(['event_schedule_id' => 'Esa fecha no pertenece al evento elegido.']);
+        }
+
+        return DB::transaction(function () use ($validated, $schedule) {
+            $lockedSchedule = EventSchedule::whereKey($schedule->id)->lockForUpdate()->first();
+            $tableId = $validated['event_table_id'] ?? null;
+            $hasTables = $lockedSchedule->event->tables->isNotEmpty();
+
+            if ($hasTables && ! $tableId) {
+                return back()->withInput()->withErrors(['event_table_id' => 'Elige una mesa para este evento.']);
+            }
+
+            if ($tableId) {
+                $table = $lockedSchedule->event->tables->firstWhere('id', (int) $tableId);
+
+                if (! $table) {
+                    return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa no pertenece a este evento.']);
+                }
+
+                $tableTaken = Reservation::where('event_schedule_id', $lockedSchedule->id)
+                    ->where('event_table_id', $tableId)
+                    ->where('status', '!=', 'cancelled')
+                    ->where('is_test', false)
+                    ->lockForUpdate()
+                    ->exists();
+
+                if ($tableTaken) {
+                    return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa ya está ocupada para esta fecha.']);
+                }
+            }
+
+            $totalAmount = $tableId
+                ? $lockedSchedule->event->price * $validated['party_size']
+                : $lockedSchedule->event->price;
+
+            $depositAmount = $validated['deposit_amount'] ?? $totalAmount;
+            $status = $validated['status'];
+
+            $reservation = Reservation::create([
+                'event_id' => $lockedSchedule->event_id,
+                'event_schedule_id' => $lockedSchedule->id,
+                'event_table_id' => $tableId,
+                'customer_name' => $validated['customer_name'],
+                'customer_email' => $validated['customer_email'],
+                'customer_phone' => $validated['customer_phone'] ?? null,
+                'party_size' => $validated['party_size'],
+                'notes' => $validated['notes'] ?? null,
+                'total_amount' => $totalAmount,
+                'status' => $status,
+                'is_test' => false,
+            ]);
+
+            $paid = in_array($status, ['confirmed', 'completed'], true);
+
+            Payment::create([
+                'reservation_id' => $reservation->id,
+                'amount' => $depositAmount,
+                'currency' => $lockedSchedule->event->currency,
+                'provider' => 'manual',
+                'status' => $paid ? 'paid' : 'pending',
+                'provider_reference' => $paid ? 'MANUAL-' . strtoupper(uniqid()) : null,
+                'paid_at' => $paid ? now() : null,
+            ]);
+
+            if ($lockedSchedule->event->slug === 'fermento') {
+                $this->upsertCustomerManual($validated);
+            }
+
+            return back()->with('status', "Reserva {$reservation->code} creada.");
+        });
+    }
+
+    /**
+     * Misma lógica de alta/actualización de cliente que
+     * ReservationController::upsertCustomer(), pero sin depender de esa
+     * clase (customer_phone puede venir vacío en una carga manual — en ese
+     * caso, igual que el flujo público, no se toca la base de clientes).
+     */
+    private function upsertCustomerManual(array $validated): void
+    {
+        $phone = Customer::normalizePhone((string) ($validated['customer_phone'] ?? ''));
+
+        if ($phone === null) {
+            return;
+        }
+
+        $customer = Customer::where('phone', $phone)->first();
+
+        if (! $customer) {
+            Customer::create([
+                'name' => $validated['customer_name'],
+                'phone' => $phone,
+                'email' => $validated['customer_email'] ?? null,
+                'brands' => ['Molto'],
+                'frequency' => 'nueva',
+                'vip' => false,
+            ]);
+
+            return;
+        }
+
+        $updates = [];
+
+        if (! in_array('Molto', $customer->brands ?? [], true)) {
+            $updates['brands'] = array_values(array_unique([...($customer->brands ?? []), 'Molto']));
+        }
+
+        if (! $customer->email && ! empty($validated['customer_email'])) {
+            $updates['email'] = $validated['customer_email'];
+        }
+
+        if ($updates !== []) {
+            $customer->update($updates);
+        }
     }
 
     /**
@@ -232,6 +424,33 @@ class ReservationAdminController extends Controller
         return view('reservas.invitados', [
             'guests' => $guests,
         ]);
+    }
+
+    /**
+     * Alta manual de un invitado de Fermento (ej. se sumó alguien después de
+     * la tanda inicial de invitaciones). El token del link personalizado se
+     * genera solo, igual que los demás — ver FermentoGuest::booted().
+     */
+    public function storeGuest(Request $request): RedirectResponse
+    {
+        $event = Event::where('slug', 'fermento')->firstOrFail();
+
+        $normalizedPhone = Customer::normalizePhone((string) $request->input('phone'));
+        $request->merge(['phone' => $normalizedPhone]);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'phone' => ['nullable', 'string', 'max:30'],
+        ]);
+
+        $guest = FermentoGuest::create([
+            'event_id' => $event->id,
+            'name' => $validated['name'],
+            'phone' => $validated['phone'] ?? null,
+            'is_test' => $request->boolean('is_test'),
+        ]);
+
+        return back()->with('status', "Invitado {$guest->name} agregado.");
     }
 
     /**

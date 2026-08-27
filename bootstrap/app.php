@@ -3,6 +3,7 @@
 use App\Http\Middleware\ClanPreholder;
 use App\Http\Middleware\MaintenanceMode;
 use App\Http\Middleware\ReservasAdminAuth;
+use App\Http\Middleware\ReservasReviewAuth;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'showclinic.admin' => \App\Http\Middleware\ShowClinicAdminAuth::class,
             'reservas.admin' => ReservasAdminAuth::class,
+            'reservas.review' => ReservasReviewAuth::class,
         ]);
 
         $middleware->web(append: [
