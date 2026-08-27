@@ -47,7 +47,7 @@
     border: 1px solid #555;
     background: #222;
     color: #fff;
-    font-size: 0.95rem;
+    font-size: 1rem;
     margin-bottom: 1rem;
   }
   input[type="password"]:focus {

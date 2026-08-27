@@ -192,6 +192,55 @@
     gap: 0.6rem;
     margin-top: 1.5rem;
   }
+
+  @media (max-width: 720px) {
+    .filters { flex-direction: column; align-items: stretch; }
+    .filters select, .filters button, .filters a.clear { width: 100%; text-align: center; }
+
+    .table-wrap { border: none; background: transparent; overflow-x: visible; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr {
+      background: #fff;
+      border: 1px solid #e8e4dd;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem 1rem;
+    }
+    tbody td {
+      border: none;
+      padding: 0.4rem 0;
+      white-space: normal;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      text-align: right;
+    }
+    tbody td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #7a7365;
+      flex-shrink: 0;
+      text-align: left;
+    }
+    tbody td.actions-cell {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+    tbody td.actions-cell::before { display: none; }
+    tbody td.empty { display: block; text-align: center; }
+    tbody td.empty::before { display: none; }
+
+    .btn { padding: 0.75rem 1.1rem; font-size: 0.92rem; }
+    .btn-sm { padding: 0.55rem 0.85rem; font-size: 0.82rem; }
+
+    .modal-overlay, .modal-backdrop { padding: 0; align-items: flex-end; }
+    .modal { max-width: 100%; width: 100%; max-height: 92vh; border-radius: 16px 16px 0 0; }
+  }
 </style>
 </head>
 <body>
@@ -297,15 +346,15 @@
             $waPhone = $phoneDigits === '' ? null : (strlen($phoneDigits) === 9 ? '51' . $phoneDigits : $phoneDigits);
           @endphp
           <tr>
-            <td class="code">{{ $reservation->code }} @if ($reservation->is_test)<span class="badge test">PRUEBA</span>@endif</td>
-            <td>{{ $reservation->customer_name }}</td>
-            <td>{{ $reservation->customer_phone ?: '—' }}</td>
-            <td>{{ $reservation->event->name }}</td>
-            <td>{{ $reservation->schedule->date->format('d/m/Y') }} {{ \Illuminate\Support\Str::of($reservation->schedule->start_time)->substr(0, 5) }}</td>
-            <td>{{ $reservation->table ? '#' . $reservation->table->table_number : '—' }}</td>
-            <td>{{ $reservation->party_size }}</td>
-            <td>S/ {{ number_format($reservation->payment->amount ?? $reservation->total_amount, 2) }}</td>
-            <td><span class="badge {{ $reservation->status }}">{{ ucfirst($reservation->status) }}</span></td>
+            <td class="code" data-label="Código">{{ $reservation->code }} @if ($reservation->is_test)<span class="badge test">PRUEBA</span>@endif</td>
+            <td data-label="Cliente">{{ $reservation->customer_name }}</td>
+            <td data-label="Teléfono">{{ $reservation->customer_phone ?: '—' }}</td>
+            <td data-label="Evento">{{ $reservation->event->name }}</td>
+            <td data-label="Fecha">{{ $reservation->schedule->date->format('d/m/Y') }} {{ \Illuminate\Support\Str::of($reservation->schedule->start_time)->substr(0, 5) }}</td>
+            <td data-label="Mesa">{{ $reservation->table ? '#' . $reservation->table->table_number : '—' }}</td>
+            <td data-label="Personas">{{ $reservation->party_size }}</td>
+            <td data-label="Seña">S/ {{ number_format($reservation->payment->amount ?? $reservation->total_amount, 2) }}</td>
+            <td data-label="Estado"><span class="badge {{ $reservation->status }}">{{ ucfirst($reservation->status) }}</span></td>
             <td class="actions-cell">
               @if ($waPhone)
                 <a class="btn btn-sm btn-whatsapp" target="_blank" rel="noopener"

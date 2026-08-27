@@ -100,6 +100,55 @@
     font-family: inherit;
   }
   .modal-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.5rem; }
+
+  @media (max-width: 720px) {
+    .filters { flex-direction: column; align-items: stretch; }
+    .filters select, .filters button, .filters a.clear { width: 100%; text-align: center; }
+
+    .table-wrap { border: none; background: transparent; overflow-x: visible; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr {
+      background: #fff;
+      border: 1px solid #e8e4dd;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem 1rem;
+    }
+    tbody td {
+      border: none;
+      padding: 0.4rem 0;
+      white-space: normal;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      text-align: right;
+    }
+    tbody td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #7a7365;
+      flex-shrink: 0;
+      text-align: left;
+    }
+    tbody td.actions-cell {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+    tbody td.actions-cell::before { display: none; }
+    tbody td.empty { display: block; text-align: center; }
+    tbody td.empty::before { display: none; }
+
+    .btn { padding: 0.75rem 1.1rem; font-size: 0.92rem; }
+    .btn-sm { padding: 0.55rem 0.85rem; font-size: 0.82rem; }
+
+    .modal-overlay, .modal-backdrop { padding: 0; align-items: flex-end; }
+    .modal { max-width: 100%; width: 100%; max-height: 92vh; border-radius: 16px 16px 0 0; }
+  }
 </style>
 </head>
 <body>
@@ -146,16 +195,16 @@
       <tbody>
         @forelse ($guests as $guest)
           <tr>
-            <td>{{ $guest->name }}</td>
-            <td>{{ $guest->phone ?: '—' }}</td>
-            <td>
+            <td data-label="Nombre">{{ $guest->name }}</td>
+            <td data-label="Celular">{{ $guest->phone ?: '—' }}</td>
+            <td data-label="Abrió el link">
               @if ($guest->opened_at)
                 <span class="ok" title="{{ $guest->opened_at->format('d/m/Y H:i') }}">✓ {{ $guest->opened_at->format('d/m/Y') }}</span>
               @else
                 <span class="muted">—</span>
               @endif
             </td>
-            <td>
+            <td data-label="Mensaje 1">
               @if ($guest->whatsapp_sent_at)
                 <span class="ok" title="{{ $guest->whatsapp_sent_at->format('d/m/Y H:i') }}">✓ {{ $guest->whatsapp_sent_at->format('d/m/Y') }}</span>
               @elseif ($guest->phone)
@@ -165,13 +214,13 @@
                 <span class="missing-phone">Falta celular</span>
               @endif
             </td>
-            <td>
+            <td data-label="Aceptó">
               <form method="POST" action="{{ route('reservas.admin.guests.aceptar', $guest) }}">
                 @csrf
                 <input type="checkbox" onchange="this.form.submit()" @checked($guest->interest_confirmed_at)>
               </form>
             </td>
-            <td>
+            <td data-label="Mensaje 2">
               @if ($guest->invite_sent_at)
                 <span class="ok" title="{{ $guest->invite_sent_at->format('d/m/Y H:i') }}">✓ {{ $guest->invite_sent_at->format('d/m/Y') }}</span>
               @elseif (! $guest->interest_confirmed_at)
@@ -183,14 +232,14 @@
                 <span class="missing-phone">Falta celular</span>
               @endif
             </td>
-            <td>
+            <td data-label="Reservó">
               @if ($guest->reservation)
                 <span class="ok">✓</span>
               @else
                 <span class="muted">—</span>
               @endif
             </td>
-            <td>
+            <td data-label="Pago">
               @if ($guest->reservation && $guest->reservation->status === 'confirmed')
                 <span class="ok">✓</span>
               @else
