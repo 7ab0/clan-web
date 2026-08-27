@@ -27,7 +27,7 @@ Route::get('/intimo/{token?}', [EventController::class, 'intimo'])->name('intimo
 Route::post('/intimo/reservar', [ReservationController::class, 'store'])->name('intimo.reservar');
 
 // Fermento (CLAN x FORNO): landing y reserva de mesa por fecha
-Route::get('/fermento', [EventController::class, 'fermento'])->name('fermento');
+Route::get('/fermento/{token?}', [EventController::class, 'fermento'])->name('fermento');
 Route::post('/fermento/reservar', [ReservationController::class, 'store'])->name('fermento.reservar');
 
 Route::prefix('reservas/{code}')->group(function () {

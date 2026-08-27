@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\FermentoGuest;
 use App\Models\IntimoGuest;
 use Illuminate\View\View;
 
@@ -61,12 +62,24 @@ class EventController extends Controller
      * su propio aforo, así que además del selector de fecha se manda al front
      * la disponibilidad de las 12 mesas por horario para el picker de mesa.
      */
-    public function fermento(): View
+    public function fermento(?string $token = null): View
     {
         $event = Event::with('tables')
             ->where('slug', 'fermento')
             ->where('is_active', true)
             ->firstOrFail();
+
+        $guest = null;
+
+        if ($token) {
+            $guest = FermentoGuest::where('event_id', $event->id)
+                ->where('token', $token)
+                ->first();
+
+            if ($guest && ! $guest->opened_at) {
+                $guest->update(['opened_at' => now()]);
+            }
+        }
 
         $schedules = $event->upcomingSchedules();
 
@@ -94,6 +107,7 @@ class EventController extends Controller
             'event' => $event,
             'schedulesByDate' => $schedulesByDate,
             'tablesBySchedule' => $tablesBySchedule,
+            'guest' => $guest,
         ]);
     }
 }

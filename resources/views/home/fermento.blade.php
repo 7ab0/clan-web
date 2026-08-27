@@ -32,10 +32,13 @@
     <div class="fermento-preloader-inner">
         <div class="fermento-eyebrow">MOLTO x FORNO</div>
         <div class="ak-height-20"></div>
-        {{-- "Enrique" hardcodeado solo para probar el flujo de punta a
-             punta — falta decidir la personalización real (query param,
-             dato de la reserva, etc.) antes de publicar. --}}
-        <p class="fermento-preloader-greeting">Hola, Enrique</p>
+        <p class="fermento-preloader-greeting">
+            @if ($guest)
+                Hola, {{ $guest->first_name }}
+            @else
+                Hola
+            @endif
+        </p>
         <p class="fermento-preloader-copy">
             El horno de leña ya está <strong class="w700">encendido</strong> y la masa madre lleva días <strong>fermentando</strong>.
         </p>
