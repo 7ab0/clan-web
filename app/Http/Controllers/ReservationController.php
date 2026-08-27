@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreReservationRequest;
 use App\Models\Customer;
 use App\Models\EventSchedule;
+use App\Models\FermentoGuest;
 use App\Models\Payment;
 use App\Models\Reservation;
 use Illuminate\Http\RedirectResponse;
@@ -31,12 +32,29 @@ class ReservationController extends Controller
 
             $tableId = $validated['event_table_id'] ?? null;
 
+            // Invitado especial "Pruebas" (ver FermentoSeeder::seedGuests): deja
+            // avanzar todo el flujo real de reserva/pago/confirmación, pero la
+            // reserva queda marcada is_test — no ocupa mesa real ni entra a la
+            // base de clientes. Se identifica por el token oculto del form, no
+            // por nada que el cliente pueda manipular a mano.
+            $isTest = false;
+
+            if (! empty($validated['fermento_guest_token']) && $schedule->event->slug === 'fermento') {
+                $guest = FermentoGuest::where('event_id', $schedule->event_id)
+                    ->where('token', $validated['fermento_guest_token'])
+                    ->first();
+
+                $isTest = (bool) ($guest->is_test ?? false);
+            }
+
             if ($tableId) {
                 // Eventos con mesas propias (ej. Fermento): el overbooking se controla
-                // por mesa+fecha, no por cupo agregado del horario.
+                // por mesa+fecha, no por cupo agregado del horario. Las reservas de
+                // prueba (is_test) no cuentan como ocupación real de la mesa.
                 $tableTaken = Reservation::where('event_schedule_id', $lockedSchedule->id)
                     ->where('event_table_id', $tableId)
                     ->where('status', '!=', 'cancelled')
+                    ->where('is_test', false)
                     ->lockForUpdate()
                     ->exists();
 
@@ -74,6 +92,7 @@ class ReservationController extends Controller
                 'notes' => $validated['notes'] ?? null,
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
+                'is_test' => $isTest,
             ]);
 
             Payment::create([
@@ -86,8 +105,9 @@ class ReservationController extends Controller
 
             // Base de clientes: por ahora solo para Fermento (ver plan). Para
             // extenderla a otros eventos más adelante, basta con quitar este
-            // chequeo de slug.
-            if ($lockedSchedule->event->slug === 'fermento') {
+            // chequeo de slug. Las reservas de prueba nunca tocan la base de
+            // clientes real.
+            if ($lockedSchedule->event->slug === 'fermento' && ! $isTest) {
                 $this->upsertCustomer($validated);
             }
 

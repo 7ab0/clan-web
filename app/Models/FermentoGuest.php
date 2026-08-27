@@ -29,6 +29,7 @@ class FermentoGuest extends Model
         'whatsapp_sent_at',
         'interest_confirmed_at',
         'invite_sent_at',
+        'is_test',
     ];
 
     protected $casts = [
@@ -36,6 +37,7 @@ class FermentoGuest extends Model
         'whatsapp_sent_at' => 'datetime',
         'interest_confirmed_at' => 'datetime',
         'invite_sent_at' => 'datetime',
+        'is_test' => 'boolean',
     ];
 
     protected static function booted(): void

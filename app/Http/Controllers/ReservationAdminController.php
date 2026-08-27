@@ -108,6 +108,43 @@ class ReservationAdminController extends Controller
     }
 
     /**
+     * Edita a mano los datos de contacto, personas, notas y estado de una
+     * reserva (ej. corregir un typo, o revertir una confirmación hecha por
+     * error). No permite cambiar mesa/horario — eso implica re-chequear
+     * disponibilidad y se maneja mejor cancelando y creando una reserva nueva.
+     */
+    public function updateReservation(Request $request, Reservation $reservation): RedirectResponse
+    {
+        $validated = $request->validate([
+            'customer_name' => ['required', 'string', 'max:120'],
+            'customer_phone' => ['nullable', 'string', 'max:30'],
+            'customer_email' => ['required', 'email', 'max:150'],
+            'party_size' => ['required', 'integer', 'min:1', 'max:20'],
+            'notes' => ['nullable', 'string', 'max:500'],
+            'status' => ['required', 'in:pending,confirmed,cancelled,completed'],
+        ]);
+
+        $reservation->update($validated);
+
+        return back()->with('status', "Reserva {$reservation->code} actualizada.");
+    }
+
+    /**
+     * Elimina una reserva (y su pago asociado) — pensado sobre todo para
+     * limpiar reservas de prueba (is_test) sin tener que entrar a la base
+     * de datos a mano.
+     */
+    public function destroy(Reservation $reservation): RedirectResponse
+    {
+        $code = $reservation->code;
+
+        $reservation->payment?->delete();
+        $reservation->delete();
+
+        return back()->with('status', "Reserva {$code} eliminada.");
+    }
+
+    /**
      * Lista la base de clientes simple (por ahora, solo se llena desde
      * Fermento — ver ReservationController::upsertCustomer).
      */

@@ -39,7 +39,9 @@ class EventSchedule extends Model
      */
     public function getAvailableSpotsAttribute(): int
     {
-        $taken = $this->reservations()->where('status', '!=', 'cancelled')->count();
+        // Las reservas de prueba (is_test, ver ReservationController::store)
+        // no cuentan para el aforo — no deben quitarle cupo a nadie más.
+        $taken = $this->reservations()->where('status', '!=', 'cancelled')->where('is_test', false)->count();
 
         return max(0, $this->capacity - $taken);
     }
@@ -58,6 +60,7 @@ class EventSchedule extends Model
     {
         $takenTableIds = $this->reservations()
             ->where('status', '!=', 'cancelled')
+            ->where('is_test', false)
             ->whereNotNull('event_table_id')
             ->pluck('event_table_id');
 

@@ -60,7 +60,7 @@ class EventController extends Controller
      * Landing de Fermento (CLAN x FORNO): historia, cocina y reserva de mesa
      * por fecha. A diferencia de Íntimo, cada horario tiene mesas propias con
      * su propio aforo, así que además del selector de fecha se manda al front
-     * la disponibilidad de las 12 mesas por horario para el picker de mesa.
+     * la disponibilidad de las 9 mesas por horario para el picker de mesa.
      */
     public function fermento(?string $token = null): View
     {
@@ -98,7 +98,7 @@ class EventController extends Controller
             });
 
         // Disponibilidad de mesas por horario, para que el front pinte el grid
-        // de 12 mesas apenas el visitante elige una fecha (sin ida y vuelta al server).
+        // de 9 mesas apenas el visitante elige una fecha (sin ida y vuelta al server).
         $tablesBySchedule = $schedules->mapWithKeys(
             fn ($schedule) => [$schedule->id => $schedule->tablesWithAvailability()]
         );

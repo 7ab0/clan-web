@@ -14,6 +14,15 @@ integrada:
   tipografías de marca propias, logrando una identidad visual
   distinta sin ser un layout completamente separado — no lo trates
   como standalone puro al tocar el layout compartido
+- Fermento: colaboración CLAN × FORNO/MOLTO — landing con reserva de
+  mesa por fecha, seña coordinada por WhatsApp (sin cobro en línea
+  todavía) y confirmación con tarjeta tipo story descargable. Mismo
+  patrón que Íntimo: extiende `layout.layout`, oculta header/footer
+  genéricos por CSS inline, tipografías propias (Canela + Inter,
+  `public/assets/fonts/canela/` e `.../inter/`) — tampoco es
+  standalone puro. Comparte `ReservationController`/
+  `PaymentController` y las rutas `/reservas/{code}/pago` y
+  `/reservas/{code}/confirmacion` con Íntimo
 
 ## Stack
 - Laravel 11, PHP ^8.2
@@ -30,7 +39,21 @@ integrada:
 - /intimo/{token?} — landing/reserva de Íntimo (mismo layout base de
   CLAN, con header/footer ocultos e identidad propia por CSS)
 - /intimo/reservar, /reservas/{code}/pago, /reservas/{code}/confirmacion
-  — flujo de reserva y pago de Íntimo
+  — flujo de reserva y pago de Íntimo (mismas rutas de pago/confirmación
+  compartidas con Fermento, ver abajo)
+- /fermento/{token?} — landing/reserva de Fermento (mismo layout base
+  de CLAN, header/footer ocultos, identidad Canela/Inter); el token
+  opcional dispara el saludo personalizado "Hola, {nombre}" cuando es
+  un link de `fermento_guests`
+- /fermento/reservar — crea la reserva (mismo flujo que Íntimo, ver
+  `ReservationController`)
+- /reservas/admin, /reservas/admin/clientes, /reservas/admin/invitados
+  — panel admin de reservas de Fermento + Íntimo: confirma pago
+  manualmente, ve la base de clientes, y hace outreach por WhatsApp a
+  los invitados de Fermento. Login propio, middleware `reservas.admin`
+  (contraseña simple, mismo patrón que showclinic/admin)
+- /mantenimiento — vista del muro de mantenimiento general (ver
+  `MaintenanceMode` abajo), con su propio formulario de acceso
 - /showclinic — landing standalone del evento (pre-holder personalizado
   vía ?inv=CODIGO, countdown, RSVP, música de fondo)
 - /showclinic/admin — panel de gestión de invitados (login propio,
@@ -44,25 +67,34 @@ integrada:
 - La tabla `guests` es de Show Clinic (code, name, profession,
   compliment, status RSVP: pendiente/confirmado/rechazado, plus_one,
   companion_name). La tabla `intimo_guests` es de Íntimo (event_id,
-  token único de 12 chars, opened_at, whatsapp_sent_at) — nombres
-  similares pero esquemas distintos, NO confundir ni fusionar
+  token único de 12 chars, opened_at, whatsapp_sent_at). La tabla
+  `fermento_guests` es de Fermento (token único, outreach por WhatsApp
+  en etapas: `invite_sent_at`, `interest_confirmed_at`, etc.) — las
+  tres tienen nombres similares pero esquemas distintos, NO confundir
+  ni fusionar
+- La tabla `customers` es la base de clientes simple, alimentada
+  automáticamente por cada reserva (dedup por teléfono) — por decisión
+  del usuario, scopeada solo a Fermento por ahora, no a Íntimo
 - Dos sistemas de bloqueo de sitio, independientes y con exclusiones
   propias:
   - `MaintenanceMode` middleware (`MAINTENANCE_MODE` en .env,
     `config/maintenance.php`): muro de mantenimiento general, cookie
-    de acceso `clan_access` con palabra clave `clandestino`
+    de acceso `clan_access` con palabra clave `clandestino`, vista en
+    `/mantenimiento`
   - `ClanPreholder` middleware (`CLAN_PREHOLDER_ACTIVE` en .env,
     `config/preholder.php`): pantalla "Estamos atizando nuestros
     fogones"
-  - Ambos excluyen explícitamente `/showclinic*`, `/intimo*` y
-    `/reservas/*` (ver `ClanPreholder::handle`) — nunca deben
-    bloquearse esas rutas
+  - Ambos excluyen explícitamente `/showclinic*`, `/intimo*`,
+    `/fermento*` y `/reservas/*` (ver `ClanPreholder::handle` y
+    `MaintenanceMode::handle`) — nunca deben bloquearse esas rutas
 - Fuentes self-hosteadas (no Google Fonts CDN):
   - CLAN: Poppins (`public/assets/fonts/poppins/` y
     `.../clan/poppins/`), Cinzel (`public/assets/fonts/cinzel/`),
     Cinzel Decorative (`public/assets/fonts/clan/`)
   - Show Clinic: Montserrat y "AmoretSans" (The Amoret Collection
     Sans) en `public/assets/showclinic/fonts/`
+  - Fermento: Canela (Medium) e Inter en `public/assets/fonts/canela/`
+    y `.../inter/`
 
 ## Gotchas técnicos
 - Linux (producción) es sensible a mayúsculas/minúsculas en nombres

@@ -25,6 +25,11 @@ class Reservation extends Model
         'notes',
         'total_amount',
         'status',
+        'is_test',
+    ];
+
+    protected $casts = [
+        'is_test' => 'boolean',
     ];
 
     protected static function booted(): void

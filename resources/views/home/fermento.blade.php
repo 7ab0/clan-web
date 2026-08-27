@@ -632,9 +632,9 @@
             <div class="per">Por persona</div>
             <ul>
                 <li>Pizzas al horno de leña y platos de autor de MOLTO</li>
-                <li>Vinos seleccionados para acompañar la mesa</li>
                 <li>Mesa comunitaria bajo servicio a lo largo de la noche</li>
-                <li>12 mesas disponibles por fecha, cada una para 2 a 4 personas</li>
+                <li>9 mesas disponibles por fecha, cada una para 1 a 4 personas</li>
+                <li>Maridaje de vinos disponible aparte, no incluido en el precio</li>
             </ul>
             <a href="#reservar" class="fermento-btn solid" style="width:100%;justify-content:center;">Reservar mi mesa</a>
         </div>
@@ -685,6 +685,8 @@
                     </select>
                 @endif
             </div>
+
+            <input type="hidden" name="fermento_guest_token" value="{{ $guest?->token }}">
 
             <div class="fermento-field">
                 <label>2 · Mesa</label>

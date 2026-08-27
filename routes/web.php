@@ -46,6 +46,8 @@ Route::prefix('reservas/admin')->name('reservas.admin.')->group(function () {
     Route::middleware('reservas.admin')->group(function () {
         Route::get('/', [ReservationAdminController::class, 'index'])->name('index');
         Route::post('/{reservation}/confirmar', [ReservationAdminController::class, 'confirmPayment'])->name('confirmar');
+        Route::put('/{reservation}', [ReservationAdminController::class, 'updateReservation'])->name('update');
+        Route::delete('/{reservation}', [ReservationAdminController::class, 'destroy'])->name('destroy');
         Route::get('/clientes', [ReservationAdminController::class, 'customers'])->name('clientes');
         Route::put('/clientes/{customer}', [ReservationAdminController::class, 'updateCustomer'])->name('clientes.update');
 

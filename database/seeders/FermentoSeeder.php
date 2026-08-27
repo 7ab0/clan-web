@@ -10,10 +10,11 @@ use Illuminate\Database\Seeder;
 class FermentoSeeder extends Seeder
 {
     /**
-     * Fermento: cena colaborativa CLAN x FORNO (pizza al fuego + vinos),
-     * viernes 4 y sábado 5 de septiembre de 2026, con 12 mesas propias por fecha.
+     * Fermento: cena colaborativa CLAN x FORNO (pizza al fuego, maridaje de
+     * vinos aparte), viernes 4 y sábado 5 de septiembre de 2026, con 9 mesas
+     * propias por fecha.
      *
-     * Las 12 mesas son base para 2 personas, adaptables/combinables hasta 4
+     * Las 9 mesas son individuales, cada una admite de 1 a 4 personas
      * (capacity_min/capacity_max), en vez de aforo fijo por mesa.
      */
     public function run(): void
@@ -38,12 +39,16 @@ class FermentoSeeder extends Seeder
             ]
         );
 
-        for ($n = 1; $n <= 12; $n++) {
+        for ($n = 1; $n <= 9; $n++) {
             EventTable::updateOrCreate(
                 ['event_id' => $event->id, 'table_number' => $n],
-                ['capacity_min' => 2, 'capacity_max' => 4]
+                ['capacity_min' => 1, 'capacity_max' => 4]
             );
         }
+
+        // Config anterior tenía 12 mesas — borra las sobrantes (10-12) si
+        // vienes de esa siembra.
+        EventTable::where('event_id', $event->id)->where('table_number', '>', 9)->delete();
 
         // Fechas y hora fijas del evento (no calculadas desde "hoy"): viernes y
         // sábado, 7:00 pm. La hora anterior (20:00) fue un valor por defecto
@@ -70,10 +75,15 @@ class FermentoSeeder extends Seeder
                 ],
                 [
                     // Capacidad = número de mesas: cada reserva ocupa exactamente una.
-                    'capacity' => 12,
+                    'capacity' => 9,
                     'is_active' => true,
                 ]
             );
         }
+
+        // Los invitados de Fermento (los 10 reales + Gustavo/Mauricio/Daniel +
+        // el especial "Pruebas") no se siembran acá — ver el comando dedicado
+        // `php artisan fermento:guests-seed`, que ya es la fuente de verdad
+        // idempotente para ellos (por teléfono) y no debe duplicarse aquí.
     }
 }

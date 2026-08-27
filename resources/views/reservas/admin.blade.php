@@ -140,6 +140,58 @@
   .empty { padding: 3rem 1rem; text-align: center; color: #7a7365; }
   .code { font-family: 'Courier New', monospace; font-size: 0.85rem; }
   .actions-cell { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .btn-outline { background: #fff; border: 1px solid #d8d2c4; color: #2a2a2a; }
+  .btn-outline:hover { background: #f5f1e4; }
+  .btn-danger { background: #fbe4e1; color: #c0392b; }
+  .btn-danger:hover { background: #f6cdc7; }
+  .badge.test { background: #eee; color: #666; margin-left: 0.4rem; }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h3 { font-size: 1.05rem; margin-bottom: 1rem; }
+  .modal label {
+    display: block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #555;
+    margin-bottom: 0.35rem;
+    margin-top: 0.9rem;
+  }
+  .modal label:first-of-type { margin-top: 0; }
+  .modal input, .modal select, .modal textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #d8d2c4;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .modal textarea { resize: vertical; min-height: 70px; }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+  }
 </style>
 </head>
 <body>
@@ -240,7 +292,7 @@
             $waPhone = $phoneDigits === '' ? null : (strlen($phoneDigits) === 9 ? '51' . $phoneDigits : $phoneDigits);
           @endphp
           <tr>
-            <td class="code">{{ $reservation->code }}</td>
+            <td class="code">{{ $reservation->code }} @if ($reservation->is_test)<span class="badge test">PRUEBA</span>@endif</td>
             <td>{{ $reservation->customer_name }}</td>
             <td>{{ $reservation->customer_phone ?: '—' }}</td>
             <td>{{ $reservation->event->name }}</td>
@@ -261,6 +313,23 @@
                   <button type="submit" class="btn btn-sm btn-accent">Confirmar pago</button>
                 </form>
               @endif
+              <button type="button" class="btn btn-sm btn-outline"
+                      onclick="openEditModal({{ Js::from([
+                          'action' => route('reservas.admin.update', $reservation),
+                          'code' => $reservation->code,
+                          'customer_name' => $reservation->customer_name,
+                          'customer_phone' => $reservation->customer_phone,
+                          'customer_email' => $reservation->customer_email,
+                          'party_size' => $reservation->party_size,
+                          'notes' => $reservation->notes,
+                          'status' => $reservation->status,
+                      ]) }})">Editar</button>
+              <form method="POST" action="{{ route('reservas.admin.destroy', $reservation) }}"
+                    onsubmit="return confirm('¿Eliminar definitivamente la reserva {{ $reservation->code }} de {{ $reservation->customer_name }}? Esto no se puede deshacer.')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+              </form>
             </td>
           </tr>
         @empty
@@ -271,6 +340,62 @@
       </tbody>
     </table>
   </div>
+
+  <div class="modal-overlay" id="editModalOverlay">
+    <div class="modal">
+      <h3 id="editModalTitle">Editar reserva</h3>
+      <form method="POST" id="editReservationForm">
+        @csrf
+        @method('PUT')
+
+        <label for="edit_customer_name">Nombre</label>
+        <input type="text" name="customer_name" id="edit_customer_name" required>
+
+        <label for="edit_customer_phone">Teléfono</label>
+        <input type="text" name="customer_phone" id="edit_customer_phone">
+
+        <label for="edit_customer_email">Correo</label>
+        <input type="email" name="customer_email" id="edit_customer_email" required>
+
+        <label for="edit_party_size">Personas</label>
+        <input type="number" name="party_size" id="edit_party_size" min="1" max="20" required>
+
+        <label for="edit_status">Estado</label>
+        <select name="status" id="edit_status" required>
+          <option value="pending">Pendiente</option>
+          <option value="confirmed">Confirmada</option>
+          <option value="cancelled">Cancelada</option>
+          <option value="completed">Completada</option>
+        </select>
+
+        <label for="edit_notes">Notas</label>
+        <textarea name="notes" id="edit_notes"></textarea>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-sm btn-outline" onclick="closeEditModal()">Cancelar</button>
+          <button type="submit" class="btn btn-sm btn-accent">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openEditModal(data) {
+      document.getElementById('editModalTitle').textContent = 'Editar reserva ' + data.code;
+      document.getElementById('editReservationForm').action = data.action;
+      document.getElementById('edit_customer_name').value = data.customer_name || '';
+      document.getElementById('edit_customer_phone').value = data.customer_phone || '';
+      document.getElementById('edit_customer_email').value = data.customer_email || '';
+      document.getElementById('edit_party_size').value = data.party_size || 1;
+      document.getElementById('edit_status').value = data.status || 'pending';
+      document.getElementById('edit_notes').value = data.notes || '';
+      document.getElementById('editModalOverlay').classList.add('open');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModalOverlay').classList.remove('open');
+    }
+  </script>
 
 </body>
 </html>

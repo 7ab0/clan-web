@@ -28,6 +28,11 @@ class StoreReservationRequest extends FormRequest
             // Si no se manda (ej. Íntimo, que aún no pide seña variable),
             // ReservationController usa el total de la reserva como antes.
             'deposit_amount' => ['nullable', 'numeric', 'min:20'],
+            // Token del invitado de Fermento que abrió este link personalizado
+            // (campo oculto del form, ver home/fermento.blade.php). Si
+            // corresponde al invitado especial "Pruebas", ReservationController
+            // marca la reserva como is_test.
+            'fermento_guest_token' => ['nullable', 'string', 'max:12'],
         ];
     }
 
