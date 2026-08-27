@@ -172,6 +172,7 @@
                 document.fonts.load('500 46px ClanPoppins'),
                 document.fonts.load('400 26px ClanPoppins'),
                 document.fonts.load('600 28px ClanPoppins'),
+                document.fonts.load('600 100px ClanPoppins'),
                 document.fonts.ready,
                 bgLoaded,
                 logoLoaded,
@@ -240,6 +241,12 @@
                 ctx.fillStyle = '#A7792A';
                 ctx.font = '600 30px ClanPoppins';
                 drawTracked('RESERVA CONFIRMADA', 540, 242, 10);
+
+                // Título.
+                ctx.fillStyle = '#F6EEE1';
+                ctx.font = '600 100px ClanPoppins';
+                ctx.textAlign = 'center';
+                ctx.fillText('FERMENTO', 540, 420);
 
                 // Divisor.
                 ctx.strokeStyle = 'rgba(251,177,47,0.35)';
