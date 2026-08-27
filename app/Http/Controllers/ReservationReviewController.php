@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Event;
 use App\Models\Reservation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -50,27 +49,22 @@ class ReservationReviewController extends Controller
     }
 
     /**
-     * Solo reservas confirmadas y reales (nunca is_test) — a un revisor
-     * externo no le sirve ver pendientes ni reservas de prueba.
+     * Solo reservas confirmadas y reales (nunca is_test) de Fermento — este
+     * panel se comparte con FORNO/MOLTO como socios de Fermento, no tiene
+     * sentido que vean reservas de Íntimo (otro evento de CLAN, sin
+     * relación con ellos).
      */
-    public function index(Request $request): View
+    public function index(): View
     {
-        $eventSlug = (string) $request->query('event', 'todos');
-
-        $query = Reservation::with(['event', 'schedule', 'table'])
+        $reservations = Reservation::with(['event', 'schedule', 'table'])
+            ->whereHas('event', fn ($q) => $q->where('slug', 'fermento'))
             ->where('status', 'confirmed')
-            ->where('is_test', false);
-
-        if ($eventSlug !== 'todos') {
-            $query->whereHas('event', fn ($q) => $q->where('slug', $eventSlug));
-        }
-
-        $reservations = $query->orderBy('created_at', 'desc')->get();
+            ->where('is_test', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('reservas.review', [
             'reservations' => $reservations,
-            'events' => Event::orderBy('name')->get(['slug', 'name']),
-            'eventSlug' => $eventSlug,
         ]);
     }
 }

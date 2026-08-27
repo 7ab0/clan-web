@@ -104,27 +104,14 @@
 
   <div class="topbar">
     <div>
-      <h1>Reservas confirmadas</h1>
-      <p class="sub">Panel de solo consulta — Fermento &amp; Íntimo</p>
+      <h1>Fermento — reservas confirmadas</h1>
+      <p class="sub">Panel de solo consulta</p>
     </div>
     <form method="POST" action="{{ route('reservas.review.logout') }}">
       @csrf
       <button type="submit" class="btn btn-dark">Cerrar sesión</button>
     </form>
   </div>
-
-  <form method="GET" action="{{ route('reservas.review.index') }}" class="filters">
-    <select name="event">
-      <option value="todos" @selected($eventSlug === 'todos')>Todos los eventos</option>
-      @foreach ($events as $event)
-        <option value="{{ $event->slug }}" @selected($eventSlug === $event->slug)>{{ $event->name }}</option>
-      @endforeach
-    </select>
-    <button type="submit">Filtrar</button>
-    @if ($eventSlug !== 'todos')
-      <a class="clear" href="{{ route('reservas.review.index') }}">Limpiar filtro</a>
-    @endif
-  </form>
 
   <div class="table-wrap">
     <table>
@@ -133,7 +120,6 @@
           <th>Código</th>
           <th>Cliente</th>
           <th>Teléfono</th>
-          <th>Evento</th>
           <th>Fecha</th>
           <th>Mesa</th>
           <th>Personas</th>
@@ -147,7 +133,6 @@
             <td class="code">{{ $reservation->code }}</td>
             <td>{{ $reservation->customer_name }}</td>
             <td>{{ $reservation->customer_phone ?: '—' }}</td>
-            <td>{{ $reservation->event->name }}</td>
             <td>{{ $reservation->schedule->date->format('d/m/Y') }} {{ \Illuminate\Support\Str::of($reservation->schedule->start_time)->substr(0, 5) }}</td>
             <td>{{ $reservation->table ? '#' . $reservation->table->table_number : '—' }}</td>
             <td>{{ $reservation->party_size }}</td>
@@ -161,7 +146,7 @@
           </tr>
         @empty
           <tr>
-            <td colspan="9" class="empty">Todavía no hay reservas confirmadas.</td>
+            <td colspan="8" class="empty">Todavía no hay reservas confirmadas.</td>
           </tr>
         @endforelse
       </tbody>
