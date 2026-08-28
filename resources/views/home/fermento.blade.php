@@ -730,9 +730,9 @@
 
             <div class="fermento-field">
                 <label for="deposit_amount">4 · Tu seña</label>
-                <input type="number" name="deposit_amount" id="deposit_amount" min="20" step="5" value="{{ old('deposit_amount', 50) }}" required>
-                <p class="fermento-note" style="margin-top:8px;">
-                    Sugerido S/ 50 · mínimo S/ 20. El resto de la cuenta se paga en el local la noche del evento.
+                <input type="number" name="deposit_amount" id="deposit_amount" min="60" step="5" value="{{ old('deposit_amount', 60) }}" required>
+                <p class="fermento-note" style="margin-top:8px;" id="fermentoDepositHint">
+                    Mínimo S/ 30 por persona. El resto de la cuenta se paga en el local la noche del evento.
                 </p>
             </div>
 
@@ -888,6 +888,7 @@
                     if (parseInt(partySizeInput.value || '0', 10) > table.capacity_max) {
                         partySizeInput.value = table.capacity_max;
                     }
+                    partySizeInput.dispatchEvent(new Event('change'));
 
                     hint.style.display = 'block';
                     hint.innerHTML = 'Elegiste la <strong>Mesa ' + table.table_number + '</strong> — capacidad de ' + table.capacity_min + ' a ' + table.capacity_max + ' personas.';
@@ -903,6 +904,33 @@
                 renderTables();
             }
         }
+    })();
+
+    (function () {
+        // Mínimo de seña S/ 30 por persona (ver StoreReservationRequest::withValidator,
+        // que es la validación real; esto solo evita que el cliente escriba
+        // un monto que el servidor va a rechazar de todas formas).
+        var partySizeInput = document.getElementById('party_size');
+        var depositInput = document.getElementById('deposit_amount');
+        var depositHint = document.getElementById('fermentoDepositHint');
+        if (!partySizeInput || !depositInput) return;
+
+        function syncDepositMin() {
+            var partySize = parseInt(partySizeInput.value || '1', 10) || 1;
+            var minDeposit = 30 * partySize;
+
+            depositInput.min = minDeposit;
+            if (parseInt(depositInput.value || '0', 10) < minDeposit) {
+                depositInput.value = minDeposit;
+            }
+            if (depositHint) {
+                depositHint.textContent = 'Mínimo S/ ' + minDeposit + ' (S/ 30 por persona). El resto de la cuenta se paga en el local la noche del evento.';
+            }
+        }
+
+        partySizeInput.addEventListener('input', syncDepositMin);
+        partySizeInput.addEventListener('change', syncDepositMin);
+        syncDepositMin();
     })();
 
     (function () {
