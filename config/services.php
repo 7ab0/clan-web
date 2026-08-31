@@ -47,4 +47,12 @@ return [
         'review_password' => env('RESERVAS_REVIEW_PASSWORD'),
     ],
 
+    'influencers' => [
+        // Panel de staff de Influencers (/influencers/admin), contraseña
+        // propia e independiente de reservas.admin_password/review_password.
+        // Sin default: si INFLUENCERS_ADMIN_PASSWORD no está seteada, el
+        // login falla siempre (mismo criterio que reservas.admin_password).
+        'admin_password' => env('INFLUENCERS_ADMIN_PASSWORD'),
+    ],
+
 ];

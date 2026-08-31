@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\FermentoGuest;
+use App\Models\Influencer;
 use App\Models\IntimoGuest;
 use Illuminate\View\View;
 
@@ -75,6 +76,15 @@ class EventController extends Controller
             $guest = FermentoGuest::where('event_id', $event->id)
                 ->where('token', $token)
                 ->first();
+
+            // Los links de influencers (panel /influencers/admin) también
+            // abren esta misma landing — no tienen tabla propia de invitados
+            // "normales", así que si no es un FermentoGuest, probamos con
+            // Influencer. La vista solo necesita ->first_name/->opened_at,
+            // que ambos modelos exponen igual.
+            if (! $guest) {
+                $guest = Influencer::where('token', $token)->first();
+            }
 
             if ($guest && ! $guest->opened_at) {
                 $guest->update(['opened_at' => now()]);

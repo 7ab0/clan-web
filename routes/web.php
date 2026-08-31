@@ -9,6 +9,7 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReservationAdminController;
 use App\Http\Controllers\ReservationReviewController;
+use App\Http\Controllers\InfluencerAdminController;
 use App\Http\Controllers\MaintenanceController;
 
 Route::controller(MaintenanceController::class)->group(function () {
@@ -72,6 +73,31 @@ Route::prefix('reservas/revision')->name('reservas.review.')->group(function () 
 
     Route::middleware('reservas.review')->group(function () {
         Route::get('/', [ReservationReviewController::class, 'index'])->name('index');
+    });
+});
+
+// Influencers del pre-cóctel de Fermento (martes 1/9/2026): el link
+// personalizado del influencer abre la landing normal de Fermento
+// (/fermento/{token}, ver EventController::fermento) — no hay página
+// aparte. La confirmación de asistencia se coordina por WhatsApp y el
+// staff la refleja a mano en el panel de abajo.
+
+// Panel de staff del pre-cóctel de influencers — a diferencia de
+// reservas/revision, este SÍ puede dar de alta/editar/hacer check-in.
+// Contraseña y sesión propias, ver config('services.influencers.admin_password').
+Route::prefix('influencers/admin')->name('influencers.admin.')->group(function () {
+    Route::get('/login', [InfluencerAdminController::class, 'loginForm'])->name('login');
+    Route::post('/login', [InfluencerAdminController::class, 'login'])->name('login.submit');
+    Route::post('/logout', [InfluencerAdminController::class, 'logout'])->name('logout');
+
+    Route::middleware('influencers.admin')->group(function () {
+        Route::get('/', [InfluencerAdminController::class, 'index'])->name('index');
+        Route::post('/', [InfluencerAdminController::class, 'store'])->name('store');
+        // Antes de '/{influencer}': si no, ese wildcard se la come.
+        Route::get('/invitacion', [InfluencerAdminController::class, 'invitacion'])->name('invitacion');
+        Route::get('/{influencer}', [InfluencerAdminController::class, 'show'])->name('show');
+        Route::patch('/{influencer}', [InfluencerAdminController::class, 'update'])->name('update');
+        Route::post('/{influencer}/posts', [InfluencerAdminController::class, 'storePost'])->name('posts.store');
     });
 });
 

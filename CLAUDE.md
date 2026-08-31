@@ -43,8 +43,13 @@ integrada:
   compartidas con Fermento, ver abajo)
 - /fermento/{token?} — landing/reserva de Fermento (mismo layout base
   de CLAN, header/footer ocultos, identidad Canela/Inter); el token
-  opcional dispara el saludo personalizado "Hola, {nombre}" cuando es
-  un link de `fermento_guests`
+  opcional dispara el saludo personalizado "Hola, {nombre}" en el
+  preloader cuando es un link de `fermento_guests` O de `influencers`
+  (ver `EventController::fermento()` — primero busca en FermentoGuest,
+  si no encuentra prueba con Influencer; ambos modelos exponen
+  `->first_name`/`->opened_at` igual). Los links de influencers no
+  tienen landing propia: abren este mismo preloader + la landing
+  completa de siempre
 - /fermento/reservar — crea la reserva (mismo flujo que Íntimo, ver
   `ReservationController`)
 - /reservas/admin, /reservas/admin/clientes, /reservas/admin/invitados
@@ -71,6 +76,34 @@ integrada:
   vía ?inv=CODIGO, countdown, RSVP, música de fondo)
 - /showclinic/admin — panel de gestión de invitados (login propio,
   protegido por middleware `showclinic.admin` / `SHOWCLINIC_ADMIN_PASSWORD`)
+- /influencers/admin — panel de staff del pre-cóctel de influencers de
+  Fermento (martes 1/9/2026, 7:00 p.m., Psj. Violín 101 F, San Lázaro,
+  Plaza Campo Redondo — Arequipa). No hay landing pública propia — el
+  link personalizado de cada influencer es `/fermento/{token}`, la
+  landing normal de Fermento (ver arriba). La confirmación de
+  asistencia se coordina por WhatsApp fuera del sistema; el staff la
+  refleja a mano acá, en el campo `status`. A diferencia de
+  `/reservas/revision` (solo lectura), este panel SÍ permite dar de
+  alta, editar y hacer check-in manual el día del evento, además de
+  cargar posts/stories/reels con métricas. Login y sesión propios,
+  middleware `influencers.admin` → `InfluencersAdminAuth`, contraseña en
+  `INFLUENCERS_ADMIN_PASSWORD` (sin default, mismo criterio que
+  `RESERVAS_ADMIN_PASSWORD`; ver `config/services.php`, clave
+  `influencers.admin_password`). Tablas propias `influencers` e
+  `influencer_posts`, sin relación con `fermento_guests` ni con las
+  reservas de mesa. Los 18 influencers reales del pre-cóctel (31/8/2026)
+  se cargan con `php artisan influencers:seed` (idempotente por
+  teléfono, ver `SeedInfluencers`)
+- /influencers/admin/invitacion — genera y descarga/comparte la imagen
+  de invitación personalizada por influencer (Canvas 1080×1920 dibujado
+  100% en el navegador, mismo mecanismo que la story card de
+  `home/confirmacion.blade.php`, sin backend nuevo). Selector de
+  influencer + botón "Generar"; botón "Descargar" siempre visible,
+  botón "Compartir" (`navigator.share` con archivos) solo si el
+  navegador lo soporta. Fondo en `public/assets/img/
+  influencers-precoctel-bg.jpg` (bajado de Figma, fileKey
+  `JcHyaPxXN9LsUDbJ2M1WTT` nodo `2:2`), tipografías Canela Medium +
+  Inter (normal e itálica) ya self-hosteadas del resto del proyecto
 
 ## Convenciones importantes
 - Show Clinic NO hereda el layout/nav de CLAN — tiene su propia
@@ -88,6 +121,17 @@ integrada:
 - La tabla `customers` es la base de clientes simple, alimentada
   automáticamente por cada reserva (dedup por teléfono) — por decisión
   del usuario, scopeada solo a Fermento por ahora, no a Íntimo
+- La tabla `influencers` es del pre-cóctel de Fermento para influencers
+  (token propio de 8 chars, opened_at, status invitado/confirmado/
+  declinado/asistio, followers_count, confirmed_at/attended_at) — sin
+  relación con `fermento_guests` (invitados normales de la reserva de
+  mesa) ni con `customers`, pero su token SÍ es válido en la misma ruta
+  `/fermento/{token?}` (ver `EventController::fermento()`). El `status`
+  se edita a mano en `/influencers/admin` en base a lo coordinado por
+  WhatsApp — no hay flujo de confirmación en la web. `influencer_posts`
+  guarda el registro manual de resultados (post/story/reel/video con
+  métricas) de cada influencer, cargado a mano desde ese mismo panel —
+  no hay integración con Instagram/TikTok
 - Dos sistemas de bloqueo de sitio, independientes y con exclusiones
   propias:
   - `MaintenanceMode` middleware (`MAINTENANCE_MODE` en .env,
@@ -98,8 +142,9 @@ integrada:
     `config/preholder.php`): pantalla "Estamos atizando nuestros
     fogones"
   - Ambos excluyen explícitamente `/showclinic*`, `/intimo*`,
-    `/fermento*` y `/reservas/*` (ver `ClanPreholder::handle` y
-    `MaintenanceMode::handle`) — nunca deben bloquearse esas rutas
+    `/fermento*`, `/reservas/*` e `/influencers/*` (ver
+    `ClanPreholder::handle` y `MaintenanceMode::handle`) — nunca deben
+    bloquearse esas rutas
 - Fuentes self-hosteadas (no Google Fonts CDN):
   - CLAN: Poppins (`public/assets/fonts/poppins/` y
     `.../clan/poppins/`), Cinzel (`public/assets/fonts/cinzel/`),
@@ -108,6 +153,11 @@ integrada:
     Sans) en `public/assets/showclinic/fonts/`
   - Fermento: Canela (Medium) e Inter en `public/assets/fonts/canela/`
     y `.../inter/`
+  - Playfair Display Medium Italic en `public/assets/fonts/playfair/`
+    (descargada de Google Fonts y autohospedada) quedó del primer
+    intento de landing propia para influencers, que se descartó — hoy
+    no la usa ninguna vista, se dejó por si sirve para el diseño en
+    Figma del preloader personalizado de influencers
 
 ## Gotchas técnicos
 - Linux (producción) es sensible a mayúsculas/minúsculas en nombres
