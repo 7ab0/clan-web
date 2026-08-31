@@ -79,6 +79,7 @@ class ReservationReviewController extends Controller
                     'total' => $tables->count(),
                     'ocupadas' => $tables->where('is_taken', true)->count(),
                     'libres' => $tables->where('is_taken', false)->count(),
+                    'is_active' => $schedule->is_active,
                 ];
             });
 

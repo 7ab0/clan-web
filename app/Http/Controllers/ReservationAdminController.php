@@ -107,11 +107,16 @@ class ReservationAdminController extends Controller
             ->values();
 
         $schedulesForForm = EventSchedule::orderBy('date')->orderBy('start_time')
-            ->get(['id', 'event_id', 'date', 'start_time'])
+            ->get(['id', 'event_id', 'date', 'start_time', 'is_active'])
             ->map(fn (EventSchedule $schedule) => [
                 'id' => $schedule->id,
                 'event_id' => $schedule->event_id,
-                'label' => $schedule->date->format('d/m/Y') . ' · ' . \Illuminate\Support\Str::of($schedule->start_time)->substr(0, 5),
+                'label' => $schedule->date->format('d/m/Y') . ' · ' . \Illuminate\Support\Str::of($schedule->start_time)->substr(0, 5)
+                    . ($schedule->is_active ? '' : ' (Agotado)'),
+                // Fechas cerradas (ver FermentoSeeder) siguen disponibles acá para
+                // poder editar reservas ya existentes en esa fecha, pero el modal
+                // "Agregar reserva" las deshabilita para no permitir altas nuevas.
+                'is_active' => $schedule->is_active,
             ])
             ->values();
 
@@ -161,6 +166,15 @@ class ReservationAdminController extends Controller
 
         if ($schedule->event_id !== (int) $validated['event_id']) {
             return back()->withInput()->withErrors(['event_schedule_id' => 'Esa fecha no pertenece al evento elegido.']);
+        }
+
+        // Fechas cerradas (ej. 4 de septiembre de Fermento, marcada AGOTADA a
+        // mano) no admiten altas nuevas ni siquiera desde el panel — mismo
+        // criterio que el flujo público (ver ReservationController::store).
+        // Esto NO afecta editar/mover una reserva ya existente en esa fecha
+        // (updateReservation no consulta is_active).
+        if (! $schedule->is_active) {
+            return back()->withInput()->withErrors(['event_schedule_id' => 'Esa fecha está cerrada para reservas nuevas (agotada).']);
         }
 
         return DB::transaction(function () use ($validated, $schedule) {

@@ -11,8 +11,9 @@ class FermentoSeeder extends Seeder
 {
     /**
      * Fermento: cena colaborativa CLAN x FORNO (pizza al fuego, maridaje de
-     * vinos aparte), viernes 4 y sábado 5 de septiembre de 2026, con 9 mesas
-     * propias por fecha.
+     * vinos aparte), viernes 4, sábado 5 y domingo 6 de septiembre de 2026,
+     * con 9 mesas propias por fecha. El 4 de septiembre está marcado AGOTADO
+     * (is_active=false, ver más abajo) por decisión del staff.
      *
      * Las 9 mesas son individuales, cada una admite de 1 a 4 personas
      * (capacity_min/capacity_max), en vez de aforo fijo por mesa.
@@ -50,10 +51,23 @@ class FermentoSeeder extends Seeder
         // vienes de esa siembra.
         EventTable::where('event_id', $event->id)->where('table_number', '>', 9)->delete();
 
-        // Fechas y hora fijas del evento (no calculadas desde "hoy"): viernes y
-        // sábado, 7:00 pm. La hora anterior (20:00) fue un valor por defecto
-        // mío al sembrar por primera vez, sin ninguna razón de negocio detrás.
-        $dates = ['2026-09-04', '2026-09-05'];
+        // Fechas y hora fijas del evento (no calculadas desde "hoy"): viernes,
+        // sábado y domingo, 7:00 pm. La hora anterior (20:00) fue un valor por
+        // defecto mío al sembrar por primera vez, sin ninguna razón de negocio
+        // detrás.
+        //
+        // 4 de septiembre: AGOTADA por decisión del staff (no por llenarse las
+        // 9 mesas) — is_active=false la saca del selector público y bloquea
+        // altas nuevas (públicas y manuales desde /reservas/admin), pero las
+        // reservas ya hechas para esa fecha se siguen viendo y editando
+        // normal en el panel admin (is_active no se consulta ahí).
+        // 6 de septiembre: fecha nueva agregada por demanda, mismas mesas y
+        // horario que las otras.
+        $dates = [
+            '2026-09-04' => false,
+            '2026-09-05' => true,
+            '2026-09-06' => true,
+        ];
         $startTime = '19:00:00';
 
         // Limpia cualquier horario sembrado antes con otra fecha/hora (ronda
@@ -61,12 +75,12 @@ class FermentoSeeder extends Seeder
         // 20:00, hoy quedó mal en ambos sentidos).
         EventSchedule::where('event_id', $event->id)
             ->where(function ($query) use ($dates, $startTime) {
-                $query->whereNotIn('date', $dates)
+                $query->whereNotIn('date', array_keys($dates))
                     ->orWhere('start_time', '!=', $startTime);
             })
             ->delete();
 
-        foreach ($dates as $date) {
+        foreach ($dates as $date => $isActive) {
             EventSchedule::updateOrCreate(
                 [
                     'event_id' => $event->id,
@@ -76,7 +90,7 @@ class FermentoSeeder extends Seeder
                 [
                     // Capacidad = número de mesas: cada reserva ocupa exactamente una.
                     'capacity' => 9,
-                    'is_active' => true,
+                    'is_active' => $isActive,
                 ]
             );
         }

@@ -114,6 +114,18 @@
   .card .fecha { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; }
   .card .ocupacion { font-size: 0.82rem; color: #7a7365; }
   .card .ocupacion strong { color: #2a2a2a; }
+  .card .badge-agotado {
+    display: inline-block;
+    margin-top: 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #a13a2f;
+    background: #fbeae7;
+    border-radius: 4px;
+    padding: 0.15rem 0.5rem;
+  }
 
   @media (max-width: 720px) {
     .filters { flex-direction: column; align-items: stretch; }
@@ -183,6 +195,9 @@
       <div class="card">
         <div class="fecha">{{ $schedule['fecha'] }}</div>
         <div class="ocupacion"><strong>{{ $schedule['ocupadas'] }}</strong> de {{ $schedule['total'] }} mesas ocupadas ({{ $schedule['libres'] }} libres)</div>
+        @unless ($schedule['is_active'])
+          <div class="badge-agotado">Agotado</div>
+        @endunless
       </div>
     @endforeach
   </div>

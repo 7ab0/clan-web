@@ -625,6 +625,10 @@
           const option = document.createElement('option');
           option.value = schedule.id;
           option.textContent = schedule.label;
+          // Fecha cerrada (ej. agotada a mano): visible para que el staff
+          // sepa que existe, pero no seleccionable para una reserva nueva —
+          // el backend igual la rechaza si se fuerza (ver storeReservation()).
+          option.disabled = !schedule.is_active;
           scheduleSelect.appendChild(option);
         });
 
