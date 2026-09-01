@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReservationsExport;
 use App\Models\Customer;
 use App\Models\Event;
 use App\Models\EventSchedule;
@@ -14,7 +15,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReservationAdminController extends Controller
 {
@@ -54,6 +56,7 @@ class ReservationAdminController extends Controller
     {
         $eventSlug = (string) $request->query('event', 'todos');
         $status = (string) $request->query('status', 'todos');
+        $dateFilter = (string) $request->query('date', 'todas');
 
         $sortable = ['customer_name', 'code', 'status', 'created_at'];
         $sort = in_array($request->query('sort'), $sortable, true) ? $request->query('sort') : 'created_at';
@@ -69,6 +72,10 @@ class ReservationAdminController extends Controller
             $query->where('status', $status);
         }
 
+        if ($dateFilter !== 'todas') {
+            $query->whereHas('schedule', fn ($q) => $q->whereDate('date', $dateFilter));
+        }
+
         $reservations = $query->orderBy($sort, $dir)->get();
 
         $summary = [
@@ -78,36 +85,47 @@ class ReservationAdminController extends Controller
             'cancelled' => Reservation::where('status', 'cancelled')->count(),
         ];
 
+        // Fechas para el selector: solo las del evento elegido (si hay uno),
+        // para no mezclar fechas de Fermento con las de Íntimo en la misma
+        // lista cuando no aportan nada al filtro actual.
+        $datesQuery = EventSchedule::query();
+        if ($eventSlug !== 'todos') {
+            $datesQuery->whereHas('event', fn ($q) => $q->where('slug', $eventSlug));
+        }
+        $availableDates = $datesQuery->orderBy('date')->get(['date'])
+            ->pluck('date')
+            ->unique(fn ($date) => $date->format('Y-m-d'))
+            ->values();
+
         return view('reservas.admin', array_merge([
             'reservations' => $reservations,
             'summary' => $summary,
             'events' => Event::orderBy('name')->get(['slug', 'name']),
             'eventSlug' => $eventSlug,
             'status' => $status,
+            'dateFilter' => $dateFilter,
+            'availableDates' => $availableDates,
             'sort' => $sort,
             'dir' => $dir,
         ], $this->manualCreateFormData()));
     }
 
     /**
-     * CSV de todas las reservas (Fermento + Íntimo, todas las fechas y
-     * estados) — ignora los filtros de la tabla a propósito: es para
-     * respaldo/análisis completo, no para exportar solo lo que se está
+     * Excel (.xlsx) de todas las reservas (Fermento + Íntimo, todas las
+     * fechas y estados) — ignora los filtros de la tabla a propósito: es
+     * para respaldo/análisis completo, no para exportar solo lo que se está
      * viendo. Ordenado por evento y fecha de turno, no por fecha de
-     * creación, para que sea legible como agenda.
+     * creación, para que sea legible como agenda. Mismas columnas que el
+     * CSV plano anterior, ver ReservationsExport.
      */
-    public function export(): StreamedResponse
+    public function export(): BinaryFileResponse
     {
         $reservations = Reservation::with(['event', 'schedule', 'table', 'payment'])
             ->get()
             ->sortBy(fn (Reservation $r) => $r->event->slug . '_' . optional($r->schedule?->date)->format('Y-m-d') . '_' . $r->schedule?->start_time)
             ->values();
 
-        return $this->csvDownload(
-            'reservas-' . now()->format('Y-m-d') . '.csv',
-            Reservation::csvHeaders(),
-            $reservations->map->toCsvRow()
-        );
+        return Excel::download(new ReservationsExport($reservations), 'reservas-' . now()->format('Y-m-d') . '.xlsx');
     }
 
     /**

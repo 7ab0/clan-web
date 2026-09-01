@@ -255,7 +255,7 @@
       <a href="{{ route('reservas.admin.clientes') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Clientes</a>
       <a href="{{ route('reservas.admin.guests') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Invitados</a>
       <a href="{{ route('reservas.admin.mesas') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Mesas por fecha</a>
-      <a href="{{ route('reservas.admin.export') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Exportar CSV</a>
+      <a href="{{ route('reservas.admin.export') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Exportar Excel</a>
       <form method="POST" action="{{ route('reservas.admin.logout') }}">
         @csrf
         <button type="submit" class="btn btn-dark">Cerrar sesión</button>
@@ -306,8 +306,14 @@
       <option value="cancelled" @selected($status === 'cancelled')>Canceladas</option>
       <option value="completed" @selected($status === 'completed')>Completadas</option>
     </select>
+    <select name="date">
+      <option value="todas" @selected($dateFilter === 'todas')>Todas las fechas</option>
+      @foreach ($availableDates as $date)
+        <option value="{{ $date->format('Y-m-d') }}" @selected($dateFilter === $date->format('Y-m-d'))>{{ $date->format('d/m/Y') }}</option>
+      @endforeach
+    </select>
     <button type="submit">Filtrar</button>
-    @if ($eventSlug !== 'todos' || $status !== 'todos')
+    @if ($eventSlug !== 'todos' || $status !== 'todos' || $dateFilter !== 'todas')
       <a class="clear" href="{{ route('reservas.admin.index', ['sort' => $sort, 'dir' => $dir]) }}">Limpiar filtros</a>
     @endif
   </form>
@@ -316,6 +322,7 @@
     $sortLink = fn (string $column) => route('reservas.admin.index', [
         'event' => $eventSlug,
         'status' => $status,
+        'date' => $dateFilter,
         'sort' => $column,
         'dir' => ($sort === $column && $dir === 'desc') ? 'asc' : 'desc',
     ]);

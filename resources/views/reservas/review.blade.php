@@ -185,7 +185,7 @@
       <p class="sub">Panel de solo consulta</p>
     </div>
     <div style="display:flex;gap:0.75rem;align-items:center;">
-      <a href="{{ route('reservas.review.export') }}" class="btn btn-outline">Exportar CSV</a>
+      <a href="{{ route('reservas.review.export') }}" class="btn btn-outline">Exportar Excel</a>
       <form method="POST" action="{{ route('reservas.review.logout') }}">
         @csrf
         <button type="submit" class="btn btn-dark">Cerrar sesión</button>

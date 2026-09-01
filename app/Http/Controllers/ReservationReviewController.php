@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReservationsExport;
 use App\Models\Event;
 use App\Models\EventSchedule;
 use App\Models\Reservation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Panel de solo lectura para revisar las reservas ya confirmadas — pensado
@@ -91,10 +93,10 @@ class ReservationReviewController extends Controller
     }
 
     /**
-     * CSV de las mismas reservas que ve este panel: solo Fermento,
+     * Excel (.xlsx) de las mismas reservas que ve este panel: solo Fermento,
      * confirmadas y reales (nunca is_test) — mismo filtro que index().
      */
-    public function export(): StreamedResponse
+    public function export(): BinaryFileResponse
     {
         $reservations = Reservation::with(['event', 'schedule', 'table', 'payment'])
             ->whereHas('event', fn ($q) => $q->where('slug', 'fermento'))
@@ -103,10 +105,6 @@ class ReservationReviewController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return $this->csvDownload(
-            'reservas-fermento-confirmadas-' . now()->format('Y-m-d') . '.csv',
-            Reservation::csvHeaders(),
-            $reservations->map->toCsvRow()
-        );
+        return Excel::download(new ReservationsExport($reservations), 'reservas-fermento-confirmadas-' . now()->format('Y-m-d') . '.xlsx');
     }
 }
