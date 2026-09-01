@@ -47,6 +47,8 @@ Route::prefix('reservas/admin')->name('reservas.admin.')->group(function () {
 
     Route::middleware('reservas.admin')->group(function () {
         Route::get('/', [ReservationAdminController::class, 'index'])->name('index');
+        Route::get('/export', [ReservationAdminController::class, 'export'])->name('export');
+        Route::get('/mesas', [ReservationAdminController::class, 'tables'])->name('mesas');
         Route::post('/', [ReservationAdminController::class, 'storeReservation'])->name('store');
         Route::post('/{reservation}/confirmar', [ReservationAdminController::class, 'confirmPayment'])->name('confirmar');
         Route::put('/{reservation}', [ReservationAdminController::class, 'updateReservation'])->name('update');
@@ -73,6 +75,7 @@ Route::prefix('reservas/revision')->name('reservas.review.')->group(function () 
 
     Route::middleware('reservas.review')->group(function () {
         Route::get('/', [ReservationReviewController::class, 'index'])->name('index');
+        Route::get('/export', [ReservationReviewController::class, 'export'])->name('export');
     });
 });
 

@@ -8,6 +8,7 @@ use App\Models\Reservation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Panel de solo lectura para revisar las reservas ya confirmadas — pensado
@@ -87,5 +88,25 @@ class ReservationReviewController extends Controller
             'reservations' => $reservations,
             'schedules' => $schedules,
         ]);
+    }
+
+    /**
+     * CSV de las mismas reservas que ve este panel: solo Fermento,
+     * confirmadas y reales (nunca is_test) — mismo filtro que index().
+     */
+    public function export(): StreamedResponse
+    {
+        $reservations = Reservation::with(['event', 'schedule', 'table', 'payment'])
+            ->whereHas('event', fn ($q) => $q->where('slug', 'fermento'))
+            ->where('status', 'confirmed')
+            ->where('is_test', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $this->csvDownload(
+            'reservas-fermento-confirmadas-' . now()->format('Y-m-d') . '.csv',
+            Reservation::csvHeaders(),
+            $reservations->map->toCsvRow()
+        );
     }
 }

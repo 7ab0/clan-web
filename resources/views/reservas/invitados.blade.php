@@ -162,6 +162,7 @@
       <button type="button" class="btn btn-accent" onclick="openCreateGuestModal()">+ Agregar invitado</button>
       <a href="{{ route('reservas.admin.index') }}" class="btn btn-outline">Reservas</a>
       <a href="{{ route('reservas.admin.clientes') }}" class="btn btn-outline">Clientes</a>
+      <a href="{{ route('reservas.admin.mesas') }}" class="btn btn-outline">Mesas por fecha</a>
       <form method="POST" action="{{ route('reservas.admin.logout') }}">
         @csrf
         <button type="submit" class="btn btn-dark">Cerrar sesión</button>

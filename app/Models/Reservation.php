@@ -80,4 +80,54 @@ class Reservation extends Model
     {
         return $this->hasMany(ReservationChange::class)->orderBy('created_at', 'desc');
     }
+
+    /**
+     * Encabezados de la exportación CSV — deben mantenerse en el mismo
+     * orden que toCsvRow() (ver ReservationAdminController::export() y
+     * ReservationReviewController::export()).
+     */
+    public static function csvHeaders(): array
+    {
+        return ['Código', 'Evento', 'Fecha', 'Mesa', 'Nombre', 'Teléfono', 'Correo', 'Personas', 'Estado', 'Seña', 'Notas', 'Creada'];
+    }
+
+    /**
+     * Fila de la exportación CSV. Asume event/schedule/table/payment ya
+     * cargados (eager loading) — llamarlo sobre una colección sin
+     * with(...) dispara consultas N+1.
+     */
+    public function toCsvRow(): array
+    {
+        return [
+            $this->code,
+            $this->event->name,
+            $this->schedule
+                ? $this->schedule->date->format('d/m/Y') . ' ' . Str::of($this->schedule->start_time)->substr(0, 5)
+                : '-',
+            // $this->table (sin getAttribute) choca con la propiedad interna
+            // Model::$table (nombre de tabla SQL) al llamarse desde dentro de
+            // la propia clase — fuera de ella (blades/controllers) el accessor
+            // mágico de Eloquent sí resuelve bien la relación table().
+            $this->getAttribute('table') ? '#' . $this->getAttribute('table')->table_number : '-',
+            $this->customer_name,
+            $this->customer_phone ?: '-',
+            $this->customer_email,
+            $this->party_size,
+            static::statusLabel($this->status),
+            $this->payment ? number_format((float) $this->payment->amount, 2, '.', '') : '-',
+            $this->notes ?: '',
+            $this->created_at->format('d/m/Y H:i'),
+        ];
+    }
+
+    public static function statusLabel(string $status): string
+    {
+        return match ($status) {
+            'pending' => 'Pendiente',
+            'confirmed' => 'Confirmada',
+            'cancelled' => 'Cancelada',
+            'completed' => 'Completada',
+            default => $status,
+        };
+    }
 }

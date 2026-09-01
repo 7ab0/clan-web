@@ -184,10 +184,13 @@
       <h1>Fermento — reservas confirmadas</h1>
       <p class="sub">Panel de solo consulta</p>
     </div>
-    <form method="POST" action="{{ route('reservas.review.logout') }}">
-      @csrf
-      <button type="submit" class="btn btn-dark">Cerrar sesión</button>
-    </form>
+    <div style="display:flex;gap:0.75rem;align-items:center;">
+      <a href="{{ route('reservas.review.export') }}" class="btn btn-outline">Exportar CSV</a>
+      <form method="POST" action="{{ route('reservas.review.logout') }}">
+        @csrf
+        <button type="submit" class="btn btn-dark">Cerrar sesión</button>
+      </form>
+    </div>
   </div>
 
   <div class="summary">

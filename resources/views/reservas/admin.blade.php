@@ -254,6 +254,8 @@
       <button type="button" class="btn btn-accent" onclick="openCreateModal()">+ Agregar reserva</button>
       <a href="{{ route('reservas.admin.clientes') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Clientes</a>
       <a href="{{ route('reservas.admin.guests') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Invitados</a>
+      <a href="{{ route('reservas.admin.mesas') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Mesas por fecha</a>
+      <a href="{{ route('reservas.admin.export') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Exportar CSV</a>
       <form method="POST" action="{{ route('reservas.admin.logout') }}">
         @csrf
         <button type="submit" class="btn btn-dark">Cerrar sesión</button>

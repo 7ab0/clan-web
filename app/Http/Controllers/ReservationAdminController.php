@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReservationAdminController extends Controller
 {
@@ -86,6 +87,103 @@ class ReservationAdminController extends Controller
             'sort' => $sort,
             'dir' => $dir,
         ], $this->manualCreateFormData()));
+    }
+
+    /**
+     * CSV de todas las reservas (Fermento + Íntimo, todas las fechas y
+     * estados) — ignora los filtros de la tabla a propósito: es para
+     * respaldo/análisis completo, no para exportar solo lo que se está
+     * viendo. Ordenado por evento y fecha de turno, no por fecha de
+     * creación, para que sea legible como agenda.
+     */
+    public function export(): StreamedResponse
+    {
+        $reservations = Reservation::with(['event', 'schedule', 'table', 'payment'])
+            ->get()
+            ->sortBy(fn (Reservation $r) => $r->event->slug . '_' . optional($r->schedule?->date)->format('Y-m-d') . '_' . $r->schedule?->start_time)
+            ->values();
+
+        return $this->csvDownload(
+            'reservas-' . now()->format('Y-m-d') . '.csv',
+            Reservation::csvHeaders(),
+            $reservations->map->toCsvRow()
+        );
+    }
+
+    /**
+     * Mesas por fecha: de un vistazo, qué mesas están ocupadas (con quién)
+     * y cuáles libres en una fecha dada. Solo lectura — editar/cancelar
+     * sigue siendo desde el listado principal de reservas.
+     *
+     * El selector de fecha incluye TODAS las fechas del evento, activas o
+     * agotadas (ej. el 5 de septiembre actual) — justamente para poder ver
+     * la ocupación de una fecha ya cerrada a altas nuevas, no solo las que
+     * todavía admiten reservas.
+     *
+     * "Ocupada" usa el mismo criterio que el candado real de
+     * storeReservation()/updateReservation() (status != cancelled, is_test
+     * false) para que esta vista nunca diga "libre" una mesa que en
+     * realidad rechazaría una reserva nueva. No repite el lockForUpdate()
+     * de esos métodos porque acá no se escribe nada — el lock solo importa
+     * para evitar una carrera al crear/mover una reserva.
+     *
+     * Eventos sin mesas propias (Íntimo, aforo simple sin mesa por mesa)
+     * no tienen grid de mesas — se muestra el aforo del turno en su lugar.
+     */
+    public function tables(Request $request): View
+    {
+        $events = Event::withCount('tables')->orderBy('name')->get(['id', 'slug', 'name']);
+
+        $eventSlug = (string) $request->query('event', optional($events->first())->slug);
+        $event = Event::with('tables')->where('slug', $eventSlug)->firstOrFail();
+
+        $schedules = EventSchedule::where('event_id', $event->id)
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get();
+
+        $scheduleId = $request->query('schedule');
+        $selectedSchedule = $scheduleId
+            ? $schedules->firstWhere('id', (int) $scheduleId)
+            : $schedules->first();
+
+        $hasTables = $event->tables->isNotEmpty();
+        $tables = null;
+        $aforo = null;
+
+        if ($selectedSchedule) {
+            if ($hasTables) {
+                $reservationsByTable = Reservation::where('event_schedule_id', $selectedSchedule->id)
+                    ->where('status', '!=', 'cancelled')
+                    ->where('is_test', false)
+                    ->whereNotNull('event_table_id')
+                    ->get(['event_table_id', 'code', 'customer_name'])
+                    ->keyBy('event_table_id');
+
+                $tables = $event->tables->map(fn (EventTable $table) => [
+                    'table_number' => $table->table_number,
+                    'capacity_min' => $table->capacity_min,
+                    'capacity_max' => $table->capacity_max,
+                    'reservation' => $reservationsByTable->get($table->id),
+                ]);
+            } else {
+                $aforo = [
+                    'capacity' => $selectedSchedule->capacity,
+                    'reserved' => $selectedSchedule->capacity - $selectedSchedule->available_spots,
+                    'available' => $selectedSchedule->available_spots,
+                ];
+            }
+        }
+
+        return view('reservas.mesas', [
+            'events' => $events,
+            'eventSlug' => $eventSlug,
+            'schedules' => $schedules,
+            'selectedSchedule' => $selectedSchedule,
+            'hasTables' => $hasTables,
+            'tables' => $tables,
+            'aforo' => $aforo,
+        ]);
     }
 
     /**
