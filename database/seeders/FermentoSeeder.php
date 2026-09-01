@@ -12,7 +12,7 @@ class FermentoSeeder extends Seeder
     /**
      * Fermento: cena colaborativa CLAN x FORNO (pizza al fuego, maridaje de
      * vinos aparte), viernes 4, sábado 5 y domingo 6 de septiembre de 2026,
-     * con 9 mesas propias por fecha. El 4 de septiembre está marcado AGOTADO
+     * con 9 mesas propias por fecha. El 5 de septiembre está marcado AGOTADO
      * (is_active=false, ver más abajo) por decisión del staff.
      *
      * Las 9 mesas son individuales, cada una admite de 1 a 4 personas
@@ -56,7 +56,7 @@ class FermentoSeeder extends Seeder
         // defecto mío al sembrar por primera vez, sin ninguna razón de negocio
         // detrás.
         //
-        // 4 de septiembre: AGOTADA por decisión del staff (no por llenarse las
+        // 5 de septiembre: AGOTADA por decisión del staff (no por llenarse las
         // 9 mesas) — is_active=false la saca del selector público y bloquea
         // altas nuevas (públicas y manuales desde /reservas/admin), pero las
         // reservas ya hechas para esa fecha se siguen viendo y editando
@@ -64,8 +64,8 @@ class FermentoSeeder extends Seeder
         // 6 de septiembre: fecha nueva agregada por demanda, mismas mesas y
         // horario que las otras.
         $dates = [
-            '2026-09-04' => false,
-            '2026-09-05' => true,
+            '2026-09-04' => true,
+            '2026-09-05' => false,
             '2026-09-06' => true,
         ];
         $startTime = '19:00:00';
