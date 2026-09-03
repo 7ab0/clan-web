@@ -33,6 +33,10 @@ return [
 
     'showclinic' => [
         'admin_password' => env('SHOWCLINIC_ADMIN_PASSWORD'),
+        // El evento ya pasó — SHOWCLINIC_CLOSED en .env cierra el flujo
+        // público de RSVP (ver ShowClinicGuestController::show), sin tocar
+        // el panel admin, que sigue mostrando el historial completo.
+        'closed' => env('SHOWCLINIC_CLOSED', false),
     ],
 
     'reservas' => [
