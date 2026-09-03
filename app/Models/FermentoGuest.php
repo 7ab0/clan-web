@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,6 +23,7 @@ class FermentoGuest extends Model
 
     protected $fillable = [
         'event_id',
+        'event_schedule_id',
         'name',
         'phone',
         'token',
@@ -61,6 +63,11 @@ class FermentoGuest extends Model
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
+    }
+
+    public function schedule(): BelongsTo
+    {
+        return $this->belongsTo(EventSchedule::class, 'event_schedule_id');
     }
 
     /**
@@ -108,11 +115,31 @@ class FermentoGuest extends Model
             '*' . $this->first_name . '*, llegó el momento.',
             "*MOLTO* × *FORNO* presentan *FERMENTO*\nTransmutación de la masa madre.",
             'Una *experiencia* a cuatro manos donde el tiempo, el *fuego* y la *creatividad* se encuentran.',
-            "Queremos que seas parte de esta noche.\n✨ *Viernes 4* o *sábado 5* de septiembre · *7:00 p. m.*",
+            "Queremos que seas parte de esta noche.\n✨ *{$this->dateLabel()}* · *7:00 p. m.*",
             "📍 Pasaje Violín 101 F, San Lázaro\nPlaza Campo Redondo – Arequipa",
             "Tu *invitación* es *personal*:\n👉 " . route('fermento', $this->token),
         ];
 
         return 'https://wa.me/' . $phone . '?text=' . rawurlencode(implode("\n\n", $blocks));
+    }
+
+    /**
+     * Fecha en español para el mensaje de WhatsApp y la imagen de
+     * invitación — usa la fecha asignada al invitado (ver
+     * ReservationAdminController::storeGuest/updateGuest); si todavía no
+     * tiene una asignada, cae a una frase genérica en vez de mentir una
+     * fecha puntual.
+     */
+    public function dateLabel(): string
+    {
+        $date = $this->schedule?->date;
+
+        if (! $date instanceof Carbon) {
+            return 'Viernes 4 o domingo 6 de septiembre';
+        }
+
+        $dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+        return $dias[(int) $date->format('w')] . ' ' . (int) $date->format('j') . ' de septiembre';
     }
 }

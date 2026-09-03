@@ -121,6 +121,7 @@
       <a href="{{ route('reservas.admin.index') }}" class="btn btn-outline">Reservas</a>
       <a href="{{ route('reservas.admin.clientes') }}" class="btn btn-outline">Clientes</a>
       <a href="{{ route('reservas.admin.guests') }}" class="btn btn-outline">Invitados</a>
+      <a href="{{ route('reservas.admin.waitlist') }}" class="btn btn-outline">Lista de espera</a>
       <form method="POST" action="{{ route('reservas.admin.logout') }}">
         @csrf
         <button type="submit" class="btn btn-dark">Cerrar sesión</button>
@@ -155,17 +156,21 @@
 
   @if ($schedules->isEmpty())
     <div class="empty">Este evento todavía no tiene fechas configuradas.</div>
-  @elseif ($hasTables)
+  @elseif ($tables !== null)
     <div class="mesas-grid">
       @foreach ($tables as $table)
-        <div class="mesa-card {{ $table['reservation'] ? 'taken' : '' }}">
-          <div class="num">Mesa #{{ $table['table_number'] }}</div>
+        @php $occupied = $table['reservations']->sum('party_size'); @endphp
+        <div class="mesa-card {{ $table['reservations']->isNotEmpty() ? 'taken' : '' }}">
+          <div class="num">Mesa #{{ $table['table_number'] }}{{ $table['is_social'] ? ' (comunitaria)' : '' }}</div>
           <div class="cap">{{ $table['capacity_min'] }}–{{ $table['capacity_max'] }} personas</div>
-          @if ($table['reservation'])
-            <span class="badge ocupada">Ocupada</span>
+          @if ($table['reservations']->isNotEmpty())
+            <span class="badge ocupada">{{ $table['is_social'] ? $occupied . '/' . $table['capacity_max'] . ' ocupado' : 'Ocupada' }}</span>
             <div class="reserva">
-              {{ $table['reservation']->customer_name }}<br>
-              <span class="code">{{ $table['reservation']->code }}</span>
+              @foreach ($table['reservations'] as $reservation)
+                {{ $reservation->customer_name }} ({{ $reservation->party_size }})<br>
+                <span class="code">{{ $reservation->code }}</span>
+                @if (! $loop->last)<hr style="margin:0.4rem 0;border:none;border-top:1px dashed #e8e4dd;">@endif
+              @endforeach
             </div>
           @else
             <span class="badge libre">Libre</span>

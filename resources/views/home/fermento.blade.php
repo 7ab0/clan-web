@@ -633,7 +633,7 @@
             <ul>
                 <li>Pizzas al horno de leña y platos de autor de MOLTO</li>
                 <li>Mesa comunitaria bajo servicio a lo largo de la noche</li>
-                <li>9 mesas disponibles por fecha, cada una para 1 a 4 personas</li>
+                <li>Mesas exclusivas y una mesa comunitaria por fecha, de distintos tamaños según disponibilidad</li>
                 <li>Maridaje de vinos disponible aparte, no incluido en el precio</li>
             </ul>
             <a href="#reservar" class="fermento-btn solid" style="width:100%;justify-content:center;">Reservar mi mesa</a>
@@ -666,6 +666,12 @@
                 </div>
             @endif
 
+            @if (session('waitlistStatus'))
+                <div class="fermento-alert-error" style="background:rgba(90,140,90,0.12);border-color:rgba(90,140,90,0.4);color:#3f6b3f;">
+                    {{ session('waitlistStatus') }}
+                </div>
+            @endif
+
             <div class="fermento-field">
                 <label for="event_schedule_id">1 · Fecha</label>
                 @if ($schedulesByDate->isEmpty())
@@ -677,8 +683,15 @@
                         <option value="" disabled {{ old('event_schedule_id') ? '' : 'selected' }}>Selecciona una fecha</option>
                         @foreach ($schedulesByDate as $group)
                             @foreach ($group['schedules'] as $schedule)
-                                <option value="{{ $schedule->id }}" {{ (string) old('event_schedule_id') === (string) $schedule->id ? 'selected' : '' }}>
+                                @php $status = $scheduleStatus[$schedule->id] ?? 'open'; @endphp
+                                <option value="{{ $schedule->id }}"
+                                    {{ (string) old('event_schedule_id') === (string) $schedule->id ? 'selected' : '' }}
+                                    {{ $status === 'closed' ? 'disabled' : '' }}>
                                     {{ $group['label'] }} — {{ \Illuminate\Support\Str::of($schedule->start_time)->substr(0, 5) }} h
+                                    @if ($status === 'closed') (Agotado)
+                                    @elseif ($status === 'waitlist') (Sin mesas — lista de espera)
+                                    @elseif ($status === 'full') (Sin cupo)
+                                    @endif
                                 </option>
                             @endforeach
                         @endforeach
@@ -688,66 +701,102 @@
 
             <input type="hidden" name="fermento_guest_token" value="{{ $guest?->token }}">
 
-            <div class="fermento-field">
-                <label>2 · Mesa</label>
-                <div class="fermento-tables-legend">
-                    <span class="item"><span class="swatch available"></span> Disponible</span>
-                    <span class="item"><span class="swatch selected"></span> Elegida</span>
-                    <span class="item"><span class="swatch taken"></span> Ocupada</span>
-                </div>
-                <div id="fermentoTablesGrid" class="fermento-tables-grid"></div>
-                <p id="fermentoTablesEmpty" class="fermento-tables-empty">Elige primero una fecha para ver las mesas disponibles.</p>
-                <p id="fermentoTableHint" class="fermento-table-hint" style="display:none;"></p>
-                <input type="hidden" name="event_table_id" id="event_table_id" value="{{ old('event_table_id') }}">
-            </div>
-
-            <div class="fermento-field">
-                <label style="margin-top:6px;">3 · Tus datos</label>
-            </div>
-
-
-            <div class="fermento-field-row">
+            <div id="fermentoTableStep">
                 <div class="fermento-field">
-                    <label for="customer_name">Nombre</label>
-                    <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}" required>
+                    <label>2 · Mesa</label>
+                    <div class="fermento-tables-legend">
+                        <span class="item"><span class="swatch available"></span> Disponible</span>
+                        <span class="item"><span class="swatch selected"></span> Elegida</span>
+                        <span class="item"><span class="swatch taken"></span> Ocupada</span>
+                    </div>
+                    <div id="fermentoTablesGrid" class="fermento-tables-grid"></div>
+                    <p id="fermentoTablesEmpty" class="fermento-tables-empty">Elige primero una fecha para ver las mesas disponibles.</p>
+                    <p id="fermentoTableHint" class="fermento-table-hint" style="display:none;"></p>
+                    <input type="hidden" name="event_table_id" id="event_table_id" value="{{ old('event_table_id') }}">
                 </div>
-                <div class="fermento-field">
-                    <label for="customer_phone">Teléfono</label>
-                    <input type="tel" name="customer_phone" id="customer_phone" value="{{ old('customer_phone') }}" required>
-                </div>
-            </div>
 
-            <div class="fermento-field-row">
                 <div class="fermento-field">
-                    <label for="customer_email">Correo</label>
-                    <input type="email" name="customer_email" id="customer_email" value="{{ old('customer_email') }}" required>
+                    <label style="margin-top:6px;">3 · Tus datos</label>
                 </div>
-                <div class="fermento-field">
-                    <label for="party_size">Personas</label>
-                    <input type="number" name="party_size" id="party_size" min="1" max="4" value="{{ old('party_size', 2) }}" required>
-                </div>
-            </div>
 
-            <div class="fermento-field">
-                <label for="deposit_amount">4 · Tu seña</label>
-                <input type="number" name="deposit_amount" id="deposit_amount" min="60" step="5" value="{{ old('deposit_amount', 60) }}" required>
-                <p class="fermento-note" style="margin-top:8px;" id="fermentoDepositHint">
-                    Mínimo S/ 30 por persona. El resto de la cuenta se paga en el local la noche del evento.
+
+                <div class="fermento-field-row">
+                    <div class="fermento-field">
+                        <label for="customer_name">Nombre</label>
+                        <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}">
+                    </div>
+                    <div class="fermento-field">
+                        <label for="customer_phone">Teléfono</label>
+                        <input type="tel" name="customer_phone" id="customer_phone" value="{{ old('customer_phone') }}">
+                    </div>
+                </div>
+
+                <div class="fermento-field-row">
+                    <div class="fermento-field">
+                        <label for="customer_email">Correo</label>
+                        <input type="email" name="customer_email" id="customer_email" value="{{ old('customer_email') }}">
+                    </div>
+                    <div class="fermento-field">
+                        <label for="party_size">Personas</label>
+                        <input type="number" name="party_size" id="party_size" min="1" max="4" value="{{ old('party_size', 2) }}">
+                    </div>
+                </div>
+
+                <div class="fermento-field">
+                    <label for="deposit_amount">4 · Tu seña</label>
+                    <input type="number" name="deposit_amount" id="deposit_amount" min="60" step="5" value="{{ old('deposit_amount', 60) }}">
+                    <p class="fermento-note" style="margin-top:8px;" id="fermentoDepositHint">
+                        Mínimo S/ 30 por persona. El resto de la cuenta se paga en el local la noche del evento.
+                    </p>
+                </div>
+
+                <div class="fermento-field">
+                    <label for="notes">¿Algo que debamos saber? (opcional)</label>
+                    <textarea name="notes" id="notes" rows="3">{{ old('notes') }}</textarea>
+                </div>
+
+                <button type="submit" class="fermento-btn solid" style="width:100%;justify-content:center;border:none;">
+                    Continuar
+                </button>
+                <p class="fermento-note" style="text-align:center;">
+                    No se realiza ningún cobro todavía. En el siguiente paso te escribimos por WhatsApp para coordinar el pago de tu seña.
                 </p>
             </div>
+        </form>
 
+        <!-- Lista de espera: aparece en vez del formulario de reserva cuando la
+             fecha elegida ya no tiene mesas, pero sigue admitiendo interesados. -->
+        <form method="POST" action="{{ route('fermento.lista-espera') }}" id="fermentoWaitlistForm" style="display:none;">
+            @csrf
+            <input type="hidden" name="event_schedule_id" id="waitlist_event_schedule_id">
+
+            <p class="fermento-note" style="margin-bottom:16px;">
+                Esta fecha ya no tiene mesas disponibles. Déjanos tus datos y te contactamos por WhatsApp si se libera un cupo.
+            </p>
+
+            <div class="fermento-field-row">
+                <div class="fermento-field">
+                    <label for="waitlist_name">Nombre</label>
+                    <input type="text" name="name" id="waitlist_name" required>
+                </div>
+                <div class="fermento-field">
+                    <label for="waitlist_phone">Teléfono</label>
+                    <input type="tel" name="phone" id="waitlist_phone" required>
+                </div>
+            </div>
             <div class="fermento-field">
-                <label for="notes">¿Algo que debamos saber? (opcional)</label>
-                <textarea name="notes" id="notes" rows="3">{{ old('notes') }}</textarea>
+                <label for="waitlist_party_size">Personas</label>
+                <input type="number" name="party_size" id="waitlist_party_size" min="1" max="20" value="2" required>
             </div>
 
             <button type="submit" class="fermento-btn solid" style="width:100%;justify-content:center;border:none;">
-                Continuar
+                Unirme a la lista de espera
             </button>
-            <p class="fermento-note" style="text-align:center;">
-                No se realiza ningún cobro todavía. En el siguiente paso te escribimos por WhatsApp para coordinar el pago de tu seña.
-            </p>
         </form>
+
+        <p id="fermentoFullNotice" class="fermento-tables-empty" style="display:none;">
+            Esta fecha ya no tiene cupo y su lista de espera está cerrada por ahora. Escríbenos por WhatsApp para consultar disponibilidad.
+        </p>
     </div>
     <div class="ak-height-120 ak-height-lg-60"></div>
 </section>
@@ -846,6 +895,7 @@
 
     (function () {
         var tablesBySchedule = @json($tablesBySchedule);
+        var scheduleStatus = @json($scheduleStatus);
 
         var scheduleSelect = document.getElementById('event_schedule_id');
         var grid = document.getElementById('fermentoTablesGrid');
@@ -854,8 +904,24 @@
         var tableInput = document.getElementById('event_table_id');
         var partySizeInput = document.getElementById('party_size');
 
-        function renderTables() {
-            var scheduleId = scheduleSelect ? scheduleSelect.value : null;
+        var tableStep = document.getElementById('fermentoTableStep');
+        var waitlistForm = document.getElementById('fermentoWaitlistForm');
+        var waitlistScheduleInput = document.getElementById('waitlist_event_schedule_id');
+        var fullNotice = document.getElementById('fermentoFullNotice');
+
+        // Campos que solo deben exigirse cuando el paso de reserva normal está
+        // visible — si la fecha está sin mesas, este paso se oculta entero y
+        // no debe bloquear el submit del formulario de lista de espera.
+        var reservationRequiredFields = ['customer_name', 'customer_phone', 'customer_email', 'party_size', 'deposit_amount'];
+
+        function setReservationFieldsRequired(required) {
+            reservationRequiredFields.forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.required = required;
+            });
+        }
+
+        function renderTables(scheduleId) {
             var tables = scheduleId && tablesBySchedule[scheduleId] ? tablesBySchedule[scheduleId] : null;
 
             grid.innerHTML = '';
@@ -875,7 +941,19 @@
                 btn.disabled = table.is_taken;
                 btn.dataset.tableId = table.id;
                 btn.dataset.capacityMax = table.capacity_max;
-                btn.innerHTML = '<span class="n">Mesa ' + table.table_number + '</span><span class="cap">' + (table.is_taken ? 'Ocupada' : table.capacity_min + '–' + table.capacity_max) + '</span>';
+
+                var capLabel;
+                if (table.is_taken) {
+                    capLabel = 'Ocupada';
+                } else if (table.is_social) {
+                    capLabel = table.occupied_seats > 0
+                        ? table.occupied_seats + ' ya confirmados · hasta ' + table.capacity_max
+                        : 'Comunitaria · hasta ' + table.capacity_max;
+                } else {
+                    capLabel = table.capacity_min + '–' + table.capacity_max;
+                }
+
+                btn.innerHTML = '<span class="n">Mesa ' + table.table_number + (table.is_social ? ' (comunitaria)' : '') + '</span><span class="cap">' + capLabel + '</span>';
 
                 btn.addEventListener('click', function () {
                     Array.prototype.forEach.call(grid.querySelectorAll('.fermento-table-btn'), function (b) {
@@ -884,24 +962,58 @@
                     btn.classList.add('is-selected');
                     tableInput.value = table.id;
 
-                    partySizeInput.max = table.capacity_max;
-                    if (parseInt(partySizeInput.value || '0', 10) > table.capacity_max) {
-                        partySizeInput.value = table.capacity_max;
+                    var remaining = table.is_social ? (table.capacity_max - table.occupied_seats) : table.capacity_max;
+                    partySizeInput.max = remaining;
+                    if (parseInt(partySizeInput.value || '0', 10) > remaining) {
+                        partySizeInput.value = remaining;
                     }
                     partySizeInput.dispatchEvent(new Event('change'));
 
                     hint.style.display = 'block';
-                    hint.innerHTML = 'Elegiste la <strong>Mesa ' + table.table_number + '</strong> — capacidad de ' + table.capacity_min + ' a ' + table.capacity_max + ' personas.';
+                    if (table.is_social) {
+                        hint.innerHTML = 'Elegiste la <strong>Mesa ' + table.table_number + '</strong>, comunitaria — ya hay <strong>' + table.occupied_seats + '</strong> comensales confirmados ahí, cupo para ' + remaining + ' más.';
+                    } else {
+                        hint.innerHTML = 'Elegiste la <strong>Mesa ' + table.table_number + '</strong> — capacidad de ' + table.capacity_min + ' a ' + table.capacity_max + ' personas.';
+                    }
                 });
 
                 grid.appendChild(btn);
             });
         }
 
+        function renderSchedule() {
+            var scheduleId = scheduleSelect ? scheduleSelect.value : null;
+            var status = scheduleId ? (scheduleStatus[scheduleId] || 'open') : null;
+
+            tableStep.style.display = 'none';
+            waitlistForm.style.display = 'none';
+            fullNotice.style.display = 'none';
+            setReservationFieldsRequired(false);
+
+            if (!scheduleId || status === 'closed') {
+                return;
+            }
+
+            if (status === 'waitlist') {
+                waitlistScheduleInput.value = scheduleId;
+                waitlistForm.style.display = 'block';
+                return;
+            }
+
+            if (status === 'full') {
+                fullNotice.style.display = 'block';
+                return;
+            }
+
+            tableStep.style.display = 'block';
+            setReservationFieldsRequired(true);
+            renderTables(scheduleId);
+        }
+
         if (scheduleSelect) {
-            scheduleSelect.addEventListener('change', renderTables);
+            scheduleSelect.addEventListener('change', renderSchedule);
             if (scheduleSelect.value) {
-                renderTables();
+                renderSchedule();
             }
         }
     })();

@@ -158,11 +158,13 @@
       <h1>Invitados — Fermento</h1>
       <p class="sub">Envío de WhatsApp por etapas: intriga → aceptó → invitación con link personalizado.</p>
     </div>
-    <div style="display:flex;gap:0.75rem;align-items:center;">
+    <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
       <button type="button" class="btn btn-accent" onclick="openCreateGuestModal()">+ Agregar invitado</button>
+      <a href="{{ route('reservas.admin.guests.invitacion') }}" class="btn btn-accent">Generar invitación</a>
       <a href="{{ route('reservas.admin.index') }}" class="btn btn-outline">Reservas</a>
       <a href="{{ route('reservas.admin.clientes') }}" class="btn btn-outline">Clientes</a>
       <a href="{{ route('reservas.admin.mesas') }}" class="btn btn-outline">Mesas por fecha</a>
+      <a href="{{ route('reservas.admin.waitlist') }}" class="btn btn-outline">Lista de espera</a>
       <form method="POST" action="{{ route('reservas.admin.logout') }}">
         @csrf
         <button type="submit" class="btn btn-dark">Cerrar sesión</button>
@@ -178,12 +180,27 @@
     <div class="flash" style="background:#fbe4e1;border-color:#f3c6bf;color:#c0392b;">{{ $errors->first() }}</div>
   @endif
 
+  <form method="GET" action="{{ route('reservas.admin.guests') }}" class="filters" style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1.25rem;background:#fff;border:1px solid #e8e4dd;border-radius:6px;padding:1rem;">
+    <label style="font-size:0.8rem;color:#7a7365;display:flex;flex-direction:column;gap:0.3rem;">
+      Fecha invitada
+      <select name="fecha" onchange="this.form.submit()" style="padding:0.55rem 0.75rem;border:1px solid #d8d2c4;border-radius:4px;font-size:0.9rem;min-width:220px;">
+        <option value="todas" @selected($scheduleFilter === 'todas')>Todas</option>
+        @foreach ($inviteSchedules as $schedule)
+          <option value="{{ $schedule->id }}" @selected((string) $scheduleFilter === (string) $schedule->id)>
+            {{ $schedule->date->format('d/m/Y') }}
+          </option>
+        @endforeach
+      </select>
+    </label>
+  </form>
+
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
           <th>Nombre</th>
           <th>Celular</th>
+          <th>Fecha invitada</th>
           <th>Abrió el link</th>
           <th>Mensaje 1 (intriga)</th>
           <th>Aceptó</th>
@@ -198,6 +215,13 @@
           <tr>
             <td data-label="Nombre">{{ $guest->name }}</td>
             <td data-label="Celular">{{ $guest->phone ?: '—' }}</td>
+            <td data-label="Fecha invitada">
+              @if ($guest->schedule)
+                {{ $guest->schedule->date->format('d/m/Y') }}
+              @else
+                <span class="muted">Sin asignar</span>
+              @endif
+            </td>
             <td data-label="Abrió el link">
               @if ($guest->opened_at)
                 <span class="ok" title="{{ $guest->opened_at->format('d/m/Y H:i') }}">✓ {{ $guest->opened_at->format('d/m/Y') }}</span>
@@ -249,12 +273,12 @@
             </td>
             <td class="actions-cell">
               <button type="button" class="btn btn-sm btn-outline"
-                      onclick="openEditModal({{ Js::from(['id' => $guest->id, 'name' => $guest->name, 'phone' => $guest->phone]) }})">Editar</button>
+                      onclick="openEditModal({{ Js::from(['id' => $guest->id, 'name' => $guest->name, 'phone' => $guest->phone, 'event_schedule_id' => $guest->event_schedule_id]) }})">Editar</button>
             </td>
           </tr>
         @empty
           <tr>
-            <td colspan="9" class="empty">Todavía no hay invitados cargados.</td>
+            <td colspan="10" class="empty">Todavía no hay invitados cargados.</td>
           </tr>
         @endforelse
       </tbody>
@@ -271,6 +295,13 @@
         <input type="text" id="edit-name" name="name" required>
         <label for="edit-phone">Celular</label>
         <input type="text" id="edit-phone" name="phone" placeholder="987654321">
+        <label for="edit-schedule">Fecha invitada</label>
+        <select id="edit-schedule" name="event_schedule_id" style="width:100%;padding:0.6rem 0.75rem;border:1px solid #d8d2c4;border-radius:4px;font-size:0.9rem;font-family:inherit;">
+          <option value="">Sin asignar</option>
+          @foreach ($inviteSchedules as $schedule)
+            <option value="{{ $schedule->id }}">{{ $schedule->date->format('d/m/Y') }}</option>
+          @endforeach
+        </select>
         <div class="modal-actions">
           <button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button>
           <button type="submit" class="btn btn-accent">Guardar cambios</button>
@@ -289,6 +320,13 @@
         <input type="text" id="create-guest-name" name="name" required>
         <label for="create-guest-phone">Celular</label>
         <input type="text" id="create-guest-phone" name="phone" placeholder="987654321">
+        <label for="create-guest-schedule">Fecha invitada</label>
+        <select id="create-guest-schedule" name="event_schedule_id" style="width:100%;padding:0.6rem 0.75rem;border:1px solid #d8d2c4;border-radius:4px;font-size:0.9rem;font-family:inherit;">
+          <option value="">Sin asignar</option>
+          @foreach ($inviteSchedules as $schedule)
+            <option value="{{ $schedule->id }}">{{ $schedule->date->format('d/m/Y') }}</option>
+          @endforeach
+        </select>
         <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.9rem;">
           <input type="checkbox" name="is_test" value="1" style="width:auto;">
           <span style="font-size:0.82rem;color:#555;">Es de prueba (su reserva no cuenta como real)</span>
@@ -317,6 +355,7 @@
     form.action = `/reservas/admin/invitados/${guest.id}`;
     document.getElementById('edit-name').value = guest.name || '';
     document.getElementById('edit-phone').value = guest.phone || '';
+    document.getElementById('edit-schedule').value = guest.event_schedule_id || '';
     document.getElementById('edit-modal-backdrop').classList.add('open');
   }
 

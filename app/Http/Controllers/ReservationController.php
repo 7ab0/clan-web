@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreReservationRequest;
 use App\Models\Customer;
 use App\Models\EventSchedule;
+use App\Models\EventTable;
 use App\Models\FermentoGuest;
 use App\Models\Payment;
 use App\Models\Reservation;
@@ -51,17 +52,19 @@ class ReservationController extends Controller
                 // Eventos con mesas propias (ej. Fermento): el overbooking se controla
                 // por mesa+fecha, no por cupo agregado del horario. Las reservas de
                 // prueba (is_test) no cuentan como ocupación real de la mesa.
-                $tableTaken = Reservation::where('event_schedule_id', $lockedSchedule->id)
-                    ->where('event_table_id', $tableId)
-                    ->where('status', '!=', 'cancelled')
-                    ->where('is_test', false)
+                //
+                // La mesa social admite varios grupos por separado mientras no se
+                // pase de su capacity_max (ver EventTable::hasCapacityFor); las
+                // demás mesas siguen siendo exclusivas de una sola reserva activa.
+                $table = EventTable::where('id', $tableId)
+                    ->where('event_schedule_id', $lockedSchedule->id)
                     ->lockForUpdate()
-                    ->exists();
+                    ->first();
 
-                if ($tableTaken) {
+                if (! $table || ! $table->hasCapacityFor($validated['party_size'])) {
                     return back()
                         ->withInput()
-                        ->withErrors(['event_table_id' => 'Esa mesa acaba de ser reservada para esta fecha. Elige otra, por favor.']);
+                        ->withErrors(['event_table_id' => 'Esa mesa ya no tiene cupo para tu grupo en esta fecha. Elige otra, por favor.']);
                 }
             } elseif ($lockedSchedule->is_full) {
                 return back()

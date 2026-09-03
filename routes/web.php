@@ -9,6 +9,7 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReservationAdminController;
 use App\Http\Controllers\ReservationReviewController;
+use App\Http\Controllers\FermentoWaitlistController;
 use App\Http\Controllers\InfluencerAdminController;
 use App\Http\Controllers\MaintenanceController;
 
@@ -31,6 +32,7 @@ Route::post('/intimo/reservar', [ReservationController::class, 'store'])->name('
 // Fermento (CLAN x FORNO): landing y reserva de mesa por fecha
 Route::get('/fermento/{token?}', [EventController::class, 'fermento'])->name('fermento');
 Route::post('/fermento/reservar', [ReservationController::class, 'store'])->name('fermento.reservar');
+Route::post('/fermento/lista-espera', [FermentoWaitlistController::class, 'store'])->name('fermento.lista-espera');
 
 Route::prefix('reservas/{code}')->group(function () {
     Route::get('/pago', [PaymentController::class, 'show'])->name('reservas.pago');
@@ -59,10 +61,15 @@ Route::prefix('reservas/admin')->name('reservas.admin.')->group(function () {
 
         Route::get('/invitados', [ReservationAdminController::class, 'guests'])->name('guests');
         Route::post('/invitados', [ReservationAdminController::class, 'storeGuest'])->name('guests.store');
+        // Antes de '/invitados/{guest}': si no, ese wildcard se la come.
+        Route::get('/invitados/invitacion', [ReservationAdminController::class, 'invitacion'])->name('guests.invitacion');
         Route::put('/invitados/{guest}', [ReservationAdminController::class, 'updateGuest'])->name('guests.update');
         Route::post('/invitados/{guest}/mensaje1', [ReservationAdminController::class, 'markMensaje1'])->name('guests.mensaje1');
         Route::post('/invitados/{guest}/aceptar', [ReservationAdminController::class, 'toggleAceptado'])->name('guests.aceptar');
         Route::post('/invitados/{guest}/mensaje2', [ReservationAdminController::class, 'markMensaje2'])->name('guests.mensaje2');
+
+        Route::get('/lista-espera', [ReservationAdminController::class, 'waitlist'])->name('waitlist');
+        Route::post('/lista-espera/{schedule}/cerrar', [ReservationAdminController::class, 'toggleWaitlistClosed'])->name('waitlist.toggle');
     });
 });
 

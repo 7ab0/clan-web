@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\EventSchedule;
 use App\Models\FermentoGuest;
 use App\Models\Influencer;
 use App\Models\IntimoGuest;
@@ -61,12 +62,19 @@ class EventController extends Controller
      * Landing de Fermento (CLAN x FORNO): historia, cocina y reserva de mesa
      * por fecha. A diferencia de Íntimo, cada horario tiene mesas propias con
      * su propio aforo, así que además del selector de fecha se manda al front
-     * la disponibilidad de las 9 mesas por horario para el picker de mesa.
+     * la disponibilidad de las mesas por horario para el picker de mesa.
+     *
+     * A diferencia de Íntimo (que solo lista fechas con cupo, vía
+     * Event::upcomingSchedules), acá se listan TODAS las fechas futuras del
+     * evento, cerradas o agotadas incluidas — el selector las muestra
+     * igual, pero deshabilitadas/con lista de espera según su estado (ver
+     * $status en $schedulesByDate). Ocultar una fecha agotada en vez de
+     * mostrarla como tal fue justamente el problema que pidió resolver el
+     * cliente para el 5 de septiembre.
      */
     public function fermento(?string $token = null): View
     {
-        $event = Event::with('tables')
-            ->where('slug', 'fermento')
+        $event = Event::where('slug', 'fermento')
             ->where('is_active', true)
             ->firstOrFail();
 
@@ -91,7 +99,11 @@ class EventController extends Controller
             }
         }
 
-        $schedules = $event->upcomingSchedules();
+        $schedules = $event->schedules()
+            ->where('date', '>=', now()->toDateString())
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get();
 
         $dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
         $meses = [1 => 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -108,15 +120,36 @@ class EventController extends Controller
             });
 
         // Disponibilidad de mesas por horario, para que el front pinte el grid
-        // de 9 mesas apenas el visitante elige una fecha (sin ida y vuelta al server).
+        // apenas el visitante elige una fecha (sin ida y vuelta al server), y
+        // estado por horario para decidir si se muestra el grid normal, la
+        // lista de espera, o el aviso de "agotado":
+        // - closed: is_active=false (el staff cerró la fecha del todo)
+        // - open: queda alguna mesa (exclusiva libre o social con cupo)
+        // - waitlist: sin mesas, pero la lista de espera sigue abierta
+        // - full: sin mesas y lista de espera cerrada a mano
         $tablesBySchedule = $schedules->mapWithKeys(
             fn ($schedule) => [$schedule->id => $schedule->tablesWithAvailability()]
         );
+
+        $scheduleStatus = $schedules->mapWithKeys(function (EventSchedule $schedule) {
+            if (! $schedule->is_active) {
+                $status = 'closed';
+            } elseif ($schedule->has_free_table) {
+                $status = 'open';
+            } elseif (! $schedule->waitlist_closed) {
+                $status = 'waitlist';
+            } else {
+                $status = 'full';
+            }
+
+            return [$schedule->id => $status];
+        });
 
         return view('home.fermento', [
             'event' => $event,
             'schedulesByDate' => $schedulesByDate,
             'tablesBySchedule' => $tablesBySchedule,
+            'scheduleStatus' => $scheduleStatus,
             'guest' => $guest,
         ]);
     }

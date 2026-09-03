@@ -255,6 +255,7 @@
       <a href="{{ route('reservas.admin.clientes') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Clientes</a>
       <a href="{{ route('reservas.admin.guests') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Invitados</a>
       <a href="{{ route('reservas.admin.mesas') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Mesas por fecha</a>
+      <a href="{{ route('reservas.admin.waitlist') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Lista de espera</a>
       <a href="{{ route('reservas.admin.export') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Exportar Excel</a>
       <form method="POST" action="{{ route('reservas.admin.logout') }}">
         @csrf
@@ -544,7 +545,6 @@
     window.RESERVAS_EVENTS = @json($eventsForForm);
     window.RESERVAS_SCHEDULES = @json($schedulesForForm);
     window.RESERVAS_TABLES = @json($tablesForForm);
-    window.RESERVAS_TAKEN = @json($takenForForm);
 
     function openEditModal(data) {
       window.editContext = {
@@ -581,27 +581,38 @@
       select.value = selectedScheduleId;
     }
 
+    // ¿Esta mesa ya no tiene cupo? Exclusiva: cualquier ocupación (> 0) la
+    // cierra. Social: se compara la ocupación acumulada contra su
+    // capacity_max. ownPartySize/isOwnTable descuentan la reserva que se
+    // está editando de su propia ocupación, para no bloquearse a sí misma.
+    function tableIsFull(table, isOwnTable, ownPartySize) {
+      const occupied = table.occupied_seats - (isOwnTable ? (ownPartySize || 0) : 0);
+      return table.is_social ? occupied >= table.capacity_max : occupied > 0;
+    }
+
+    function tableLabel(table, isFull) {
+      const base = `Mesa ${table.table_number}` + (table.is_social ? ' (comunitaria)' : '') + ` (${table.capacity_min}-${table.capacity_max} personas)`;
+      return base + (isFull ? ' — sin cupo' : '');
+    }
+
     function populateEditTables(eventId, scheduleId, selectedTableId) {
       const select = document.getElementById('edit_event_table_id');
       select.innerHTML = '<option value="">Elige una mesa</option>';
       const ctx = window.editContext;
       const isOwnOriginalSchedule = scheduleId === ctx.originalScheduleId;
-      const taken = (window.RESERVAS_TAKEN[scheduleId] || []).filter((id) => {
-        // La mesa que la reserva YA tenía no cuenta como "ocupada" si
-        // seguimos viendo su mismo turno original — es su propia ocupación.
-        return !(isOwnOriginalSchedule && id === ctx.originalTableId);
-      });
+      const ownPartySize = parseInt(document.getElementById('edit_party_size').value || '0', 10);
       const event = window.RESERVAS_EVENTS.find((e) => e.id === eventId);
       document.getElementById('edit_table_wrap').style.display = (event && event.has_tables) ? 'block' : 'none';
 
       window.RESERVAS_TABLES
-        .filter((t) => t.event_id === eventId)
+        .filter((t) => t.event_schedule_id === scheduleId)
         .forEach((t) => {
-          const isTaken = taken.includes(t.id);
+          const isOwnTable = isOwnOriginalSchedule && t.id === ctx.originalTableId;
+          const isFull = tableIsFull(t, isOwnTable, ownPartySize);
           const option = document.createElement('option');
           option.value = t.id;
-          option.textContent = `Mesa ${t.table_number} (${t.capacity_min}-${t.capacity_max} personas)` + (isTaken ? ' — ocupada' : '');
-          option.disabled = isTaken;
+          option.textContent = tableLabel(t, isFull);
+          option.disabled = isFull && !isOwnTable;
           select.appendChild(option);
         });
       select.value = selectedTableId != null ? selectedTableId : '';
@@ -647,20 +658,18 @@
     }
 
     function populateCreateTables() {
-      const eventId = parseInt(document.getElementById('create_event_id').value, 10);
       const scheduleId = parseInt(document.getElementById('create_schedule_id').value, 10);
       const tableSelect = document.getElementById('create_table_id');
       tableSelect.innerHTML = '<option value="">Elige una mesa</option>';
-      const taken = window.RESERVAS_TAKEN[scheduleId] || [];
 
       window.RESERVAS_TABLES
-        .filter((table) => table.event_id === eventId)
+        .filter((table) => table.event_schedule_id === scheduleId)
         .forEach((table) => {
-          const isTaken = taken.includes(table.id);
+          const isFull = tableIsFull(table, false, 0);
           const option = document.createElement('option');
           option.value = table.id;
-          option.textContent = `Mesa ${table.table_number} (${table.capacity_min}-${table.capacity_max} personas)` + (isTaken ? ' — ocupada' : '');
-          option.disabled = isTaken;
+          option.textContent = tableLabel(table, isFull);
+          option.disabled = isFull;
           tableSelect.appendChild(option);
         });
     }

@@ -62,12 +62,12 @@ class StoreReservationRequest extends FormRequest
                 return;
             }
 
-            $schedule = EventSchedule::with(['event.tables'])->find($scheduleId);
+            $schedule = EventSchedule::with(['event', 'tables'])->find($scheduleId);
             if (! $schedule) {
                 return;
             }
 
-            $tables = $schedule->event->tables;
+            $tables = $schedule->tables;
             $partySize = (int) $this->input('party_size');
 
             if ($tables->isNotEmpty()) {
@@ -82,7 +82,7 @@ class StoreReservationRequest extends FormRequest
                 $table = $tables->firstWhere('id', (int) $tableId);
 
                 if (! $table) {
-                    $validator->errors()->add('event_table_id', 'Esa mesa no pertenece a este evento.');
+                    $validator->errors()->add('event_table_id', 'Esa mesa no pertenece a esta fecha.');
 
                     return;
                 }

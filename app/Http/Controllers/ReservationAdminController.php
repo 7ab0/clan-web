@@ -14,6 +14,7 @@ use App\Models\ReservationChange;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -170,19 +171,24 @@ class ReservationAdminController extends Controller
         $aforo = null;
 
         if ($selectedSchedule) {
-            if ($hasTables) {
+            $scheduleTables = $selectedSchedule->tables;
+
+            if ($scheduleTables->isNotEmpty()) {
                 $reservationsByTable = Reservation::where('event_schedule_id', $selectedSchedule->id)
                     ->where('status', '!=', 'cancelled')
                     ->where('is_test', false)
                     ->whereNotNull('event_table_id')
-                    ->get(['event_table_id', 'code', 'customer_name'])
-                    ->keyBy('event_table_id');
+                    ->get(['event_table_id', 'code', 'customer_name', 'party_size'])
+                    ->groupBy('event_table_id');
 
-                $tables = $event->tables->map(fn (EventTable $table) => [
+                // Mesa social: puede tener varias reservas simultáneas (distintos
+                // grupos compartiendo mesa) en vez de una sola — se listan todas.
+                $tables = $scheduleTables->map(fn (EventTable $table) => [
                     'table_number' => $table->table_number,
                     'capacity_min' => $table->capacity_min,
                     'capacity_max' => $table->capacity_max,
-                    'reservation' => $reservationsByTable->get($table->id),
+                    'is_social' => $table->is_social,
+                    'reservations' => $reservationsByTable->get($table->id, collect()),
                 ]);
             } else {
                 $aforo = [
@@ -236,22 +242,35 @@ class ReservationAdminController extends Controller
             ])
             ->values();
 
-        $tablesForForm = EventTable::orderBy('table_number')
-            ->get(['id', 'event_id', 'table_number', 'capacity_min', 'capacity_max'])
-            ->values();
-
-        $takenForForm = Reservation::where('status', '!=', 'cancelled')
+        // Ocupación real por mesa (suma de party_size de reservas activas):
+        // para una mesa exclusiva, cualquier valor > 0 la marca ocupada; para
+        // la mesa social, se compara contra su capacity_max en el propio JS
+        // (ver populateEditTables/populateCreateTables en reservas/admin.blade.php).
+        $occupiedByTable = Reservation::where('status', '!=', 'cancelled')
             ->where('is_test', false)
             ->whereNotNull('event_table_id')
-            ->get(['event_schedule_id', 'event_table_id'])
-            ->groupBy('event_schedule_id')
-            ->map(fn ($rows) => $rows->pluck('event_table_id')->values());
+            ->get(['event_table_id', 'party_size'])
+            ->groupBy('event_table_id')
+            ->map(fn ($rows) => $rows->sum('party_size'));
+
+        $tablesForForm = EventTable::orderBy('table_number')
+            ->get(['id', 'event_id', 'event_schedule_id', 'table_number', 'capacity_min', 'capacity_max', 'is_social'])
+            ->map(fn (EventTable $table) => [
+                'id' => $table->id,
+                'event_id' => $table->event_id,
+                'event_schedule_id' => $table->event_schedule_id,
+                'table_number' => $table->table_number,
+                'capacity_min' => $table->capacity_min,
+                'capacity_max' => $table->capacity_max,
+                'is_social' => $table->is_social,
+                'occupied_seats' => (int) ($occupiedByTable->get($table->id) ?? 0),
+            ])
+            ->values();
 
         return [
             'eventsForForm' => $eventsForForm,
             'schedulesForForm' => $schedulesForForm,
             'tablesForForm' => $tablesForForm,
-            'takenForForm' => $takenForForm,
         ];
     }
 
@@ -278,7 +297,7 @@ class ReservationAdminController extends Controller
             'status' => ['required', 'in:pending,confirmed,cancelled,completed'],
         ]);
 
-        $schedule = EventSchedule::with('event.tables')->findOrFail($validated['event_schedule_id']);
+        $schedule = EventSchedule::with(['event', 'tables'])->findOrFail($validated['event_schedule_id']);
 
         if ($schedule->event_id !== (int) $validated['event_id']) {
             return back()->withInput()->withErrors(['event_schedule_id' => 'Esa fecha no pertenece al evento elegido.']);
@@ -296,28 +315,24 @@ class ReservationAdminController extends Controller
         return DB::transaction(function () use ($validated, $schedule) {
             $lockedSchedule = EventSchedule::whereKey($schedule->id)->lockForUpdate()->first();
             $tableId = $validated['event_table_id'] ?? null;
-            $hasTables = $lockedSchedule->event->tables->isNotEmpty();
+            $hasTables = $lockedSchedule->tables()->exists();
 
             if ($hasTables) {
                 if (! $tableId) {
                     return back()->withInput()->withErrors(['event_table_id' => 'Elige una mesa para este evento.']);
                 }
 
-                $table = $lockedSchedule->event->tables->firstWhere('id', (int) $tableId);
+                $table = EventTable::where('id', (int) $tableId)
+                    ->where('event_schedule_id', $lockedSchedule->id)
+                    ->lockForUpdate()
+                    ->first();
 
                 if (! $table) {
-                    return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa no pertenece a este evento.']);
+                    return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa no pertenece a esta fecha.']);
                 }
 
-                $tableTaken = Reservation::where('event_schedule_id', $lockedSchedule->id)
-                    ->where('event_table_id', $tableId)
-                    ->where('status', '!=', 'cancelled')
-                    ->where('is_test', false)
-                    ->lockForUpdate()
-                    ->exists();
-
-                if ($tableTaken) {
-                    return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa ya está ocupada para esta fecha.']);
+                if (! $table->hasCapacityFor($validated['party_size'])) {
+                    return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa ya no tiene cupo para este grupo en esta fecha.']);
                 }
             } elseif ($lockedSchedule->is_full) {
                 return back()->withInput()->withErrors(['event_schedule_id' => 'Ese horario ya no tiene cupo disponible. Si necesitas forzarlo, sube la capacidad del turno primero.']);
@@ -454,7 +469,7 @@ class ReservationAdminController extends Controller
             'payment_amount' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $schedule = EventSchedule::with('event.tables')->findOrFail($validated['event_schedule_id']);
+        $schedule = EventSchedule::with(['event', 'tables'])->findOrFail($validated['event_schedule_id']);
 
         if ($schedule->event_id !== $reservation->event_id) {
             return back()->withInput()->withErrors(['event_schedule_id' => 'No se puede mover la reserva a otro evento.']);
@@ -463,28 +478,24 @@ class ReservationAdminController extends Controller
         return DB::transaction(function () use ($validated, $reservation, $schedule) {
             $lockedSchedule = EventSchedule::whereKey($schedule->id)->lockForUpdate()->first();
             $tableId = $validated['event_table_id'] ?? null;
-            $hasTables = $lockedSchedule->event->tables->isNotEmpty();
+            $hasTables = $lockedSchedule->tables()->exists();
 
             if ($hasTables) {
                 if (! $tableId) {
                     return back()->withInput()->withErrors(['event_table_id' => 'Elige una mesa para este evento.']);
                 }
 
-                $table = $lockedSchedule->event->tables->firstWhere('id', (int) $tableId);
+                $table = EventTable::where('id', (int) $tableId)
+                    ->where('event_schedule_id', $lockedSchedule->id)
+                    ->lockForUpdate()
+                    ->first();
+
                 if (! $table) {
-                    return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa no pertenece a este evento.']);
+                    return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa no pertenece a esta fecha.']);
                 }
 
-                $tableTaken = Reservation::where('id', '!=', $reservation->id)
-                    ->where('event_schedule_id', $lockedSchedule->id)
-                    ->where('event_table_id', $tableId)
-                    ->where('status', '!=', 'cancelled')
-                    ->where('is_test', false)
-                    ->lockForUpdate()
-                    ->exists();
-
-                if ($tableTaken) {
-                    return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa ya está ocupada para esta fecha.']);
+                if (! $table->hasCapacityFor($validated['party_size'], $reservation->id)) {
+                    return back()->withInput()->withErrors(['event_table_id' => 'Esa mesa ya no tiene cupo para este grupo en esta fecha.']);
                 }
             } elseif ($lockedSchedule->id !== $reservation->event_schedule_id && $lockedSchedule->is_full) {
                 return back()->withInput()->withErrors(['event_schedule_id' => 'Ese horario ya no tiene cupo disponible.']);
@@ -673,13 +684,26 @@ class ReservationAdminController extends Controller
     /**
      * Lista los invitados de Fermento y su avance en el envío de WhatsApp
      * por etapas, cruzando por teléfono normalizado con las reservas reales
-     * (sin tocar el modelo Reservation ni el flujo de reserva).
+     * (sin tocar el modelo Reservation ni el flujo de reserva). Filtrable por
+     * fecha invitada (viernes 4 / domingo 6) para que el encargado vea de un
+     * vistazo quién está invitado a cada noche — el sábado 5 no aparece como
+     * opción porque está agotado y no admite invitados VIP nuevos.
      */
-    public function guests(): View
+    public function guests(Request $request): View
     {
         $event = Event::where('slug', 'fermento')->firstOrFail();
 
-        $guests = FermentoGuest::where('event_id', $event->id)->orderBy('name')->get();
+        $inviteSchedules = $this->vipInviteSchedules($event);
+
+        $scheduleFilter = (string) $request->query('fecha', 'todas');
+
+        $query = FermentoGuest::where('event_id', $event->id)->with('schedule');
+
+        if ($scheduleFilter !== 'todas') {
+            $query->where('event_schedule_id', (int) $scheduleFilter);
+        }
+
+        $guests = $query->orderBy('name')->get();
 
         // Ascendente a propósito: si un mismo teléfono tiene varias reservas,
         // keyBy() se queda con la última procesada — con orden ascendente esa
@@ -696,7 +720,21 @@ class ReservationAdminController extends Controller
 
         return view('reservas.invitados', [
             'guests' => $guests,
+            'inviteSchedules' => $inviteSchedules,
+            'scheduleFilter' => $scheduleFilter,
         ]);
+    }
+
+    /**
+     * Fechas de Fermento a las que se puede invitar un VIP nuevo — solo las
+     * activas (el sábado 5, agotado, queda afuera a propósito).
+     */
+    private function vipInviteSchedules(Event $event)
+    {
+        return EventSchedule::where('event_id', $event->id)
+            ->where('is_active', true)
+            ->orderBy('date')
+            ->get();
     }
 
     /**
@@ -714,10 +752,15 @@ class ReservationAdminController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'phone' => ['nullable', 'string', 'max:30'],
+            'event_schedule_id' => [
+                'nullable',
+                Rule::exists('event_schedules', 'id')->where('event_id', $event->id)->where('is_active', true),
+            ],
         ]);
 
         $guest = FermentoGuest::create([
             'event_id' => $event->id,
+            'event_schedule_id' => $validated['event_schedule_id'] ?? null,
             'name' => $validated['name'],
             'phone' => $validated['phone'] ?? null,
             'is_test' => $request->boolean('is_test'),
@@ -727,8 +770,9 @@ class ReservationAdminController extends Controller
     }
 
     /**
-     * Edita a mano nombre/teléfono del invitado (varios de la primera tanda
-     * se cargaron sin teléfono — hay que poder completarlo acá).
+     * Edita a mano nombre/teléfono/fecha invitada del invitado (varios de la
+     * primera tanda se cargaron sin teléfono ni fecha — hay que poder
+     * completarlos acá).
      */
     public function updateGuest(Request $request, FermentoGuest $guest): RedirectResponse
     {
@@ -738,11 +782,74 @@ class ReservationAdminController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'phone' => ['nullable', 'string', 'max:30'],
+            'event_schedule_id' => [
+                'nullable',
+                Rule::exists('event_schedules', 'id')->where('event_id', $guest->event_id)->where('is_active', true),
+            ],
         ]);
 
-        $guest->update($validated);
+        $guest->update([
+            'name' => $validated['name'],
+            'phone' => $validated['phone'] ?? null,
+            'event_schedule_id' => $validated['event_schedule_id'] ?? null,
+        ]);
 
         return back()->with('status', "Invitado {$guest->name} actualizado.");
+    }
+
+    /**
+     * Generador de la imagen de invitación VIP personalizada (Canvas en el
+     * navegador, mismo mecanismo que la story card de confirmación y el
+     * generador del pre-cóctel de influencers) — refleja la fecha real a la
+     * que está invitado cada VIP en vez de un texto fijo.
+     */
+    public function invitacion(): View
+    {
+        $event = Event::where('slug', 'fermento')->firstOrFail();
+
+        $guests = FermentoGuest::where('event_id', $event->id)
+            ->with('schedule')
+            ->orderBy('name')
+            ->get(['id', 'name', 'token', 'event_schedule_id']);
+
+        return view('reservas.invitacion', [
+            'guests' => $guests,
+        ]);
+    }
+
+    /**
+     * Lista de espera de Fermento (viernes 4 y domingo 6 — el sábado 5 no
+     * tiene, está cerrado del todo), agrupada por fecha para que el
+     * encargado la revise manualmente y contacte si se libera una mesa.
+     */
+    public function waitlist(): View
+    {
+        $event = Event::where('slug', 'fermento')->firstOrFail();
+
+        $schedules = EventSchedule::where('event_id', $event->id)
+            ->where('is_active', true)
+            ->orderBy('date')
+            ->withCount('waitlistEntries')
+            ->with(['waitlistEntries' => fn ($q) => $q->orderBy('created_at', 'desc')])
+            ->get();
+
+        return view('reservas.lista-espera', [
+            'schedules' => $schedules,
+        ]);
+    }
+
+    /**
+     * Cierra/reabre a mano la lista de espera de una fecha puntual — no hay
+     * regla automática de "cuántos en espera son demasiados", lo decide el
+     * encargado.
+     */
+    public function toggleWaitlistClosed(EventSchedule $schedule): RedirectResponse
+    {
+        $schedule->update(['waitlist_closed' => ! $schedule->waitlist_closed]);
+
+        return back()->with('status', $schedule->waitlist_closed
+            ? 'Lista de espera cerrada para esa fecha.'
+            : 'Lista de espera reabierta para esa fecha.');
     }
 
     /**
