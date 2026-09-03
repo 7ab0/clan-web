@@ -896,6 +896,8 @@
     (function () {
         var tablesBySchedule = @json($tablesBySchedule);
         var scheduleStatus = @json($scheduleStatus);
+        var scheduleWaitlistClosed = @json($scheduleWaitlistClosed);
+        var promptWaitlistSchedule = @json(session('promptWaitlistSchedule'));
 
         var scheduleSelect = document.getElementById('event_schedule_id');
         var grid = document.getElementById('fermentoTablesGrid');
@@ -921,6 +923,19 @@
             });
         }
 
+        // Mesa social sin cupo (aunque otras mesas normales de esa fecha
+        // sigan libres) manda directo a la lista de espera de la fecha, en
+        // vez de un simple error pidiendo elegir otra mesa — no hay "otra
+        // mesa comunitaria" que ofrecer.
+        function showWaitlistForSchedule(scheduleId) {
+            tableStep.style.display = 'none';
+            fullNotice.style.display = 'none';
+            setReservationFieldsRequired(false);
+            waitlistScheduleInput.value = scheduleId;
+            waitlistForm.style.display = 'block';
+            waitlistForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         function renderTables(scheduleId) {
             var tables = scheduleId && tablesBySchedule[scheduleId] ? tablesBySchedule[scheduleId] : null;
 
@@ -935,15 +950,21 @@
             emptyMsg.style.display = 'none';
 
             tables.forEach(function (table) {
+                var isSocialFull = table.is_social && table.is_taken;
+
                 var btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'fermento-table-btn';
-                btn.disabled = table.is_taken;
+                // La mesa social llena se queda clickeable a propósito — el
+                // clic manda a la lista de espera en vez de bloquearse.
+                btn.disabled = table.is_taken && !isSocialFull;
                 btn.dataset.tableId = table.id;
                 btn.dataset.capacityMax = table.capacity_max;
 
                 var capLabel;
-                if (table.is_taken) {
+                if (isSocialFull) {
+                    capLabel = 'Sin cupo · lista de espera';
+                } else if (table.is_taken) {
                     capLabel = 'Ocupada';
                 } else if (table.is_social) {
                     capLabel = table.occupied_seats > 0
@@ -956,6 +977,16 @@
                 btn.innerHTML = '<span class="n">Mesa ' + table.table_number + (table.is_social ? ' (comunitaria)' : '') + '</span><span class="cap">' + capLabel + '</span>';
 
                 btn.addEventListener('click', function () {
+                    if (isSocialFull) {
+                        if (scheduleWaitlistClosed[scheduleId]) {
+                            hint.style.display = 'block';
+                            hint.innerHTML = 'La mesa comunitaria ya no tiene cupo y la lista de espera está cerrada para esta fecha. Escríbenos por WhatsApp para consultar.';
+                            return;
+                        }
+                        showWaitlistForSchedule(scheduleId);
+                        return;
+                    }
+
                     Array.prototype.forEach.call(grid.querySelectorAll('.fermento-table-btn'), function (b) {
                         b.classList.remove('is-selected');
                     });
@@ -1012,7 +1043,15 @@
 
         if (scheduleSelect) {
             scheduleSelect.addEventListener('change', renderSchedule);
-            if (scheduleSelect.value) {
+
+            if (promptWaitlistSchedule) {
+                // Reintento de reserva en la mesa social que justo se llenó
+                // (ver ReservationController::store) — la fecha puede seguir
+                // "open" en general (otras mesas libres), así que no basta
+                // con renderSchedule(): se fuerza la lista de espera directo.
+                scheduleSelect.value = String(promptWaitlistSchedule);
+                showWaitlistForSchedule(promptWaitlistSchedule);
+            } else if (scheduleSelect.value) {
                 renderSchedule();
             }
         }

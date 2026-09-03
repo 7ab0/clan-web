@@ -51,6 +51,7 @@ Route::prefix('reservas/admin')->name('reservas.admin.')->group(function () {
         Route::get('/', [ReservationAdminController::class, 'index'])->name('index');
         Route::get('/export', [ReservationAdminController::class, 'export'])->name('export');
         Route::get('/mesas', [ReservationAdminController::class, 'tables'])->name('mesas');
+        Route::post('/mesas/{table}/capacidad-social', [ReservationAdminController::class, 'updateSocialTableCapacity'])->name('mesas.social-capacity');
         Route::post('/', [ReservationAdminController::class, 'storeReservation'])->name('store');
         Route::post('/{reservation}/confirmar', [ReservationAdminController::class, 'confirmPayment'])->name('confirmar');
         Route::put('/{reservation}', [ReservationAdminController::class, 'updateReservation'])->name('update');

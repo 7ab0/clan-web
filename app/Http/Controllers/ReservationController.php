@@ -61,6 +61,17 @@ class ReservationController extends Controller
                     ->lockForUpdate()
                     ->first();
 
+                if ($table && $table->is_social && ! $table->hasCapacityFor($validated['party_size'])) {
+                    // La mesa social llena manda directo a la lista de espera
+                    // general de la fecha, aunque otras mesas normales de ese
+                    // día todavía tengan lugar — a diferencia de una mesa
+                    // exclusiva sin cupo, acá no tiene sentido pedir "elige
+                    // otra mesa" porque no hay otra mesa comunitaria.
+                    return redirect(route('fermento') . '#reservar')
+                        ->with('promptWaitlistSchedule', $lockedSchedule->id)
+                        ->with('waitlistStatus', 'La mesa comunitaria ya no tiene cupo para tu grupo en esta fecha — te dejamos el formulario de lista de espera.');
+                }
+
                 if (! $table || ! $table->hasCapacityFor($validated['party_size'])) {
                     return back()
                         ->withInput()

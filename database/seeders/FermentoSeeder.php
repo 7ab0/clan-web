@@ -108,7 +108,13 @@ class FermentoSeeder extends Seeder
                 // Mesa social: capacidad total acumulada entre varios grupos.
                 // Ajustable — no viene especificada por el cliente, 10 es un
                 // punto de partida razonable para una mesa comunitaria.
-                10 => ['capacity_min' => 1, 'capacity_max' => 10, 'is_social' => true],
+                // Capacidad total acumulada entre varios grupos — editable a
+                // mano desde /reservas/admin/mesas (ver
+                // ReservationAdminController::updateSocialTableCapacity), así
+                // que este valor es solo el arranque: firstOrCreate más abajo
+                // no la pisa en corridas futuras del seeder si el staff ya la
+                // subió.
+                10 => ['capacity_min' => 1, 'capacity_max' => 8, 'is_social' => true],
             ],
             '2026-09-05' => array_fill(1, 9, $standardTable),
             '2026-09-06' => [
@@ -121,7 +127,7 @@ class FermentoSeeder extends Seeder
                 7 => ['capacity_min' => 1, 'capacity_max' => 2, 'is_social' => false],
                 8 => ['capacity_min' => 1, 'capacity_max' => 4, 'is_social' => false],
                 9 => ['capacity_min' => 1, 'capacity_max' => 4, 'is_social' => false],
-                10 => ['capacity_min' => 1, 'capacity_max' => 10, 'is_social' => true],
+                10 => ['capacity_min' => 1, 'capacity_max' => 8, 'is_social' => true],
             ],
         ];
 
@@ -129,14 +135,22 @@ class FermentoSeeder extends Seeder
             $schedule = $schedulesByDate[$date];
 
             foreach ($layout as $tableNumber => $spec) {
-                EventTable::updateOrCreate(
-                    [
-                        'event_id' => $event->id,
-                        'event_schedule_id' => $schedule->id,
-                        'table_number' => $tableNumber,
-                    ],
-                    $spec
-                );
+                $key = [
+                    'event_id' => $event->id,
+                    'event_schedule_id' => $schedule->id,
+                    'table_number' => $tableNumber,
+                ];
+
+                // La mesa social es editable a mano por el staff (capacity_max) —
+                // firstOrCreate solo la siembra la primera vez, para no pisar el
+                // ajuste manual en corridas futuras (deploys, fermento:reset).
+                // Las mesas exclusivas siguen siendo decisión de negocio fija,
+                // así que se mantienen 100% en sync con el layout de arriba.
+                if ($spec['is_social']) {
+                    EventTable::firstOrCreate($key, $spec);
+                } else {
+                    EventTable::updateOrCreate($key, $spec);
+                }
             }
         }
 

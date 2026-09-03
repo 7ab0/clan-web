@@ -145,11 +145,21 @@ class EventController extends Controller
             return [$schedule->id => $status];
         });
 
+        // Aparte del status agregado de arriba: la mesa social puede estar
+        // llena mientras la fecha sigue "open" (otras mesas normales con
+        // cupo) — clic en una mesa social sin cupo manda a lista de espera
+        // igual, salvo que el staff ya la haya cerrado para esa fecha (ver
+        // fermento.blade.php).
+        $scheduleWaitlistClosed = $schedules->mapWithKeys(
+            fn (EventSchedule $schedule) => [$schedule->id => (bool) $schedule->waitlist_closed]
+        );
+
         return view('home.fermento', [
             'event' => $event,
             'schedulesByDate' => $schedulesByDate,
             'tablesBySchedule' => $tablesBySchedule,
             'scheduleStatus' => $scheduleStatus,
+            'scheduleWaitlistClosed' => $scheduleWaitlistClosed,
             'guest' => $guest,
         ]);
     }

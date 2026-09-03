@@ -39,6 +39,7 @@
   .btn-dark:hover { background: #a3691f; }
   .btn-outline { background: #fff; border: 1px solid #d8d2c4; color: #2a2a2a; }
   .btn-outline:hover { border-color: #a3691f; color: #a3691f; }
+  .btn-sm { padding: 0.3rem 0.65rem; font-size: 0.78rem; }
 
   .filters {
     display: flex;
@@ -115,7 +116,7 @@
   <div class="topbar">
     <div>
       <h1>Mesas por fecha</h1>
-      <p class="sub">Solo lectura — para editar o cancelar una reserva, usa el listado principal.</p>
+      <p class="sub">Para editar o cancelar una reserva, usa el listado principal — la única edición posible acá es el cupo de la mesa comunitaria.</p>
     </div>
     <div style="display:flex;gap:0.75rem;align-items:center;">
       <a href="{{ route('reservas.admin.index') }}" class="btn btn-outline">Reservas</a>
@@ -128,6 +129,13 @@
       </form>
     </div>
   </div>
+
+  @if (session('status'))
+    <div class="empty" style="background:#e5f4e6;border-color:#bfe3c1;color:#2e7d32;padding:0.75rem 1rem;text-align:left;margin-bottom:1.25rem;">{{ session('status') }}</div>
+  @endif
+  @if ($errors->any())
+    <div class="empty" style="background:#fbe4e1;border-color:#f3c6bf;color:#c0392b;padding:0.75rem 1rem;text-align:left;margin-bottom:1.25rem;">{{ $errors->first() }}</div>
+  @endif
 
   <form method="GET" action="{{ route('reservas.admin.mesas') }}" class="filters">
     <label>
@@ -174,6 +182,17 @@
             </div>
           @else
             <span class="badge libre">Libre</span>
+          @endif
+
+          @if ($table['is_social'])
+            <form method="POST" action="{{ route('reservas.admin.mesas.social-capacity', $table['id']) }}" style="margin-top:0.75rem;display:flex;gap:0.4rem;align-items:center;">
+              @csrf
+              <label style="font-size:0.75rem;color:#7a7365;">Cupo total
+                <input type="number" name="capacity_max" value="{{ $table['capacity_max'] }}" min="{{ max($occupied, 1) }}" max="100"
+                       style="width:70px;padding:0.3rem 0.4rem;border:1px solid #d8d2c4;border-radius:4px;font-size:0.85rem;margin-left:0.3rem;">
+              </label>
+              <button type="submit" class="btn btn-sm btn-outline">Guardar</button>
+            </form>
           @endif
         </div>
       @endforeach

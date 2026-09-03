@@ -184,6 +184,7 @@ class ReservationAdminController extends Controller
                 // Mesa social: puede tener varias reservas simultáneas (distintos
                 // grupos compartiendo mesa) en vez de una sola — se listan todas.
                 $tables = $scheduleTables->map(fn (EventTable $table) => [
+                    'id' => $table->id,
                     'table_number' => $table->table_number,
                     'capacity_min' => $table->capacity_min,
                     'capacity_max' => $table->capacity_max,
@@ -208,6 +209,38 @@ class ReservationAdminController extends Controller
             'tables' => $tables,
             'aforo' => $aforo,
         ]);
+    }
+
+    /**
+     * Sube o baja a mano el cupo total de la mesa social de una fecha (ej.
+     * de 8 a 10 cuando el staff decide sumar sillas). No dispara nada
+     * automático más allá de permitir reservas nuevas hasta el número
+     * nuevo — el resto del sistema (hasCapacityFor, tablesWithAvailability)
+     * ya lee capacity_max en vivo, así que no hace falta tocar nada más.
+     *
+     * No se puede bajar por debajo de lo ya ocupado (sumaría reservas reales
+     * por encima del nuevo tope, lo que rompería la garantía de aforo).
+     */
+    public function updateSocialTableCapacity(Request $request, EventTable $table): RedirectResponse
+    {
+        if (! $table->is_social) {
+            abort(404);
+        }
+
+        $occupied = (int) $table->reservations()
+            ->where('status', '!=', 'cancelled')
+            ->where('is_test', false)
+            ->sum('party_size');
+
+        $validated = $request->validate([
+            'capacity_max' => ['required', 'integer', 'min:' . max($occupied, 1), 'max:100'],
+        ], [
+            'capacity_max.min' => "No puede ser menor a los {$occupied} ya confirmados en esa mesa.",
+        ]);
+
+        $table->update(['capacity_max' => $validated['capacity_max']]);
+
+        return back()->with('status', "Mesa #{$table->table_number} actualizada a {$validated['capacity_max']} personas.");
     }
 
     /**
