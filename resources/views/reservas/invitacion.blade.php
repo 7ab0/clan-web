@@ -110,6 +110,7 @@
           data-name="{{ $guest->name }}"
           data-token="{{ $guest->token }}"
           data-date="{{ $guest->dateLabel() }}"
+          data-time="{{ $guest->timeLabelForImage() }}"
           data-has-date="{{ $guest->event_schedule_id ? '1' : '0' }}">
           {{ $guest->name }}
         </option>
@@ -197,7 +198,7 @@
     ctx.textBaseline = 'alphabetic';
   }
 
-  function draw(name, dateLabel) {
+  function draw(name, dateLabel, timeLabel) {
     return fontsReady.then(function () {
       var W = canvas.width, H = canvas.height;
       ctx.clearRect(0, 0, W, H);
@@ -231,7 +232,7 @@
 
       ctx.fillStyle = '#A7792A';
       ctx.font = '500 24px Inter';
-      drawTracked(dateLabel.toUpperCase() + ' · 6:00 PM', 540, 1646, 2);
+      drawTracked(dateLabel.toUpperCase() + ' · ' + timeLabel, 540, 1646, 2);
 
       ctx.fillStyle = '#7D7361';
       ctx.font = '400 22px Inter';
@@ -274,7 +275,7 @@
       alert('Elige un invitado primero.');
       return;
     }
-    draw(option.dataset.name, option.dataset.date).then(function () {
+    draw(option.dataset.name, option.dataset.date, option.dataset.time).then(function () {
       document.getElementById('canvas-panel').style.display = 'block';
       checkShareSupport();
     });

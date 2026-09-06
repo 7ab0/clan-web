@@ -115,7 +115,7 @@ class FermentoGuest extends Model
             '*' . $this->first_name . '*, llegó el momento.',
             "*MOLTO* × *FORNO* presentan *FERMENTO*\nTransmutación de la masa madre.",
             'Una *experiencia* a cuatro manos donde el tiempo, el *fuego* y la *creatividad* se encuentran.',
-            "Queremos que seas parte de esta noche.\n✨ *{$this->dateLabel()}* · *6:00 p. m.*",
+            "Queremos que seas parte de esta noche.\n✨ *{$this->dateLabel()}* · *{$this->timeLabel()}*",
             "📍 Pasaje Violín 101 F, San Lázaro\nPlaza Campo Redondo – Arequipa",
             "Tu *invitación* es *personal*:\n👉 " . route('fermento', $this->token),
         ];
@@ -141,5 +141,32 @@ class FermentoGuest extends Model
         $dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
         return $dias[(int) $date->format('w')] . ' ' . (int) $date->format('j') . ' de septiembre';
+    }
+
+    /**
+     * Hora para el mensaje de WhatsApp — el 6 de septiembre pasó de 7:00 p.m.
+     * a 6:00 p.m.; el 4 y el 5 de septiembre no cambiaron. Cae a 7:00 p.m.
+     * (la hora original de las 3 fechas) si el invitado todavía no tiene
+     * fecha asignada.
+     */
+    public function timeLabel(): string
+    {
+        return $this->isSextaDeSeptiembre() ? '6:00 p. m.' : '7:00 p. m.';
+    }
+
+    /**
+     * Misma hora que timeLabel(), en el formato usado por la imagen de
+     * invitación (sin punto ni espacio antes de la M).
+     */
+    public function timeLabelForImage(): string
+    {
+        return $this->isSextaDeSeptiembre() ? '6:00 PM' : '7:00 PM';
+    }
+
+    private function isSextaDeSeptiembre(): bool
+    {
+        $date = $this->schedule?->date;
+
+        return $date instanceof Carbon && $date->format('Y-m-d') === '2026-09-06';
     }
 }
