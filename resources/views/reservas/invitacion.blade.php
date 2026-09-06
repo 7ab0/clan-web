@@ -231,7 +231,7 @@
 
       ctx.fillStyle = '#A7792A';
       ctx.font = '500 24px Inter';
-      drawTracked(dateLabel.toUpperCase() + ' · 7:00 PM', 540, 1646, 2);
+      drawTracked(dateLabel.toUpperCase() + ' · 6:00 PM', 540, 1646, 2);
 
       ctx.fillStyle = '#7D7361';
       ctx.font = '400 22px Inter';
