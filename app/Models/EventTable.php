@@ -18,10 +18,12 @@ class EventTable extends Model
         'capacity_min',
         'capacity_max',
         'is_social',
+        'is_active',
     ];
 
     protected $casts = [
         'is_social' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function event(): BelongsTo

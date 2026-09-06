@@ -171,6 +171,9 @@
         <div class="mesa-card {{ $table['reservations']->isNotEmpty() ? 'taken' : '' }}">
           <div class="num">Mesa #{{ $table['table_number'] }}{{ $table['is_social'] ? ' (comunitaria)' : '' }}</div>
           <div class="cap">{{ $table['capacity_min'] }}–{{ $table['capacity_max'] }} personas</div>
+          <span class="badge" style="background:{{ $table['is_active'] ? '#e8f3e8' : '#f3e8e8' }};color:{{ $table['is_active'] ? '#2f6b2f' : '#8a2f2f' }};">
+            {{ $table['is_active'] ? 'Habilitada' : 'No disponible' }}
+          </span>
           @if ($table['reservations']->isNotEmpty())
             <span class="badge ocupada">{{ $table['is_social'] ? $occupied . '/' . $table['capacity_max'] . ' ocupado' : 'Ocupada' }}</span>
             <div class="reserva">
@@ -194,6 +197,13 @@
               <button type="submit" class="btn btn-sm btn-outline">Guardar</button>
             </form>
           @endif
+
+          <form method="POST" action="{{ route('reservas.admin.mesas.disponibilidad', $table['id']) }}" style="margin-top:0.5rem;">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-outline" onclick="return confirm('¿{{ $table['is_active'] ? 'Deshabilitar' : 'Habilitar' }} la Mesa #{{ $table['table_number'] }} para el flujo público?');">
+              {{ $table['is_active'] ? 'Deshabilitar' : 'Habilitar' }}
+            </button>
+          </form>
         </div>
       @endforeach
     </div>

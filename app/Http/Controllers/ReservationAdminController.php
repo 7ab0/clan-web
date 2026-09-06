@@ -189,6 +189,7 @@ class ReservationAdminController extends Controller
                     'capacity_min' => $table->capacity_min,
                     'capacity_max' => $table->capacity_max,
                     'is_social' => $table->is_social,
+                    'is_active' => $table->is_active,
                     'reservations' => $reservationsByTable->get($table->id, collect()),
                 ]);
             } else {
@@ -241,6 +242,24 @@ class ReservationAdminController extends Controller
         $table->update(['capacity_max' => $validated['capacity_max']]);
 
         return back()->with('status', "Mesa #{$table->table_number} actualizada a {$validated['capacity_max']} personas.");
+    }
+
+    /**
+     * Habilita/deshabilita una mesa puntual para el flujo público, sin
+     * tocar sus reservas ni sus datos (ver EventSchedule::
+     * tablesWithAvailability(), que la excluye por completo del grid que ve
+     * el visitante cuando is_active=false). Pensado para cambios de
+     * logística de último momento (ej. 6 de sept.: solo la mesa comunitaria
+     * quedó habilitada) — el staff puede reactivar cualquier mesa desde acá
+     * cuando haga falta.
+     */
+    public function updateTableAvailability(EventTable $table): RedirectResponse
+    {
+        $table->update(['is_active' => ! $table->is_active]);
+
+        $estado = $table->is_active ? 'habilitada' : 'deshabilitada';
+
+        return back()->with('status', "Mesa #{$table->table_number} {$estado}.");
     }
 
     /**

@@ -144,14 +144,13 @@ class FermentoGuest extends Model
     }
 
     /**
-     * Hora para el mensaje de WhatsApp — el 6 de septiembre pasó de 7:00 p.m.
-     * a 6:00 p.m.; el 4 y el 5 de septiembre no cambiaron. Cae a 7:00 p.m.
-     * (la hora original de las 3 fechas) si el invitado todavía no tiene
-     * fecha asignada.
+     * Hora para el mensaje de WhatsApp. Hubo un cambio de logística a 6:00
+     * p.m. para el 6 de septiembre que se revirtió el mismo día — vuelve a
+     * ser fija en 7:00 p.m. para las 3 fechas.
      */
     public function timeLabel(): string
     {
-        return $this->isSextaDeSeptiembre() ? '6:00 p. m.' : '7:00 p. m.';
+        return '7:00 p. m.';
     }
 
     /**
@@ -160,13 +159,6 @@ class FermentoGuest extends Model
      */
     public function timeLabelForImage(): string
     {
-        return $this->isSextaDeSeptiembre() ? '6:00 PM' : '7:00 PM';
-    }
-
-    private function isSextaDeSeptiembre(): bool
-    {
-        $date = $this->schedule?->date;
-
-        return $date instanceof Carbon && $date->format('Y-m-d') === '2026-09-06';
+        return '7:00 PM';
     }
 }

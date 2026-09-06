@@ -90,7 +90,14 @@ class EventSchedule extends Model
         $occupiedByTable = $activeReservations->groupBy('event_table_id')
             ->map(fn ($rows) => $rows->sum('party_size'));
 
-        return $this->tables->map(function (EventTable $table) use ($takenTableIds, $occupiedByTable) {
+        // Una mesa con is_active=false (ver ReservationAdminController::
+        // updateTableAvailability) queda completamente afuera del flujo
+        // público — ni siquiera se muestra como ocupada, para casos como el
+        // 6 de sept. donde por logística solo se habilitó la mesa
+        // comunitaria. El panel admin (ReservationAdminController::tables())
+        // sigue mostrando todas las mesas, activas o no, para poder
+        // reactivarlas.
+        return $this->tables->where('is_active', true)->values()->map(function (EventTable $table) use ($takenTableIds, $occupiedByTable) {
             $occupiedSeats = (int) ($occupiedByTable->get($table->id) ?? 0);
 
             return [
