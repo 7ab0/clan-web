@@ -150,6 +150,56 @@
   .modal .checkbox-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.9rem; }
   .modal .checkbox-row input { width: auto; }
   .modal-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.5rem; }
+
+  @media (max-width: 720px) {
+    .filters { flex-direction: column; align-items: stretch; }
+    .filters select, .filters button, .filters a.clear, .filters label { width: 100%; text-align: center; }
+    .filters label { justify-content: center; }
+
+    .table-wrap { border: none; background: transparent; overflow-x: visible; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr {
+      background: #fff;
+      border: 1px solid #e8e4dd;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem 1rem;
+    }
+    tbody td {
+      border: none;
+      padding: 0.4rem 0;
+      white-space: normal;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      text-align: right;
+    }
+    tbody td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #7a7365;
+      flex-shrink: 0;
+      text-align: left;
+    }
+    tbody td.actions-cell {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+    tbody td.actions-cell::before { display: none; }
+    tbody td.empty { display: block; text-align: center; }
+    tbody td.empty::before { display: none; }
+
+    .btn { padding: 0.75rem 1.1rem; font-size: 0.92rem; }
+    .btn-sm { padding: 0.55rem 0.85rem; font-size: 0.82rem; }
+
+    .modal-overlay, .modal-backdrop { padding: 0; align-items: flex-end; }
+    .modal { max-width: 100%; width: 100%; max-height: 92vh; border-radius: 16px 16px 0 0; }
+  }
 </style>
 </head>
 <body>
@@ -162,6 +212,7 @@
     <div style="display:flex;gap:0.75rem;align-items:center;">
       <a href="{{ route('reservas.admin.index') }}" class="btn btn-outline">Reservas</a>
       <a href="{{ route('reservas.admin.guests') }}" class="btn btn-outline">Invitados</a>
+      <a href="{{ route('reservas.admin.mesas') }}" class="btn btn-outline">Mesas por fecha</a>
       <form method="POST" action="{{ route('reservas.admin.logout') }}">
         @csrf
         <button type="submit" class="btn btn-dark">Cerrar sesión</button>
@@ -216,20 +267,20 @@
                 : '—';
           @endphp
           <tr>
-            <td>{{ $customer->name }}</td>
-            <td>{{ $customer->phone }}</td>
-            <td>{{ $customer->email ?: '—' }}</td>
-            <td>
+            <td data-label="Nombre">{{ $customer->name }}</td>
+            <td data-label="Teléfono">{{ $customer->phone }}</td>
+            <td data-label="Email">{{ $customer->email ?: '—' }}</td>
+            <td data-label="Marcas">
               @foreach ($customer->brands ?? [] as $brand)
                 <span class="brand-tag">{{ $brand }}</span>
               @endforeach
             </td>
-            <td><span class="badge {{ $customer->frequency }}">{{ ucfirst($customer->frequency) }}</span></td>
-            <td>@if($customer->vip)<span class="badge vip">VIP</span>@else —@endif</td>
-            <td>{{ $cumple }}</td>
-            <td class="wrap">{{ $customer->notes ?: '—' }}</td>
-            <td>{{ $customer->created_at->format('d/m/Y') }}</td>
-            <td>
+            <td data-label="Frecuencia"><span class="badge {{ $customer->frequency }}">{{ ucfirst($customer->frequency) }}</span></td>
+            <td data-label="VIP">@if($customer->vip)<span class="badge vip">VIP</span>@else —@endif</td>
+            <td data-label="Cumpleaños">{{ $cumple }}</td>
+            <td class="wrap" data-label="Notas">{{ $customer->notes ?: '—' }}</td>
+            <td data-label="Cliente desde">{{ $customer->created_at->format('d/m/Y') }}</td>
+            <td class="actions-cell">
               <button type="button" class="btn btn-sm btn-outline"
                       onclick="openEditModal({{ Js::from([
                           'id' => $customer->id,

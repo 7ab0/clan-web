@@ -13,6 +13,16 @@
 </head>
 <body>
 
+@if ($closed)
+  <!-- Evento ya finalizado (ver config('services.showclinic.closed')) —
+       mensaje simple en vez del countdown/RSVP; el panel admin sigue
+       mostrando el historial completo, sin cambios. -->
+  <div class="showclinic-closed-notice" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.25rem;padding:2rem;">
+    <img src="{{ asset('assets/showclinic/img/logosinfondo.png') }}" alt="ShowClinic" style="max-width:220px;">
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;margin:0;">El evento ya finalizó</h1>
+    <p style="max-width:420px;opacity:0.8;margin:0;">Gracias a todos los que fueron parte de esta noche. Ya no se aceptan más confirmaciones de asistencia.</p>
+  </div>
+@else
 @if ($guest)
   @php
     // Nombre y apellido en líneas separadas (se usa en el saludo del Hero).
@@ -470,5 +480,6 @@
 </button>
 
 <script src="{{ asset('assets/showclinic/js/main.js') }}"></script>
+@endif
 </body>
 </html>

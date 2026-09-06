@@ -9,6 +9,8 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReservationAdminController;
 use App\Http\Controllers\ReservationReviewController;
+use App\Http\Controllers\FermentoWaitlistController;
+use App\Http\Controllers\InfluencerAdminController;
 use App\Http\Controllers\MaintenanceController;
 
 Route::controller(MaintenanceController::class)->group(function () {
@@ -30,6 +32,7 @@ Route::post('/intimo/reservar', [ReservationController::class, 'store'])->name('
 // Fermento (CLAN x FORNO): landing y reserva de mesa por fecha
 Route::get('/fermento/{token?}', [EventController::class, 'fermento'])->name('fermento');
 Route::post('/fermento/reservar', [ReservationController::class, 'store'])->name('fermento.reservar');
+Route::post('/fermento/lista-espera', [FermentoWaitlistController::class, 'store'])->name('fermento.lista-espera');
 
 Route::prefix('reservas/{code}')->group(function () {
     Route::get('/pago', [PaymentController::class, 'show'])->name('reservas.pago');
@@ -46,19 +49,28 @@ Route::prefix('reservas/admin')->name('reservas.admin.')->group(function () {
 
     Route::middleware('reservas.admin')->group(function () {
         Route::get('/', [ReservationAdminController::class, 'index'])->name('index');
+        Route::get('/export', [ReservationAdminController::class, 'export'])->name('export');
+        Route::get('/mesas', [ReservationAdminController::class, 'tables'])->name('mesas');
+        Route::post('/mesas/{table}/capacidad-social', [ReservationAdminController::class, 'updateSocialTableCapacity'])->name('mesas.social-capacity');
         Route::post('/', [ReservationAdminController::class, 'storeReservation'])->name('store');
         Route::post('/{reservation}/confirmar', [ReservationAdminController::class, 'confirmPayment'])->name('confirmar');
         Route::put('/{reservation}', [ReservationAdminController::class, 'updateReservation'])->name('update');
         Route::delete('/{reservation}', [ReservationAdminController::class, 'destroy'])->name('destroy');
+        Route::get('/{reservation}/historial', [ReservationAdminController::class, 'history'])->name('history');
         Route::get('/clientes', [ReservationAdminController::class, 'customers'])->name('clientes');
         Route::put('/clientes/{customer}', [ReservationAdminController::class, 'updateCustomer'])->name('clientes.update');
 
         Route::get('/invitados', [ReservationAdminController::class, 'guests'])->name('guests');
         Route::post('/invitados', [ReservationAdminController::class, 'storeGuest'])->name('guests.store');
+        // Antes de '/invitados/{guest}': si no, ese wildcard se la come.
+        Route::get('/invitados/invitacion', [ReservationAdminController::class, 'invitacion'])->name('guests.invitacion');
         Route::put('/invitados/{guest}', [ReservationAdminController::class, 'updateGuest'])->name('guests.update');
         Route::post('/invitados/{guest}/mensaje1', [ReservationAdminController::class, 'markMensaje1'])->name('guests.mensaje1');
         Route::post('/invitados/{guest}/aceptar', [ReservationAdminController::class, 'toggleAceptado'])->name('guests.aceptar');
         Route::post('/invitados/{guest}/mensaje2', [ReservationAdminController::class, 'markMensaje2'])->name('guests.mensaje2');
+
+        Route::get('/lista-espera', [ReservationAdminController::class, 'waitlist'])->name('waitlist');
+        Route::post('/lista-espera/{schedule}/cerrar', [ReservationAdminController::class, 'toggleWaitlistClosed'])->name('waitlist.toggle');
     });
 });
 
@@ -71,6 +83,32 @@ Route::prefix('reservas/revision')->name('reservas.review.')->group(function () 
 
     Route::middleware('reservas.review')->group(function () {
         Route::get('/', [ReservationReviewController::class, 'index'])->name('index');
+        Route::get('/export', [ReservationReviewController::class, 'export'])->name('export');
+    });
+});
+
+// Influencers del pre-cóctel de Fermento (martes 1/9/2026): el link
+// personalizado del influencer abre la landing normal de Fermento
+// (/fermento/{token}, ver EventController::fermento) — no hay página
+// aparte. La confirmación de asistencia se coordina por WhatsApp y el
+// staff la refleja a mano en el panel de abajo.
+
+// Panel de staff del pre-cóctel de influencers — a diferencia de
+// reservas/revision, este SÍ puede dar de alta/editar/hacer check-in.
+// Contraseña y sesión propias, ver config('services.influencers.admin_password').
+Route::prefix('influencers/admin')->name('influencers.admin.')->group(function () {
+    Route::get('/login', [InfluencerAdminController::class, 'loginForm'])->name('login');
+    Route::post('/login', [InfluencerAdminController::class, 'login'])->name('login.submit');
+    Route::post('/logout', [InfluencerAdminController::class, 'logout'])->name('logout');
+
+    Route::middleware('influencers.admin')->group(function () {
+        Route::get('/', [InfluencerAdminController::class, 'index'])->name('index');
+        Route::post('/', [InfluencerAdminController::class, 'store'])->name('store');
+        // Antes de '/{influencer}': si no, ese wildcard se la come.
+        Route::get('/invitacion', [InfluencerAdminController::class, 'invitacion'])->name('invitacion');
+        Route::get('/{influencer}', [InfluencerAdminController::class, 'show'])->name('show');
+        Route::patch('/{influencer}', [InfluencerAdminController::class, 'update'])->name('update');
+        Route::post('/{influencer}/posts', [InfluencerAdminController::class, 'storePost'])->name('posts.store');
     });
 });
 

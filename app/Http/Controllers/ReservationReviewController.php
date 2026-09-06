@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReservationsExport;
+use App\Models\Event;
+use App\Models\EventSchedule;
 use App\Models\Reservation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Panel de solo lectura para revisar las reservas ya confirmadas — pensado
@@ -63,8 +68,43 @@ class ReservationReviewController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $event = Event::where('slug', 'fermento')->firstOrFail();
+
+        $schedules = EventSchedule::where('event_id', $event->id)
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get()
+            ->map(function (EventSchedule $schedule) {
+                $tables = $schedule->tablesWithAvailability();
+
+                return [
+                    'fecha' => $schedule->date->format('d/m/Y') . ' · ' . \Illuminate\Support\Str::of($schedule->start_time)->substr(0, 5),
+                    'total' => $tables->count(),
+                    'ocupadas' => $tables->where('is_taken', true)->count(),
+                    'libres' => $tables->where('is_taken', false)->count(),
+                    'is_active' => $schedule->is_active,
+                ];
+            });
+
         return view('reservas.review', [
             'reservations' => $reservations,
+            'schedules' => $schedules,
         ]);
+    }
+
+    /**
+     * Excel (.xlsx) de las mismas reservas que ve este panel: solo Fermento,
+     * confirmadas y reales (nunca is_test) — mismo filtro que index().
+     */
+    public function export(): BinaryFileResponse
+    {
+        $reservations = Reservation::with(['event', 'schedule', 'table', 'payment'])
+            ->whereHas('event', fn ($q) => $q->where('slug', 'fermento'))
+            ->where('status', 'confirmed')
+            ->where('is_test', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return Excel::download(new ReservationsExport($reservations), 'reservas-fermento-confirmadas-' . now()->format('Y-m-d') . '.xlsx');
     }
 }

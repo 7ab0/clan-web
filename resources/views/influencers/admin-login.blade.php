@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — Reservas</title>
+<title>Admin — Influencers</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -83,14 +83,14 @@
 </head>
 <body>
   <div class="login-box">
-    <h1>Panel de reservas</h1>
-    <p class="sub">Fermento + Íntimo — acceso restringido</p>
+    <h1>Panel de Influencers</h1>
+    <p class="sub">Pre-Cóctel Fermento — acceso restringido</p>
 
     @if ($errors->any())
       <div class="error">{{ $errors->first() }}</div>
     @endif
 
-    <form method="POST" action="{{ route('reservas.admin.login.submit') }}">
+    <form method="POST" action="{{ route('influencers.admin.login.submit') }}">
       @csrf
       <label for="password">Contraseña</label>
       <input type="password" id="password" name="password" autofocus required>

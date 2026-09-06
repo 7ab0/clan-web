@@ -19,9 +19,10 @@ class MaintenanceMode
         }
 
         // /showclinic (otro cliente) e /intimo, /fermento + /reservas/* (su
-        // flujo de reserva/pago) siempre deben verse, sin pasar por el muro
-        // de mantenimiento (mismo criterio que ClanPreholder::handle).
-        if ($request->is('showclinic*', 'intimo*', 'fermento*', 'reservas/*')) {
+        // flujo de reserva/pago) + /influencers/* (panel de staff aparte)
+        // siempre deben verse, sin pasar por el muro de mantenimiento
+        // (mismo criterio que ClanPreholder::handle).
+        if ($request->is('showclinic*', 'intimo*', 'fermento*', 'reservas/*', 'influencers/*')) {
             return $next($request);
         }
 

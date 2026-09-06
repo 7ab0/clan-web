@@ -5,17 +5,24 @@ namespace Database\Seeders;
 use App\Models\Event;
 use App\Models\EventSchedule;
 use App\Models\EventTable;
+use App\Models\Reservation;
 use Illuminate\Database\Seeder;
 
 class FermentoSeeder extends Seeder
 {
     /**
      * Fermento: cena colaborativa CLAN x FORNO (pizza al fuego, maridaje de
-     * vinos aparte), viernes 4 y sábado 5 de septiembre de 2026, con 9 mesas
-     * propias por fecha.
+     * vinos aparte), viernes 4, sábado 5 y domingo 6 de septiembre de 2026.
+     * El 5 de septiembre está marcado AGOTADO (is_active=false) por decisión
+     * del staff — mantiene su distribución original de 9 mesas de 1 a 4
+     * personas, sin mesa social ni lista de espera, y no se toca.
      *
-     * Las 9 mesas son individuales, cada una admite de 1 a 4 personas
-     * (capacity_min/capacity_max), en vez de aforo fijo por mesa.
+     * Viernes 4 y domingo 6 tienen cada uno su propia distribución de 9
+     * mesas (capacidades distintas por mesa y por fecha — ver $tableLayouts)
+     * más una mesa social (#10) donde varios grupos que reservan por
+     * separado comparten aforo. Las mesas ya no son compartidas a nivel
+     * evento: cada fecha tiene su propio set (event_schedule_id en
+     * event_tables), porque las capacidades difieren entre fechas.
      */
     public function run(): void
     {
@@ -39,46 +46,143 @@ class FermentoSeeder extends Seeder
             ]
         );
 
-        for ($n = 1; $n <= 9; $n++) {
-            EventTable::updateOrCreate(
-                ['event_id' => $event->id, 'table_number' => $n],
-                ['capacity_min' => 1, 'capacity_max' => 4]
-            );
-        }
-
-        // Config anterior tenía 12 mesas — borra las sobrantes (10-12) si
-        // vienes de esa siembra.
-        EventTable::where('event_id', $event->id)->where('table_number', '>', 9)->delete();
-
-        // Fechas y hora fijas del evento (no calculadas desde "hoy"): viernes y
-        // sábado, 7:00 pm. La hora anterior (20:00) fue un valor por defecto
-        // mío al sembrar por primera vez, sin ninguna razón de negocio detrás.
-        $dates = ['2026-09-04', '2026-09-05'];
+        // Fechas y hora fijas del evento (no calculadas desde "hoy"): viernes,
+        // sábado y domingo, 7:00 pm.
+        //
+        // 5 de septiembre: AGOTADA por decisión del staff (no por llenarse las
+        // 9 mesas) — is_active=false la saca del selector de reserva y
+        // bloquea altas nuevas (públicas y manuales desde /reservas/admin),
+        // pero las reservas ya hechas para esa fecha se siguen viendo y
+        // editando normal en el panel admin.
+        $dates = [
+            '2026-09-04' => true,
+            '2026-09-05' => false,
+            '2026-09-06' => true,
+        ];
         $startTime = '19:00:00';
 
-        // Limpia cualquier horario sembrado antes con otra fecha/hora (ronda
-        // anterior usó "próximo viernes/sábado" calculado dinámicamente a las
-        // 20:00, hoy quedó mal en ambos sentidos).
+        // Limpia cualquier horario sembrado antes con otra fecha/hora.
         EventSchedule::where('event_id', $event->id)
             ->where(function ($query) use ($dates, $startTime) {
-                $query->whereNotIn('date', $dates)
+                $query->whereNotIn('date', array_keys($dates))
                     ->orWhere('start_time', '!=', $startTime);
             })
             ->delete();
 
-        foreach ($dates as $date) {
-            EventSchedule::updateOrCreate(
+        $schedulesByDate = [];
+        foreach ($dates as $date => $isActive) {
+            $schedulesByDate[$date] = EventSchedule::updateOrCreate(
                 [
                     'event_id' => $event->id,
                     'date' => $date,
                     'start_time' => $startTime,
                 ],
                 [
-                    // Capacidad = número de mesas: cada reserva ocupa exactamente una.
+                    // Capacidad = número de mesas exclusivas; ya no gobierna
+                    // la disponibilidad real (ver EventSchedule::hasFreeTable),
+                    // pero se deja consistente por si algún reporte viejo la usa.
                     'capacity' => 9,
-                    'is_active' => true,
+                    'is_active' => $isActive,
                 ]
             );
+        }
+
+        // Distribución de mesas por fecha. null = mesa exclusiva "estándar"
+        // (1 a 4 personas, distribución original, usada tal cual en el 5 de
+        // septiembre porque esa fecha no se toca). Para el 4 y el 6 se
+        // reemplaza por la distribución real del cliente, más una mesa
+        // social (#10) exclusiva de esas dos fechas.
+        $standardTable = ['capacity_min' => 1, 'capacity_max' => 4, 'is_social' => false];
+
+        $tableLayouts = [
+            '2026-09-04' => [
+                1 => ['capacity_min' => 1, 'capacity_max' => 1, 'is_social' => false],
+                2 => ['capacity_min' => 1, 'capacity_max' => 1, 'is_social' => false],
+                3 => ['capacity_min' => 1, 'capacity_max' => 2, 'is_social' => false],
+                4 => ['capacity_min' => 1, 'capacity_max' => 2, 'is_social' => false],
+                5 => ['capacity_min' => 1, 'capacity_max' => 4, 'is_social' => false],
+                6 => ['capacity_min' => 1, 'capacity_max' => 6, 'is_social' => false],
+                7 => ['capacity_min' => 1, 'capacity_max' => 4, 'is_social' => false],
+                8 => ['capacity_min' => 1, 'capacity_max' => 4, 'is_social' => false],
+                9 => ['capacity_min' => 1, 'capacity_max' => 4, 'is_social' => false],
+                // Mesa social: capacidad total acumulada entre varios grupos.
+                // Ajustable — no viene especificada por el cliente, 10 es un
+                // punto de partida razonable para una mesa comunitaria.
+                // Capacidad total acumulada entre varios grupos — editable a
+                // mano desde /reservas/admin/mesas (ver
+                // ReservationAdminController::updateSocialTableCapacity), así
+                // que este valor es solo el arranque: firstOrCreate más abajo
+                // no la pisa en corridas futuras del seeder si el staff ya la
+                // subió.
+                10 => ['capacity_min' => 1, 'capacity_max' => 8, 'is_social' => true],
+            ],
+            '2026-09-05' => array_fill(1, 9, $standardTable),
+            '2026-09-06' => [
+                1 => ['capacity_min' => 1, 'capacity_max' => 8, 'is_social' => false],
+                2 => ['capacity_min' => 1, 'capacity_max' => 2, 'is_social' => false],
+                3 => ['capacity_min' => 1, 'capacity_max' => 2, 'is_social' => false],
+                4 => ['capacity_min' => 1, 'capacity_max' => 4, 'is_social' => false],
+                5 => ['capacity_min' => 1, 'capacity_max' => 4, 'is_social' => false],
+                6 => ['capacity_min' => 1, 'capacity_max' => 2, 'is_social' => false],
+                7 => ['capacity_min' => 1, 'capacity_max' => 2, 'is_social' => false],
+                8 => ['capacity_min' => 1, 'capacity_max' => 4, 'is_social' => false],
+                9 => ['capacity_min' => 1, 'capacity_max' => 4, 'is_social' => false],
+                10 => ['capacity_min' => 1, 'capacity_max' => 8, 'is_social' => true],
+            ],
+        ];
+
+        foreach ($tableLayouts as $date => $layout) {
+            $schedule = $schedulesByDate[$date];
+
+            foreach ($layout as $tableNumber => $spec) {
+                $key = [
+                    'event_id' => $event->id,
+                    'event_schedule_id' => $schedule->id,
+                    'table_number' => $tableNumber,
+                ];
+
+                // La mesa social es editable a mano por el staff (capacity_max) —
+                // firstOrCreate solo la siembra la primera vez, para no pisar el
+                // ajuste manual en corridas futuras (deploys, fermento:reset).
+                // Las mesas exclusivas siguen siendo decisión de negocio fija,
+                // así que se mantienen 100% en sync con el layout de arriba.
+                if ($spec['is_social']) {
+                    EventTable::firstOrCreate($key, $spec);
+                } else {
+                    EventTable::updateOrCreate($key, $spec);
+                }
+            }
+        }
+
+        // Migra las reservas reales hechas antes de este cambio, cuando las
+        // mesas todavía eran compartidas a nivel evento (event_schedule_id
+        // null en event_tables) — las reapunta a la fila nueva de su misma
+        // fecha y mismo número de mesa, sin tocar nada más de la reserva.
+        // Idempotente: en la segunda corrida ya no quedan mesas viejas que
+        // repuntar.
+        $oldTables = EventTable::where('event_id', $event->id)
+            ->whereNull('event_schedule_id')
+            ->get()
+            ->keyBy('id');
+
+        if ($oldTables->isNotEmpty()) {
+            Reservation::where('event_id', $event->id)
+                ->whereIn('event_table_id', $oldTables->keys())
+                ->get()
+                ->each(function (Reservation $reservation) use ($oldTables) {
+                    $oldTable = $oldTables->get($reservation->event_table_id);
+
+                    $newTable = EventTable::where('event_id', $reservation->event_id)
+                        ->where('event_schedule_id', $reservation->event_schedule_id)
+                        ->where('table_number', $oldTable->table_number)
+                        ->first();
+
+                    if ($newTable) {
+                        $reservation->update(['event_table_id' => $newTable->id]);
+                    }
+                });
+
+            EventTable::destroy($oldTables->keys());
         }
 
         // Los invitados de Fermento (los 10 reales + Gustavo/Mauricio/Daniel +

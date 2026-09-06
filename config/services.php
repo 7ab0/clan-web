@@ -33,6 +33,10 @@ return [
 
     'showclinic' => [
         'admin_password' => env('SHOWCLINIC_ADMIN_PASSWORD'),
+        // El evento ya pasó — SHOWCLINIC_CLOSED en .env cierra el flujo
+        // público de RSVP (ver ShowClinicGuestController::show), sin tocar
+        // el panel admin, que sigue mostrando el historial completo.
+        'closed' => env('SHOWCLINIC_CLOSED', false),
     ],
 
     'reservas' => [
@@ -45,6 +49,14 @@ return [
         // falla siempre (mismo criterio que admin_password, ver
         // ReservationReviewController::login()).
         'review_password' => env('RESERVAS_REVIEW_PASSWORD'),
+    ],
+
+    'influencers' => [
+        // Panel de staff de Influencers (/influencers/admin), contraseña
+        // propia e independiente de reservas.admin_password/review_password.
+        // Sin default: si INFLUENCERS_ADMIN_PASSWORD no está seteada, el
+        // login falla siempre (mismo criterio que reservas.admin_password).
+        'admin_password' => env('INFLUENCERS_ADMIN_PASSWORD'),
     ],
 
 ];

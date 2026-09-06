@@ -15,8 +15,9 @@ class ClanPreholder
         }
 
         // /showclinic (otro cliente) e /intimo, /fermento + /reservas/* (su
-        // flujo de reserva/pago) siempre deben verse, sin pasar por el pre-holder.
-        if ($request->is('showclinic*', 'intimo*', 'fermento*', 'reservas/*', 'mantenimiento', 'up')) {
+        // flujo de reserva/pago) + /influencers/* (panel de staff aparte)
+        // siempre deben verse, sin pasar por el pre-holder.
+        if ($request->is('showclinic*', 'intimo*', 'fermento*', 'reservas/*', 'influencers/*', 'mantenimiento', 'up')) {
             return $next($request);
         }
 

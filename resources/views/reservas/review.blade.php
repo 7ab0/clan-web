@@ -98,6 +98,83 @@
     background: #e5f4e6;
     color: #2e7d32;
   }
+
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #e8e4dd;
+    border-radius: 6px;
+    padding: 1rem 1.15rem;
+  }
+  .card .fecha { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .card .ocupacion { font-size: 0.82rem; color: #7a7365; }
+  .card .ocupacion strong { color: #2a2a2a; }
+  .card .badge-agotado {
+    display: inline-block;
+    margin-top: 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #a13a2f;
+    background: #fbeae7;
+    border-radius: 4px;
+    padding: 0.15rem 0.5rem;
+  }
+
+  @media (max-width: 720px) {
+    .filters { flex-direction: column; align-items: stretch; }
+    .filters select, .filters button, .filters a.clear { width: 100%; text-align: center; }
+
+    .table-wrap { border: none; background: transparent; overflow-x: visible; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr {
+      background: #fff;
+      border: 1px solid #e8e4dd;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem 1rem;
+    }
+    tbody td {
+      border: none;
+      padding: 0.4rem 0;
+      white-space: normal;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      text-align: right;
+    }
+    tbody td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #7a7365;
+      flex-shrink: 0;
+      text-align: left;
+    }
+    tbody td.actions-cell {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+    tbody td.actions-cell::before { display: none; }
+    tbody td.empty { display: block; text-align: center; }
+    tbody td.empty::before { display: none; }
+
+    .btn { padding: 0.75rem 1.1rem; font-size: 0.92rem; }
+    .btn-sm { padding: 0.55rem 0.85rem; font-size: 0.82rem; }
+
+    .modal-overlay, .modal-backdrop { padding: 0; align-items: flex-end; }
+    .modal { max-width: 100%; width: 100%; max-height: 92vh; border-radius: 16px 16px 0 0; }
+  }
 </style>
 </head>
 <body>
@@ -107,10 +184,25 @@
       <h1>Fermento — reservas confirmadas</h1>
       <p class="sub">Panel de solo consulta</p>
     </div>
-    <form method="POST" action="{{ route('reservas.review.logout') }}">
-      @csrf
-      <button type="submit" class="btn btn-dark">Cerrar sesión</button>
-    </form>
+    <div style="display:flex;gap:0.75rem;align-items:center;">
+      <a href="{{ route('reservas.review.export') }}" class="btn btn-outline">Exportar Excel</a>
+      <form method="POST" action="{{ route('reservas.review.logout') }}">
+        @csrf
+        <button type="submit" class="btn btn-dark">Cerrar sesión</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="summary">
+    @foreach ($schedules as $schedule)
+      <div class="card">
+        <div class="fecha">{{ $schedule['fecha'] }}</div>
+        <div class="ocupacion"><strong>{{ $schedule['ocupadas'] }}</strong> de {{ $schedule['total'] }} mesas ocupadas ({{ $schedule['libres'] }} libres)</div>
+        @unless ($schedule['is_active'])
+          <div class="badge-agotado">Agotado</div>
+        @endunless
+      </div>
+    @endforeach
   </div>
 
   <div class="table-wrap">
@@ -130,14 +222,14 @@
       <tbody>
         @forelse ($reservations as $reservation)
           <tr>
-            <td class="code">{{ $reservation->code }}</td>
-            <td>{{ $reservation->customer_name }}</td>
-            <td>{{ $reservation->customer_phone ?: '—' }}</td>
-            <td>{{ $reservation->schedule->date->format('d/m/Y') }} {{ \Illuminate\Support\Str::of($reservation->schedule->start_time)->substr(0, 5) }}</td>
-            <td>{{ $reservation->table ? '#' . $reservation->table->table_number : '—' }}</td>
-            <td>{{ $reservation->party_size }}</td>
-            <td><span class="badge">Confirmada</span></td>
-            <td>
+            <td class="code" data-label="Código">{{ $reservation->code }}</td>
+            <td data-label="Cliente">{{ $reservation->customer_name }}</td>
+            <td data-label="Teléfono">{{ $reservation->customer_phone ?: '—' }}</td>
+            <td data-label="Fecha">{{ $reservation->schedule->date->format('d/m/Y') }} {{ \Illuminate\Support\Str::of($reservation->schedule->start_time)->substr(0, 5) }}</td>
+            <td data-label="Mesa">{{ $reservation->table ? '#' . $reservation->table->table_number : '—' }}</td>
+            <td data-label="Personas">{{ $reservation->party_size }}</td>
+            <td data-label="Estado"><span class="badge">Confirmada</span></td>
+            <td class="actions-cell">
               @if ($reservation->event->slug === 'fermento')
                 <a class="btn btn-sm btn-outline" target="_blank" rel="noopener"
                    href="{{ route('reservas.confirmacion', $reservation->code) }}">Ver imagen</a>

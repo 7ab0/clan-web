@@ -27,7 +27,9 @@ class StoreReservationRequest extends FormRequest
             // Monto de la seña que el cliente elige coordinar por WhatsApp.
             // Si no se manda (ej. Íntimo, que aún no pide seña variable),
             // ReservationController usa el total de la reserva como antes.
-            'deposit_amount' => ['nullable', 'numeric', 'min:20'],
+            // El mínimo real (S/ 30 por persona) es dinámico según party_size,
+            // así que se valida en withValidator() más abajo, no acá.
+            'deposit_amount' => ['nullable', 'numeric', 'min:0'],
             // Token del invitado de Fermento que abrió este link personalizado
             // (campo oculto del form, ver home/fermento.blade.php). Si
             // corresponde al invitado especial "Pruebas", ReservationController
@@ -44,7 +46,6 @@ class StoreReservationRequest extends FormRequest
             'customer_name.required' => 'Cuéntanos tu nombre.',
             'customer_email.required' => 'Necesitamos un correo para confirmar tu reserva.',
             'customer_phone.required' => 'Déjanos un teléfono de contacto.',
-            'deposit_amount.min' => 'La seña mínima es S/ 20.',
         ];
     }
 
@@ -61,12 +62,12 @@ class StoreReservationRequest extends FormRequest
                 return;
             }
 
-            $schedule = EventSchedule::with(['event.tables'])->find($scheduleId);
+            $schedule = EventSchedule::with(['event', 'tables'])->find($scheduleId);
             if (! $schedule) {
                 return;
             }
 
-            $tables = $schedule->event->tables;
+            $tables = $schedule->tables;
             $partySize = (int) $this->input('party_size');
 
             if ($tables->isNotEmpty()) {
@@ -81,7 +82,7 @@ class StoreReservationRequest extends FormRequest
                 $table = $tables->firstWhere('id', (int) $tableId);
 
                 if (! $table) {
-                    $validator->errors()->add('event_table_id', 'Esa mesa no pertenece a este evento.');
+                    $validator->errors()->add('event_table_id', 'Esa mesa no pertenece a esta fecha.');
 
                     return;
                 }
@@ -104,6 +105,14 @@ class StoreReservationRequest extends FormRequest
 
                 if ((float) $depositAmount > (float) $total) {
                     $validator->errors()->add('deposit_amount', 'La seña no puede ser mayor al total de la reserva.');
+                }
+
+                // Mínimo S/ 30 por persona (antes era un piso plano de S/ 20
+                // sin importar el tamaño de grupo). $partySize ya viene
+                // validado como entero ≥ 1 por la regla 'party_size'.
+                $minDeposit = 30 * max($partySize, 1);
+                if ((float) $depositAmount < $minDeposit) {
+                    $validator->errors()->add('deposit_amount', "La seña mínima es S/ {$minDeposit} (S/ 30 por persona).");
                 }
             }
         });

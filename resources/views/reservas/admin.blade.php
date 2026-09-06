@@ -192,6 +192,55 @@
     gap: 0.6rem;
     margin-top: 1.5rem;
   }
+
+  @media (max-width: 720px) {
+    .filters { flex-direction: column; align-items: stretch; }
+    .filters select, .filters button, .filters a.clear { width: 100%; text-align: center; }
+
+    .table-wrap { border: none; background: transparent; overflow-x: visible; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr {
+      background: #fff;
+      border: 1px solid #e8e4dd;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem 1rem;
+    }
+    tbody td {
+      border: none;
+      padding: 0.4rem 0;
+      white-space: normal;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      text-align: right;
+    }
+    tbody td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #7a7365;
+      flex-shrink: 0;
+      text-align: left;
+    }
+    tbody td.actions-cell {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+    tbody td.actions-cell::before { display: none; }
+    tbody td.empty { display: block; text-align: center; }
+    tbody td.empty::before { display: none; }
+
+    .btn { padding: 0.75rem 1.1rem; font-size: 0.92rem; }
+    .btn-sm { padding: 0.55rem 0.85rem; font-size: 0.82rem; }
+
+    .modal-overlay, .modal-backdrop { padding: 0; align-items: flex-end; }
+    .modal { max-width: 100%; width: 100%; max-height: 92vh; border-radius: 16px 16px 0 0; }
+  }
 </style>
 </head>
 <body>
@@ -205,6 +254,9 @@
       <button type="button" class="btn btn-accent" onclick="openCreateModal()">+ Agregar reserva</button>
       <a href="{{ route('reservas.admin.clientes') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Clientes</a>
       <a href="{{ route('reservas.admin.guests') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Invitados</a>
+      <a href="{{ route('reservas.admin.mesas') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Mesas por fecha</a>
+      <a href="{{ route('reservas.admin.waitlist') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Lista de espera</a>
+      <a href="{{ route('reservas.admin.export') }}" class="btn btn-outline" style="background:#fff;border:1px solid #d8d2c4;color:#2a2a2a;">Exportar Excel</a>
       <form method="POST" action="{{ route('reservas.admin.logout') }}">
         @csrf
         <button type="submit" class="btn btn-dark">Cerrar sesión</button>
@@ -255,8 +307,14 @@
       <option value="cancelled" @selected($status === 'cancelled')>Canceladas</option>
       <option value="completed" @selected($status === 'completed')>Completadas</option>
     </select>
+    <select name="date">
+      <option value="todas" @selected($dateFilter === 'todas')>Todas las fechas</option>
+      @foreach ($availableDates as $date)
+        <option value="{{ $date->format('Y-m-d') }}" @selected($dateFilter === $date->format('Y-m-d'))>{{ $date->format('d/m/Y') }}</option>
+      @endforeach
+    </select>
     <button type="submit">Filtrar</button>
-    @if ($eventSlug !== 'todos' || $status !== 'todos')
+    @if ($eventSlug !== 'todos' || $status !== 'todos' || $dateFilter !== 'todas')
       <a class="clear" href="{{ route('reservas.admin.index', ['sort' => $sort, 'dir' => $dir]) }}">Limpiar filtros</a>
     @endif
   </form>
@@ -265,6 +323,7 @@
     $sortLink = fn (string $column) => route('reservas.admin.index', [
         'event' => $eventSlug,
         'status' => $status,
+        'date' => $dateFilter,
         'sort' => $column,
         'dir' => ($sort === $column && $dir === 'desc') ? 'asc' : 'desc',
     ]);
@@ -297,15 +356,15 @@
             $waPhone = $phoneDigits === '' ? null : (strlen($phoneDigits) === 9 ? '51' . $phoneDigits : $phoneDigits);
           @endphp
           <tr>
-            <td class="code">{{ $reservation->code }} @if ($reservation->is_test)<span class="badge test">PRUEBA</span>@endif</td>
-            <td>{{ $reservation->customer_name }}</td>
-            <td>{{ $reservation->customer_phone ?: '—' }}</td>
-            <td>{{ $reservation->event->name }}</td>
-            <td>{{ $reservation->schedule->date->format('d/m/Y') }} {{ \Illuminate\Support\Str::of($reservation->schedule->start_time)->substr(0, 5) }}</td>
-            <td>{{ $reservation->table ? '#' . $reservation->table->table_number : '—' }}</td>
-            <td>{{ $reservation->party_size }}</td>
-            <td>S/ {{ number_format($reservation->payment->amount ?? $reservation->total_amount, 2) }}</td>
-            <td><span class="badge {{ $reservation->status }}">{{ ucfirst($reservation->status) }}</span></td>
+            <td class="code" data-label="Código">{{ $reservation->code }} @if ($reservation->is_test)<span class="badge test">PRUEBA</span>@endif</td>
+            <td data-label="Cliente">{{ $reservation->customer_name }}</td>
+            <td data-label="Teléfono">{{ $reservation->customer_phone ?: '—' }}</td>
+            <td data-label="Evento">{{ $reservation->event->name }}</td>
+            <td data-label="Fecha">{{ $reservation->schedule->date->format('d/m/Y') }} {{ \Illuminate\Support\Str::of($reservation->schedule->start_time)->substr(0, 5) }}</td>
+            <td data-label="Mesa">{{ $reservation->table ? '#' . $reservation->table->table_number : '—' }}</td>
+            <td data-label="Personas">{{ $reservation->party_size }}</td>
+            <td data-label="Seña">S/ {{ number_format($reservation->payment->amount ?? $reservation->total_amount, 2) }}</td>
+            <td data-label="Estado"><span class="badge {{ $reservation->status }}">{{ ucfirst($reservation->status) }}</span></td>
             <td class="actions-cell">
               @if ($waPhone)
                 <a class="btn btn-sm btn-whatsapp" target="_blank" rel="noopener"
@@ -339,6 +398,7 @@
                 <a class="btn btn-sm btn-whatsapp" target="_blank" rel="noopener"
                    href="https://wa.me/{{ $waPhone }}?text={{ $storyText }}">Enviar story</a>
               @endif
+              <a class="btn btn-sm btn-outline" href="{{ route('reservas.admin.history', $reservation) }}">Historial</a>
               <button type="button" class="btn btn-sm btn-outline"
                       onclick="openEditModal({{ Js::from([
                           'action' => route('reservas.admin.update', $reservation),
@@ -349,6 +409,10 @@
                           'party_size' => $reservation->party_size,
                           'notes' => $reservation->notes,
                           'status' => $reservation->status,
+                          'event_id' => $reservation->event_id,
+                          'event_schedule_id' => $reservation->event_schedule_id,
+                          'event_table_id' => $reservation->event_table_id,
+                          'payment_amount' => $reservation->payment->amount ?? $reservation->total_amount,
                       ]) }})">Editar</button>
               <form method="POST" action="{{ route('reservas.admin.destroy', $reservation) }}"
                     onsubmit="return confirm('¿Eliminar definitivamente la reserva {{ $reservation->code }} de {{ $reservation->customer_name }}? Esto no se puede deshacer.')">
@@ -383,8 +447,20 @@
         <label for="edit_customer_email">Correo</label>
         <input type="email" name="customer_email" id="edit_customer_email" required>
 
+        <label for="edit_event_schedule_id">Fecha</label>
+        <select name="event_schedule_id" id="edit_event_schedule_id" required
+                onchange="populateEditTables(window.editContext.eventId, parseInt(this.value, 10), null)"></select>
+
+        <div id="edit_table_wrap">
+          <label for="edit_event_table_id">Mesa</label>
+          <select name="event_table_id" id="edit_event_table_id"></select>
+        </div>
+
         <label for="edit_party_size">Personas</label>
         <input type="number" name="party_size" id="edit_party_size" min="1" max="20" required>
+
+        <label for="edit_payment_amount">Seña (S/)</label>
+        <input type="number" name="payment_amount" id="edit_payment_amount" min="0" step="0.01" required>
 
         <label for="edit_status">Estado</label>
         <select name="status" id="edit_status" required>
@@ -469,18 +545,77 @@
     window.RESERVAS_EVENTS = @json($eventsForForm);
     window.RESERVAS_SCHEDULES = @json($schedulesForForm);
     window.RESERVAS_TABLES = @json($tablesForForm);
-    window.RESERVAS_TAKEN = @json($takenForForm);
 
     function openEditModal(data) {
+      window.editContext = {
+        eventId: data.event_id,
+        originalScheduleId: data.event_schedule_id,
+        originalTableId: data.event_table_id,
+      };
+      populateEditSchedules(data.event_id, data.event_schedule_id);
+      populateEditTables(data.event_id, data.event_schedule_id, data.event_table_id);
+
       document.getElementById('editModalTitle').textContent = 'Editar reserva ' + data.code;
       document.getElementById('editReservationForm').action = data.action;
       document.getElementById('edit_customer_name').value = data.customer_name || '';
       document.getElementById('edit_customer_phone').value = data.customer_phone || '';
       document.getElementById('edit_customer_email').value = data.customer_email || '';
       document.getElementById('edit_party_size').value = data.party_size || 1;
+      document.getElementById('edit_payment_amount').value = data.payment_amount || 0;
       document.getElementById('edit_status').value = data.status || 'pending';
       document.getElementById('edit_notes').value = data.notes || '';
       document.getElementById('editModalOverlay').classList.add('open');
+    }
+
+    function populateEditSchedules(eventId, selectedScheduleId) {
+      const select = document.getElementById('edit_event_schedule_id');
+      select.innerHTML = '';
+      window.RESERVAS_SCHEDULES
+        .filter((s) => s.event_id === eventId)
+        .forEach((s) => {
+          const option = document.createElement('option');
+          option.value = s.id;
+          option.textContent = s.label;
+          select.appendChild(option);
+        });
+      select.value = selectedScheduleId;
+    }
+
+    // ¿Esta mesa ya no tiene cupo? Exclusiva: cualquier ocupación (> 0) la
+    // cierra. Social: se compara la ocupación acumulada contra su
+    // capacity_max. ownPartySize/isOwnTable descuentan la reserva que se
+    // está editando de su propia ocupación, para no bloquearse a sí misma.
+    function tableIsFull(table, isOwnTable, ownPartySize) {
+      const occupied = table.occupied_seats - (isOwnTable ? (ownPartySize || 0) : 0);
+      return table.is_social ? occupied >= table.capacity_max : occupied > 0;
+    }
+
+    function tableLabel(table, isFull) {
+      const base = `Mesa ${table.table_number}` + (table.is_social ? ' (comunitaria)' : '') + ` (${table.capacity_min}-${table.capacity_max} personas)`;
+      return base + (isFull ? ' — sin cupo' : '');
+    }
+
+    function populateEditTables(eventId, scheduleId, selectedTableId) {
+      const select = document.getElementById('edit_event_table_id');
+      select.innerHTML = '<option value="">Elige una mesa</option>';
+      const ctx = window.editContext;
+      const isOwnOriginalSchedule = scheduleId === ctx.originalScheduleId;
+      const ownPartySize = parseInt(document.getElementById('edit_party_size').value || '0', 10);
+      const event = window.RESERVAS_EVENTS.find((e) => e.id === eventId);
+      document.getElementById('edit_table_wrap').style.display = (event && event.has_tables) ? 'block' : 'none';
+
+      window.RESERVAS_TABLES
+        .filter((t) => t.event_schedule_id === scheduleId)
+        .forEach((t) => {
+          const isOwnTable = isOwnOriginalSchedule && t.id === ctx.originalTableId;
+          const isFull = tableIsFull(t, isOwnTable, ownPartySize);
+          const option = document.createElement('option');
+          option.value = t.id;
+          option.textContent = tableLabel(t, isFull);
+          option.disabled = isFull && !isOwnTable;
+          select.appendChild(option);
+        });
+      select.value = selectedTableId != null ? selectedTableId : '';
     }
 
     function closeEditModal() {
@@ -510,6 +645,10 @@
           const option = document.createElement('option');
           option.value = schedule.id;
           option.textContent = schedule.label;
+          // Fecha cerrada (ej. agotada a mano): visible para que el staff
+          // sepa que existe, pero no seleccionable para una reserva nueva —
+          // el backend igual la rechaza si se fuerza (ver storeReservation()).
+          option.disabled = !schedule.is_active;
           scheduleSelect.appendChild(option);
         });
 
@@ -519,19 +658,18 @@
     }
 
     function populateCreateTables() {
-      const eventId = parseInt(document.getElementById('create_event_id').value, 10);
       const scheduleId = parseInt(document.getElementById('create_schedule_id').value, 10);
       const tableSelect = document.getElementById('create_table_id');
       tableSelect.innerHTML = '<option value="">Elige una mesa</option>';
 
-      const taken = window.RESERVAS_TAKEN[scheduleId] || [];
-
       window.RESERVAS_TABLES
-        .filter((table) => table.event_id === eventId && ! taken.includes(table.id))
+        .filter((table) => table.event_schedule_id === scheduleId)
         .forEach((table) => {
+          const isFull = tableIsFull(table, false, 0);
           const option = document.createElement('option');
           option.value = table.id;
-          option.textContent = `Mesa ${table.table_number} (${table.capacity_min}-${table.capacity_max} personas)`;
+          option.textContent = tableLabel(table, isFull);
+          option.disabled = isFull;
           tableSelect.appendChild(option);
         });
     }

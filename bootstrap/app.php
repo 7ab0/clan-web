@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ClanPreholder;
+use App\Http\Middleware\InfluencersAdminAuth;
 use App\Http\Middleware\MaintenanceMode;
 use App\Http\Middleware\ReservasAdminAuth;
 use App\Http\Middleware\ReservasReviewAuth;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'showclinic.admin' => \App\Http\Middleware\ShowClinicAdminAuth::class,
             'reservas.admin' => ReservasAdminAuth::class,
             'reservas.review' => ReservasReviewAuth::class,
+            'influencers.admin' => InfluencersAdminAuth::class,
         ]);
 
         $middleware->web(append: [
