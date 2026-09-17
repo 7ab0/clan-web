@@ -12,6 +12,7 @@ use App\Http\Controllers\ReservationReviewController;
 use App\Http\Controllers\FermentoWaitlistController;
 use App\Http\Controllers\InfluencerAdminController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\ReservationClanController;
 
 Route::controller(MaintenanceController::class)->group(function () {
     Route::get('/mantenimiento', 'show')->name('maintenance.show');
@@ -33,6 +34,15 @@ Route::post('/intimo/reservar', [ReservationController::class, 'store'])->name('
 Route::get('/fermento/{token?}', [EventController::class, 'fermento'])->name('fermento');
 Route::post('/fermento/reservar', [ReservationController::class, 'store'])->name('fermento.reservar');
 Route::post('/fermento/lista-espera', [FermentoWaitlistController::class, 'store'])->name('fermento.lista-espera');
+
+// Landing pública de reservas de Clan (setiembre 2026) — formulario liviano,
+// llama server-to-server al backend real de reservas en La Comanda (Next.js).
+// Ver ReservationClanController.
+Route::controller(ReservationClanController::class)->prefix('reservas')->group(function () {
+    Route::get('/', 'show')->name('reservas.clan.show');
+    Route::get('/disponibilidad', 'disponibilidad')->name('reservas.clan.disponibilidad');
+    Route::post('/', 'store')->name('reservas.clan.store');
+});
 
 Route::prefix('reservas/{code}')->group(function () {
     Route::get('/pago', [PaymentController::class, 'show'])->name('reservas.pago');

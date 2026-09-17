@@ -59,4 +59,11 @@ return [
         'admin_password' => env('INFLUENCERS_ADMIN_PASSWORD'),
     ],
 
+    'la_comanda' => [
+        // Backend real de las reservas de Clan (Next.js/Prisma/Postgres,
+        // proyecto "La Comanda") — ver ReservationClanController. Se llama
+        // server-to-server, nunca directo desde el navegador del cliente.
+        'api_base_url' => env('LA_COMANDA_API_URL', 'http://localhost:3000'),
+    ],
+
 ];
