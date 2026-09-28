@@ -251,7 +251,7 @@
                     <p class="reservasclan-summary-amount">S/ <span id="rcDepositAmount">60</span></p>
                     <p class="reservasclan-summary-detail"><span id="rcPaxSummary">2</span> personas × S/30 por persona</p>
                 </div>
-                <p class="reservasclan-summary-footnote">La seña se coordina por WhatsApp — no se cobra en este formulario.</p>
+                <p class="reservasclan-summary-footnote">La seña se coordina por WhatsApp y se descuenta en caja del total el día de tu visita — no se cobra ni se calcula automáticamente en este formulario.</p>
             </div>
 
             <button type="button" id="rcSubmit" class="reservasclan-submit">Confirmar reserva</button>
