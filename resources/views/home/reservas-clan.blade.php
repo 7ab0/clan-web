@@ -172,6 +172,12 @@
     .reservasclan-confirm-row + .reservasclan-confirm-row { margin-top: 10px; }
     .reservasclan-confirm-row .k { color: var(--rc-gris-500); font-weight: 400; }
     .reservasclan-confirm-row .v { color: var(--rc-gris-200); font-weight: 500; }
+    .reservasclan-confirm-whatsapp {
+        width: 100%; background: transparent; border: 1px solid var(--rc-dorado); border-radius: 12px;
+        padding: 16px; font-family: var(--rc-body-font); font-weight: 600; font-size: 15px;
+        color: var(--rc-dorado); cursor: pointer; text-decoration: none; display: block; text-align: center;
+        box-sizing: border-box; margin-bottom: 12px;
+    }
     .reservasclan-confirm-done {
         width: 100%; background: var(--rc-dorado); border: none; border-radius: 12px;
         padding: 16px; font-family: var(--rc-body-font); font-weight: 600; font-size: 15px;
@@ -275,6 +281,7 @@
                     <span class="v" id="rcConfirmCodigo"></span>
                 </div>
             </div>
+            <a id="rcConfirmWhatsapp" href="#" target="_blank" rel="noopener" class="reservasclan-confirm-whatsapp">Enviar resumen al restaurante por WhatsApp</a>
             <a href="{{ route('reservas.clan.show') }}" class="reservasclan-confirm-done">Listo</a>
         </div>
     </div>
@@ -468,6 +475,26 @@
         // derivado del id real para que el cliente tenga algo corto que citar.
         var shortCode = String(reservation.id || '').replace(/[^a-zA-Z0-9]/g, '').slice(-4).toUpperCase() || '0000';
         document.getElementById('rcConfirmCodigo').textContent = 'CLAN-' + shortCode;
+
+        // Botón en vez de window.open automático: un window.open disparado
+        // dentro del .then() de un fetch llega fuera del gesto síncrono del
+        // usuario y el navegador lo trata como popup y lo bloquea. Un <a
+        // href="wa.me/..."> que el cliente clickea es, en cambio, un click
+        // real del usuario — nunca lo bloquea.
+        var mesaText = state.selectedTableLabel
+            ? state.selectedTableLabel + ' (' + state.pax + ' pax)'
+            : 'grupo grande - sin mesa';
+        var whatsappLines = [
+            'Nueva reserva confirmada — CLAN',
+            'Nombre: ' + nombreInput.value.trim(),
+            'Fecha y hora: ' + fechaLabel + ' · ' + horaLabel,
+            'Personas: ' + state.pax,
+            'Mesa: ' + mesaText,
+            'WhatsApp: ' + telefonoInput.value.trim(),
+            'Código: CLAN-' + shortCode
+        ];
+        document.getElementById('rcConfirmWhatsapp').href =
+            'https://wa.me/51965609626?text=' + encodeURIComponent(whatsappLines.join('\n'));
 
         formPanel.style.display = 'none';
         confirmPanel.classList.add('is-visible');
